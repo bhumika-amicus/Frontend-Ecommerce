@@ -1,4 +1,5 @@
 import type { Product } from '../types/Products'
+import Button from './Button'
 
 interface ProductCardProps {
   product: Product
@@ -47,18 +48,14 @@ function ProductCard({
                 </span>
             </div>
         )}
-        
+
         <p className="product-price">
           {formattedPrice}
         </p>
 
-        <button
-          type="button"
-          className="add-to-cart-button"
-          onClick={() => onAddToCart(product)}
-        >
+        <Button onClick={() => onAddToCart(product)}>
           ADD TO CART
-        </button>
+        </Button>
       </div>
     </article>
   )

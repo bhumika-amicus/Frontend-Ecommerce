@@ -156,31 +156,6 @@ font-size: 18px;
   font-weight: 700;
 }
 
-
-/* =========================
-   ADD TO CART
-   ========================= */
-
-.add-to-cart-button {
-  width: 100%;
-  padding: 14px 12px;
-  border: none;
-  background: #ff4f0a;
-  color: #ffffff;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-
-.add-to-cart-button:hover {
-  background: #e84300;
-}
-
-.add-to-cart-button:active {
-  transform: scale(0.98);
-}
-
 /* =========================
    HEADER
    ========================= */
@@ -415,4 +390,93 @@ font-size: 18px;
     grid-template-columns: 1fr;
     padding: 40px 24px;
   }
+}
+
+
+.button {
+  padding: 12px 24px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+/* Primary */
+
+.button-primary {
+  background-color: #ff4f0a;
+  color: #ffffff;
+  border-color: #ff4f0a;
+}
+
+.button-primary:hover {
+  background-color: #e84300;
+  border-color: #e84300;
+  box-shadow: 0 4px 10px rgba(255, 79, 10, 0.25);
+}
+
+/* Secondary */
+
+.button-secondary {
+  background-color: #ffffff;
+  color: #333333;
+  border-color: #555555;
+}
+
+.button-secondary:hover {
+  background-color: #333333;
+  color: #ffffff;
+  border-color: #333333;
+}
+
+/* Outline */
+
+.button-outline {
+  background-color: transparent;
+  color: #ff4f0a;
+  border-color: #ff4f0a;
+}
+
+.button-outline:hover {
+  background-color: #ff4f0a;
+  color: #ffffff;
+}
+
+/* Danger */
+
+.button-danger {
+  background-color: #dc2626;
+  color: #ffffff;
+  border-color: #dc2626;
+}
+
+.button-danger:hover {
+  background-color: #b91c1c;
+  border-color: #b91c1c;
+}
+
+/* Button states */
+
+.button:active {
+  transform: scale(0.98);
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ProductCard-specific sizing */
+
+.product-info .button {
+  width: 100%;
+  padding: 15px 12px;
+  font-size: 15px;
 }
