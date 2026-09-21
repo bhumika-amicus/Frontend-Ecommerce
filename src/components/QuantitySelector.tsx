@@ -10,19 +10,18 @@ function QuantitySelector({
   onDecrease,
 }: QuantitySelectorProps) {
   return (
-    <div>
-      <button
-        disabled={quantity === 1}
-        onClick={onDecrease}
-      >
+    <div className="quantity-selector">
+      <span className="quantity-label">QTY:</span>
+
+      <div className="quantity-controls">
+        <button disabled={quantity === 1} onClick={onDecrease}>
         -
-      </button>
+        </button>
 
-      <span>{quantity}</span>
+        <span>{quantity}</span>
 
-      <button onClick={onIncrease}>
-        +
-      </button>
+        <button onClick={onIncrease}>+</button>
+      </div>
     </div>
   )
 }
