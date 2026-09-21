@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import type { Product } from '../types/Products'
 import Button from './Button'
 import Card from './Card'
+import QuantitySelector from './QuantitySelector'
 
 interface ProductCardProps {
   product: Product
@@ -11,14 +13,26 @@ function ProductCard({
   product,
   onAddToCart,
 }: ProductCardProps) {
-  const formattedPrice = new Intl.NumberFormat('en-IN', {
+  const [quantity, setQuantity] = useState(1)
+
+  const increaseQuantity = () => {
+    setQuantity(previousQuantity => previousQuantity + 1)
+  }
+
+  const decreaseQuantity = () => {
+    setQuantity(previousQuantity =>
+      Math.max(1, previousQuantity - 1)
+    )
+  }
+
+  const formattedTotalPrice = new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency: 'INR',
-  }).format(product.price)
+  }).format(product.price * quantity)
 
-    const rating = product.rating
-    const fullStars = rating !== undefined? Math.floor(rating): 0
-    const emptyStars = 5 - fullStars
+  const rating = product.rating
+  const fullStars = rating !== undefined ? Math.floor(rating) : 0
+  const emptyStars = 5 - fullStars
 
   return (
     <Card variant="elevated">
@@ -36,25 +50,35 @@ function ProductCard({
         </h2>
 
         {rating !== undefined && (
-            <div className="product-rating">
-                <span className="stars">
-                {"★".repeat(fullStars)}
-                <span className="empty-stars">
-                    {"★".repeat(emptyStars)}
-                </span>
-                </span>
+          <div className="product-rating">
+            <span className="stars">
+              {'★'.repeat(fullStars)}
 
-                <span className="rating-value">
-                {rating.toFixed(1)}
-                </span>
-            </div>
+              <span className="empty-stars">
+                {'★'.repeat(emptyStars)}
+              </span>
+            </span>
+
+            <QuantitySelector
+              quantity={quantity}
+              onIncrease={increaseQuantity}
+              onDecrease={decreaseQuantity}
+            />
+
+            <span className="rating-value">
+              {rating.toFixed(1)}
+            </span>
+          </div>
         )}
 
         <p className="product-price">
-          {formattedPrice}
+          {formattedTotalPrice}
         </p>
 
-        <Button variant="primary" onClick={() => onAddToCart(product)}>
+        <Button
+          variant="primary"
+          onClick={() => onAddToCart(product)}
+        >
           ADD TO CART
         </Button>
       </div>

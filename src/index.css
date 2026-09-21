@@ -93,17 +93,21 @@ body {
    ========================= */
 
 .product-rating {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto auto;
   align-items: center;
   justify-content: center;
 
-  gap: 8px;
+  column-gap: 10px;
+  row-gap: 16px;
 
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 
 .stars {
+  grid-column: 1;
+  grid-row: 1;
   color: #ff4f0a;
 }
 
@@ -111,10 +115,82 @@ body {
   color: #d1d5db;
 }
 .rating-value {
+  grid-column: 2;
+  grid-row: 1;
   color: #555555;
 
   font-size: 15px;
   font-weight: 600;
+}
+
+.quantity-selector {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  width: min(100%, 190px);
+  margin: 0 auto;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+}
+
+.quantity-label {
+  color: #555555;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.quantity-controls {
+  display: inline-flex;
+  align-items: center;
+
+  overflow: hidden;
+
+  border: 1px solid #e5e5e5;
+  border-radius: 4px;
+  background: #ffffff;
+}
+
+.quantity-controls button {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+
+  border: 0;
+  background: #fff4ef;
+  color: #ff4f0a;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.quantity-controls button:hover:not(:disabled) {
+  background: #ff4f0a;
+  color: #ffffff;
+}
+
+.quantity-controls button:focus-visible {
+  outline: 2px solid #ff4f0a;
+  outline-offset: -2px;
+}
+
+.quantity-controls button:disabled {
+  color: #b8b8b8;
+  cursor: not-allowed;
+}
+
+.quantity-controls span {
+  min-width: 28px;
+  color: #333333;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 28px;
+  text-align: center;
 }
 
 /* =========================
