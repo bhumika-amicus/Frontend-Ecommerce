@@ -8,10 +8,6 @@ export default function Assignment3() {
     <div className="assignment-container">
       <h1>Assignment 3 — Reusable Button & Card Library</h1>
 
-      <div className="subtitle-bar">
-        ASSIGNMENT 3 MOCK — Button (4 variants) & Card (3 variants)
-      </div>
-
       {/* Section A: Buttons */}
       <div className="section-container">
         <div className="section-header">SECTION A — BUTTON VARIANTS</div>
@@ -73,10 +69,6 @@ export default function Assignment3() {
           </div>
 
         </div>
-      </div>
-
-      <div className="footer-text">
-        Reuse these components in later assignments
       </div>
     </div>
   )
