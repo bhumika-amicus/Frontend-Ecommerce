@@ -78,7 +78,7 @@
   /* Fixed width for uniform look in Section A */
 }
 
-.card {
+.assignment-container .card {
   width: 320px;
   display: flex;
   flex-direction: column;
