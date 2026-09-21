@@ -1,0 +1,101 @@
+/* --- Page Layout & Headers --- */
+.assignment-container {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: #1a1a24;
+  padding: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: #ffffff;
+}
+
+.assignment-container h1 {
+  text-align: center;
+  font-size: 28px;
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+
+.subtitle-bar {
+  background-color: #f4f5f7;
+  text-align: center;
+  padding: 14px;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  margin-bottom: 30px;
+  border-radius: 4px;
+  color: #333;
+}
+
+.section-container {
+  border: 1px solid #e2e4e8;
+  border-radius: 4px;
+  margin-bottom: 30px;
+  overflow: hidden;
+}
+
+.section-header {
+  background-color: #3b3e45;
+  color: #ffffff;
+  padding: 14px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.section-content {
+  padding: 40px 20px;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.item-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.item-label {
+  font-size: 14px;
+  color: #555;
+}
+
+.footer-text {
+  text-align: center;
+  font-size: 14px;
+  color: #444;
+  margin-top: 10px;
+}
+
+/* --- Assignment Specific Component Layout --- */
+.section-content.button-row .button {
+  min-width: 200px;
+  /* Fixed width for uniform look in Section A */
+}
+
+.card {
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-align: left;
+}
+
+.card-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+  color: #111;
+}
+
+.card-text {
+  font-size: 15px;
+  color: #444;
+  margin: 0 0 8px 0;
+  line-height: 1.4;
+}
