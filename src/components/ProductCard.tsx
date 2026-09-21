@@ -1,5 +1,6 @@
 import type { Product } from '../types/Products'
 import Button from './Button'
+import Card from './Card'
 
 interface ProductCardProps {
   product: Product
@@ -20,7 +21,7 @@ function ProductCard({
     const emptyStars = 5 - fullStars
 
   return (
-    <article className="product-card">
+    <Card variant="elevated">
       <div className="product-image-container">
         <img
           src={product.imageUrl}
@@ -53,11 +54,11 @@ function ProductCard({
           {formattedPrice}
         </p>
 
-        <Button onClick={() => onAddToCart(product)}>
+        <Button variant="primary" onClick={() => onAddToCart(product)}>
           ADD TO CART
         </Button>
       </div>
-    </article>
+    </Card>
   )
 }
 

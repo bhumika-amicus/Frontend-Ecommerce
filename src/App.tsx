@@ -3,7 +3,6 @@ import Hero from './components/Hero'
 import ProductGrid from './components/ProductGrid'
 import Footer from './components/Footer'
 import type { Product } from './types/Products'
-
 const products: Product[] = [
   {
     id: 1,

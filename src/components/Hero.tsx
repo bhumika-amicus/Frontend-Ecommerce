@@ -14,6 +14,7 @@ function Hero() {
         <a href="#products" className="hero-button">
           Explore Products
         </a>
+        
       </div>
     </section>
   )
