@@ -1,127 +1,209 @@
-# Trendify
-
-A simple, modern e-commerce storefront built with React and TypeScript.
-This project was bootstrapped with Vite and features a responsive design, product grid, and interactive UI components.
-
-## Features
-
-- **Modern UI**: Clean and responsive layout using custom CSS.
-- **Product Catalog**: Displays a list of featured products with images, prices, and ratings.
-- **Component-Based Architecture**: Organized into scalable, reusable React components (`Header`, `Hero`, `ProductGrid`, `ProductCard`, `Footer`).
-- **TypeScript Support**: Strongly typed data structures for better developer experience.
-
-## Prerequisites
-
-- **Node.js** (v18 or higher recommended)
-- **npm** (comes with Node.js)
-
-## Installation
-
-1. Clone the repository to your local machine:
-
-	```bash
-	git clone <your-github-repo-url>
-	```
-
-2. Navigate to the project directory:
-
-	```bash
-	cd my-app
-	```
-
-3. Install the dependencies:
-
-	```bash
-	npm install
-	```
-
-## Running the Application
-
-To start the development server with Hot Module Replacement (HMR):
-
-```bash
-npm run dev
-```
-
-Open your browser and visit `http://localhost:5173` to view the app.
-
-## Building for Production
-
-To create an optimized production build:
-
-```bash
-npm run build
-```
-
-This will compile the TypeScript code and generate static files in the `dist` directory. You can preview the production build using:
-
-```bash
-npm run preview
-```
-
-## Technologies Used
-
-- React 19
-- TypeScript
-- Vite
-- Custom CSS
-
----
-
 # JLG Industries Parts Store
 
-A React and TypeScript storefront for browsing JLG Industries equipment parts. The project uses Vite, reusable components, responsive CSS, product filtering, quantity controls, and a featured-parts carousel.
+A React and TypeScript storefront for browsing JLG Industries equipment parts. The application includes a responsive home page, featured-parts carousel, category filtering, reusable product cards, quantity controls, live pricing, and assignment demonstration pages.
+
+## Contents
+
+- [Project Features](#project-features)
+- [Requirements](#requirements)
+- [Getting Started](#getting-started)
+- [Viewing the Application](#viewing-the-application)
+- [Viewing the Assignments](#viewing-the-assignments)
+- [Project Structure](#project-structure)
+- [Available Scripts](#available-scripts)
+- [Architecture Notes](#architecture-notes)
+- [Validation](#validation)
+
+## Project Features
+
+- JLG Industries themed parts catalog and storefront content
+- Responsive layout for desktop, tablet, and mobile screens
+- Featured-parts carousel powered by Swiper
+- Product cards with images, ratings, prices, and Add to Cart actions
+- Quantity controls with increment, decrement, and direct number entry
+- Live total-price calculation based on product price and quantity
+- Quantity validation that prevents values below `1`
+- Product category filtering on the Assignment 5 page
+- Reusable Button and Card components with multiple variants
+- Shared TypeScript product and component types
+- Component-level and page-level CSS ownership
 
 ## Requirements
 
 - Node.js 18 or newer
-- npm
+- npm, included with Node.js
 
-## Setup
+## Getting Started
+
+### 1. Install dependencies
+
+From the project directory, run:
 
 ```bash
 npm install
+```
+
+### 2. Start the development server
+
+```bash
 npm run dev
 ```
 
-Open `http://localhost:5173` in a browser.
+Vite will print the local development URL in the terminal. The default URL is:
 
-## Routes and Assignments
+```text
+http://localhost:5173
+```
 
-Routes are configured in `src/App.tsx`:
+The development server supports Hot Module Replacement, so changes appear in the browser as files are saved.
 
-| Route | Page | Location | Purpose |
+## Viewing the Application
+
+After starting the development server, open the following URL:
+
+```text
+http://localhost:5173/
+```
+
+The home page contains the JLG storefront experience, including the header, hero area, product categories, featured-parts carousel, service highlights, and footer.
+
+## Viewing the Assignments
+
+Assignments are registered as routes in `src/App.tsx`. Start the development server first, then open each route directly in the browser.
+
+### Assignment 3: Button and Card variants
+
+Open:
+
+```text
+http://localhost:5173/assignment3
+```
+
+Source files:
+
+- `src/pages/Assignment3.tsx`
+- `src/pages/Assignment3.css`
+
+This page demonstrates the reusable `Button` and `Card` components, including:
+
+- Primary, secondary, outline, and danger button variants
+- Elevated, bordered, and flat card variants
+
+### Assignment 5: Product listing and filters
+
+Open:
+
+```text
+http://localhost:5173/assignment5
+```
+
+Source files:
+
+- `src/pages/Assignment5.tsx`
+- `src/pages/Assignment5.css`
+- `src/data/products.ts`
+
+This page demonstrates:
+
+- Product grid rendering
+- Category filtering
+- Multiple selected categories
+- An `All` categories option
+- Shared product data from `src/data/products.ts`
+
+Assignment 4 was removed because it was no longer required. It is not available as an application route.
+
+### Assignment route summary
+
+| Route | Page | Source file | Purpose |
 | --- | --- | --- | --- |
-| `/` | Home | `src/pages/Home.tsx` | JLG parts storefront homepage |
-| `/assignment3` | Assignment 3 | `src/pages/Assignment3.tsx` | Reusable Button and Card variants |
-| `/assignment5` | Assignment 5 | `src/pages/Assignment5.tsx` | Product listing with category filters |
+| `/` | Home | `src/pages/Home.tsx` | JLG parts storefront |
+| `/assignment3` | Assignment 3 | `src/pages/Assignment3.tsx` | Button and Card variants |
+| `/assignment5` | Assignment 5 | `src/pages/Assignment5.tsx` | Product listing and category filters |
 
-Assignment 4 was removed because it was no longer needed.
+## Project Structure
 
-## Important Folders
-
-- `src/components/` - Reusable UI components and their styles
-- `src/data/products.ts` - Shared product catalog and category list
-- `src/pages/` - Route-level pages and page-specific styles
-- `src/styles/` - Global and shared styles
-- `src/types/` - Shared TypeScript types
-- `public/` - Public images and static assets
+```text
+my-app/
+├── public/
+│   ├── hero.png
+│   ├── jlg-logo.png
+│   └── icons.svg
+├── src/
+│   ├── components/
+│   │   ├── Button.tsx
+│   │   ├── Card.tsx
+│   │   ├── FeaturedProductCarousel.tsx
+│   │   ├── ProductCard.tsx
+│   │   ├── ProductGrid.tsx
+│   │   ├── QuantitySelector.tsx
+│   │   └── component CSS files
+│   ├── data/
+│   │   └── products.ts
+│   ├── pages/
+│   │   ├── Assignment3.tsx
+│   │   ├── Assignment5.tsx
+│   │   └── Home.tsx
+│   ├── styles/
+│   │   ├── global.css
+│   │   └── shared.css
+│   ├── types/
+│   │   └── Products.ts
+│   ├── App.tsx
+│   └── main.tsx
+├── index.html
+├── package.json
+└── README.md
+```
 
 ## Available Scripts
 
 ```bash
-npm run dev      # Start the development server
+npm run dev      # Start the Vite development server
 npm run build    # Type-check and create a production build
 npm run lint     # Run ESLint
-npm run preview  # Preview the production build
+npm run preview  # Preview the production build locally
 ```
 
-## Technologies
+## Project Structure and Ownership
 
-- React
-- TypeScript
-- Vite
-- React Router
-- Swiper
-- Lucide React
-- Custom CSS
+- `src/App.tsx` owns route configuration.
+- `src/main.tsx` mounts the React application and imports global styles.
+- `src/components/` contains reusable UI components and their local styles.
+- `src/pages/` contains route-level layouts and page-specific styles.
+- `src/data/products.ts` is the shared source of truth for product data and categories.
+- `src/styles/global.css` contains global reset and root styles.
+- `src/styles/shared.css` contains shared Button, Card, and section styles.
+- `src/types/` contains shared TypeScript interfaces.
+- `public/` contains static images and public assets.
+
+## Architecture Notes
+
+### Product data
+
+Product records are stored in `src/data/products.ts` and reused by the home page and Assignment 5. Categories are derived from the same data so the filter list stays synchronized with the catalog.
+
+### Quantity and live pricing
+
+Each `ProductCard` owns the selected quantity for its displayed product. `QuantitySelector` is a controlled component: it receives the current quantity and reports changes through `onQuantityChange`. The product card calculates the displayed total using:
+
+```text
+product price x selected quantity
+```
+
+The quantity defaults to `1` and invalid values are corrected to `1`.
+
+### Styling
+
+Styles are separated into global, shared, component, and page layers. Component CSS is imported by the component it styles, while page CSS is imported by the related page.
+
+## Validation
+
+Before committing changes, run:
+
+```bash
+npm run build
+npm run lint
+```
+
+The build runs TypeScript checking and creates the Vite production bundle. ESLint checks the source code for quality and consistency issues.
