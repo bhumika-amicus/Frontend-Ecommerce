@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Home from './pages/Home'
 import Assignment3 from './pages/Assignment3'
-import Assignment4 from './pages/Assignement4'
+import Assignment4 from './pages/Assignment4'
 import Assignment5 from './pages/Assignment5'
 
 function App() {

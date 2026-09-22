@@ -1,3 +1,5 @@
+import './QuantitySelector.css'
+
 interface QuantitySelectorProps {
   quantity: number
   onIncrease: () => void

@@ -5,11 +5,11 @@ import './Assignment4.css'
 function Assignment4() {
   const product: Product = {
     id: 1,
-    name: 'REMAN GENERATOR',
-    price: 7500,
+    name: 'Wireless Headphones',
+    price: 2499,
     imageUrl:
-      'https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=500',
-    category: 'Power Systems',
+      'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500',
+    category: 'Electronics',
     rating: 4.5,
   }
 

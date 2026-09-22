@@ -3,6 +3,7 @@ import type { Product } from '../types/Products'
 import Button from './Button'
 import Card from './Card'
 import QuantitySelector from './QuantitySelector'
+import './ProductCard.css'
 
 interface ProductCardProps {
   product: Product

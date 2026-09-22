@@ -1,4 +1,4 @@
-import { CreditCard } from 'lucide-react'
+
 import './Footer.css'
 
 function Footer() {
@@ -34,11 +34,10 @@ function Footer() {
 
         {/* Column 4: Company Info & Copyright */}
         <div className="footer-col footer-info">
-          <p className="copyright">Copyright © 2026 Trendify Industries</p>
+          <p className="copyright">Copyright © 2026 JLG Industries</p>
           <p className="company-blurb">
-            Trendify, Inc. is a simple ecommerce interface built while learning React and TypeScript.
-            The platform's diverse product portfolio includes leading brands and an array of complementary accessories
-            that increase the versatility and efficiency of these products.
+            JLG Industries, Inc. is a leading manufacturer of mobile elevating work platforms and related access equipment. Its product portfolio includes aerial work platforms,
+             telehandlers, and complementary accessories designed to support productivity and efficiency across a wide range of applications.
           </p>
         </div>
 

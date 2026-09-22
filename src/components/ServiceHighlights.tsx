@@ -3,6 +3,7 @@ import {
   Headphones,
   Truck,
 } from 'lucide-react'
+import './ServiceHighlights.css'
 
 interface ServiceHighlight {
   title: string

@@ -1,0 +1,13 @@
+.featured-products .swiper-pagination-bullet-active {
+  background: #555555 !important;
+}
+
+.featured-products .swiper-button-next,
+.featured-products .swiper-button-prev {
+  color: #ff4f0a !important;
+  transform: scale(0.7);
+}
+
+.featured-products .swiper {
+  padding-bottom: 40px !important;
+}

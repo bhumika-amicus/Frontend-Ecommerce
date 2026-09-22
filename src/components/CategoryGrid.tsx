@@ -1,5 +1,6 @@
 import Button from './Button'
 import Card from './Card'
+import './CategoryGrid.css'
 
 function CategoryGrid() {
   return (

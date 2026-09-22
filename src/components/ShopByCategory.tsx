@@ -1,12 +1,12 @@
 import Card from './Card'
 import type { Product } from '../types/Products'
+import './ShopByCategory.css'
 
 interface ShopByCategoryProps {
   products: Product[]
 }
 
 function ShopByCategory({ products }: ShopByCategoryProps) {
-  // Option A: Dynamically extract unique categories from products
   const categories = Array.from(new Set(products.map((p) => p.category)))
 
   return (

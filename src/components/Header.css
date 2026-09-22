@@ -1,0 +1,143 @@
+.site-header {
+  width: 100%;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.header-container {
+  width: 100%;
+  max-width: 1440px;
+  height: 70px;
+  margin: 0 auto;
+  padding: 0 40px;
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+
+.logo img {
+  display: block;
+  width: 115px;
+  height: auto;
+}
+
+.desktop-nav {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.header-icon-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #ff4f0a;
+  cursor: pointer;
+}
+
+.header-link,
+.cart-link {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border: none;
+  background: transparent;
+  color: #666666;
+  font-size: 14px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.header-icon-button:hover {
+  color: #e84300;
+}
+
+.header-link:hover,
+.cart-link:hover {
+  color: #ff4f0a;
+}
+
+.cart-link {
+  gap: 8px;
+}
+
+.mobile-actions,
+.mobile-menu-toggle {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .header-container {
+    position: relative;
+    height: 86px;
+    padding: 0 24px;
+    justify-content: center;
+    flex-wrap: nowrap;
+  }
+
+  .logo img {
+    width: 112px;
+  }
+
+  .desktop-nav {
+    display: none;
+  }
+
+  .mobile-actions {
+    position: absolute;
+    right: 24px;
+    flex-wrap: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .mobile-menu-toggle {
+    display: flex;
+    position: absolute;
+    left: 24px;
+  }
+
+  .mobile-actions .header-icon-button {
+    color: #ff4f0a;
+  }
+
+  .mobile-cart {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #ff4f0a;
+    text-decoration: none;
+  }
+
+  .mobile-cart span {
+    font-size: 20px;
+    font-weight: 600;
+  }
+}
+
+@media (max-width: 500px) {
+  .header-container {
+    padding: 0 18px;
+  }
+
+  .mobile-actions {
+    right: 18px;
+    gap: 10px;
+  }
+
+  .logo img {
+    width: 108px;
+  }
+}

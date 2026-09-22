@@ -1,5 +1,6 @@
 import ProductCard from './ProductCard'
 import type { Product } from '../types/Products'
+import './ProductGrid.css'
 
 interface ProductGridProps {
   products: Product[]
