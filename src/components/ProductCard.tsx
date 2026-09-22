@@ -16,16 +16,6 @@ function ProductCard({
 }: ProductCardProps) {
   const [quantity, setQuantity] = useState(1)
 
-  const increaseQuantity = () => {
-    setQuantity(previousQuantity => previousQuantity + 1)
-  }
-
-  const decreaseQuantity = () => {
-    setQuantity(previousQuantity =>
-      Math.max(1, previousQuantity - 1)
-    )
-  }
-
   const formattedTotalPrice = new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency: 'INR',
@@ -62,8 +52,7 @@ function ProductCard({
 
             <QuantitySelector
               quantity={quantity}
-              onIncrease={increaseQuantity}
-              onDecrease={decreaseQuantity}
+              onQuantityChange={setQuantity}
             />
 
             <span className="rating-value">
