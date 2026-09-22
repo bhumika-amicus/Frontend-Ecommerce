@@ -78,14 +78,16 @@ const products: Product[] = [
 ]
 
 function Assignment5() {
-  const [selectedCategory, setSelectedCategory] = useState('All')
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
 
   const filteredProducts =
-    selectedCategory === 'All'
-      ? products
-      : products.filter(
-          product => product.category === selectedCategory
-        )
+    selectedCategories.length === 0 || selectedCategories.includes('All') ? products : 
+    products.filter(product => selectedCategories.includes(product.category) )
+
+  const activeCategoryLabel =
+    selectedCategories.length === 0 || selectedCategories.includes('All')
+      ? 'All categories'
+      : selectedCategories.join(', ')
 
   const handleAddToCart = (product: Product) => {
     console.log(`Added product ${product.id}: ${product.name}`)
@@ -95,18 +97,20 @@ function Assignment5() {
     <main className="product-listing">
       <div className="product-listing-header">
         <h1>Product Listing</h1>
+        <p className="product-listing-filter-summary">
+          Filtering by: {activeCategoryLabel}
+        </p>
       </div>
 
       <div className="product-listing-content">
         <aside className="filter-sidebar">
           <h2>CATEGORIES</h2>
-
           <section className="filter-section">
             <label>
               <input
                 type="checkbox"
-                checked={selectedCategory === 'All'}
-                onChange={() => setSelectedCategory('All')}
+                checked={selectedCategories.includes('All')}
+                onChange={() => setSelectedCategories(['All'])}
               />
               All
             </label>
@@ -114,8 +118,10 @@ function Assignment5() {
             <label>
               <input
                 type="checkbox"
-                checked={selectedCategory === 'Electronics'}
-                onChange={() => setSelectedCategory('Electronics')}
+                checked={selectedCategories.includes('Electronics')}
+                onChange={() => setSelectedCategories(prev => prev.includes('Electronics') ?
+                     prev.filter(c => c !== 'Electronics') : [...prev.filter(c => c !== 'All'), 'Electronics']
+                )}
               />
               Electronics
             </label>
@@ -123,8 +129,10 @@ function Assignment5() {
             <label>
               <input
                 type="checkbox"
-                checked={selectedCategory === 'Clothing'}
-                onChange={() => setSelectedCategory('Clothing')}
+                checked={selectedCategories.includes('Clothing')}
+                onChange={() => setSelectedCategories(prev => prev.includes('Clothing') ?
+                     prev.filter(c => c !== 'Clothing') : [...prev.filter(c => c !== 'All'), 'Clothing']
+                )}
               />
               Clothing
             </label>
@@ -132,8 +140,10 @@ function Assignment5() {
             <label>
               <input
                 type="checkbox"
-                checked={selectedCategory === 'Footwear'}
-                onChange={() => setSelectedCategory('Footwear')}
+                checked={selectedCategories.includes('Footwear')}
+                onChange={() => setSelectedCategories(prev => prev.includes('Footwear') ?
+                     prev.filter(c => c !== 'Footwear') : [...prev.filter(c => c !== 'All'), 'Footwear']
+                )}
               />
               Footwear
             </label>
@@ -141,8 +151,10 @@ function Assignment5() {
             <label>
               <input
                 type="checkbox"
-                checked={selectedCategory === 'Accessories'}
-                onChange={() => setSelectedCategory('Accessories')}
+                checked={selectedCategories.includes('Accessories')}
+                onChange={() => setSelectedCategories(prev => prev.includes('Accessories') ?
+                     prev.filter(c => c !== 'Accessories') : [...prev.filter(c => c !== 'All'), 'Accessories']
+                )}
               />
               Accessories
             </label>
@@ -150,8 +162,10 @@ function Assignment5() {
             <label>
               <input
                 type="checkbox"
-                checked={selectedCategory === 'Lifestyle'}
-                onChange={() => setSelectedCategory('Lifestyle')}
+                checked={selectedCategories.includes('Lifestyle')}
+                onChange={() => setSelectedCategories(prev => prev.includes('Lifestyle') ?
+                     prev.filter(c => c !== 'Lifestyle') : [...prev.filter(c => c !== 'All'), 'Lifestyle']
+                    )}
               />
               Lifestyle
             </label>

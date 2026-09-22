@@ -572,9 +572,15 @@ font-size: 18px;
   font-size: 28px;
 }
 
+.product-listing-filter-summary {
+  margin: 0;
+  color: #777777;
+  font-size: 14px;
+}
+
 .product-listing-content {
   display: grid;
-  grid-template-columns: 224px 1fr;
+  grid-template-columns: 180px 1fr;
   gap: 24px;
   align-items: start;
 }
