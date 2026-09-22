@@ -11,13 +11,14 @@ interface ButtonProps {
   children: ReactNode
   disabled?: boolean
   onClick?: () => void
+  className?: string
 }
 
-function Button({  variant = 'primary',  children,  disabled = false, onClick }: ButtonProps) {
+function Button({  variant = 'primary',  children,  disabled = false, onClick, className = '' }: ButtonProps) {
   return (
     <button
       type="button"
-      className={`button button-${variant}`}
+      className={`button button-${variant} ${className}`.trim()}
       disabled={disabled}
       onClick={onClick}
     >

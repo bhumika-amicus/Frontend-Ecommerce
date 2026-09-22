@@ -1,20 +1,26 @@
+import Button from './Button'
+
 function Hero() {
   return (
     <section className="hero">
+      <img
+        src="/hero.png"
+        alt="Construction equipment"
+        className="hero-image"
+      />
+
+      <div className="hero-overlay" />
+
       <div className="hero-content">
-        <p className="hero-label">WELCOME TO TRENDIFY</p>
+        <h1>Find Construction Parts</h1>
 
-        <h1>Find Products You'll Love</h1>
-
-        <p className="hero-description">
-          Explore our collection of electronics, footwear,
-          accessories, clothing, and more.
+        <p>
+          Find the parts and products you need to keep your equipment moving.
         </p>
 
-        <a href="#products" className="hero-button">
-          Explore Products
-        </a>
-        
+        <Button variant="primary" className="hero-button">
+          Shop Now
+        </Button>
       </div>
     </section>
   )

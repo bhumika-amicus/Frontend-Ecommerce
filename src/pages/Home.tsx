@@ -1,8 +1,11 @@
 import Header from '../components/Header'
 import Hero from '../components/Hero'
-import ProductGrid from '../components/ProductGrid'
+import CategoryGrid from '../components/CategoryGrid'
 import Footer from '../components/Footer'
 import type { Product } from '../types/Products'
+import FeaturedProductCarousel from '../components/FeaturedProductCarousel'
+import ShopByCategory from '../components/ShopByCategory'
+import ServiceHighlights from '../components/ServiceHighlights'
 
 const products: Product[] = [
   {
@@ -67,16 +70,7 @@ const products: Product[] = [
       'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500',
     category: 'Clothing',
     rating: 4.3,
-  },
-  {
-    id: 8,
-    name: 'Travel Water Bottle',
-    price: 599,
-    imageUrl:
-      'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=500',
-    category: 'Lifestyle',
-    rating: 4.5,
-  },
+  }
 ]
 
 function Home() {
@@ -91,19 +85,17 @@ function Home() {
       <Hero />
 
       <main>
-        <section
-          id="products"
-          className="products-section"
-        >
-          <div className="section-heading">
-            <h2>Featured Products</h2>
-          </div>
+        <CategoryGrid />
 
-          <ProductGrid
+        <section  id="products" className="products-section" >
+         <FeaturedProductCarousel
             products={products}
             onAddToCart={handleAddToCart}
           />
         </section>
+
+        <ShopByCategory products={products} />
+        <ServiceHighlights />
       </main>
 
       <Footer />

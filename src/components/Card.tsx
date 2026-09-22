@@ -5,11 +5,12 @@ type CardVariant = 'elevated' | 'bordered' | 'flat'
 interface CardProps {
   variant?: CardVariant
   children: ReactNode
+  className?: string
 }
 
-function Card({ variant = 'elevated', children }: CardProps) {
+function Card({ variant = 'elevated', children, className = '' }: CardProps) {
   return (
-    <div className={`card card-${variant}`}>
+    <div className={`card card-${variant} ${className}`.trim()}>
       {children}
     </div>
   )
