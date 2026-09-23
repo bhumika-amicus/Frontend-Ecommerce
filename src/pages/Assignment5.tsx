@@ -8,12 +8,12 @@ function Assignment5() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
 
   const filteredProducts =
-    selectedCategories.length === 0 || selectedCategories.includes('All')
+    selectedCategories.length === 0
       ? products
       : products.filter((product) => selectedCategories.includes(product.category))
 
   const activeCategoryLabel =
-    selectedCategories.length === 0 || selectedCategories.includes('All')
+    selectedCategories.length === 0
       ? 'All categories'
       : selectedCategories.join(', ')
 
@@ -25,10 +25,7 @@ function Assignment5() {
     setSelectedCategories((previousCategories) =>
       previousCategories.includes(category)
         ? previousCategories.filter((item) => item !== category)
-        : [
-            ...previousCategories.filter((item) => item !== 'All'),
-            category,
-          ],
+        : [...previousCategories, category]
     )
   }
 
@@ -48,10 +45,7 @@ function Assignment5() {
             <label>
               <input
                 type="checkbox"
-                checked={
-                  selectedCategories.length === 0 ||
-                  selectedCategories.includes('All')
-                }
+                checked={selectedCategories.length === 0}
                 onChange={() => setSelectedCategories([])}
               />
               All
