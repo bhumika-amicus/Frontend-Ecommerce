@@ -79,10 +79,9 @@
 
 @media (max-width: 768px) {
   .header-container {
-    position: relative;
     height: 86px;
     padding: 0 24px;
-    justify-content: center;
+    justify-content: space-between;
     flex-wrap: nowrap;
   }
 
@@ -95,8 +94,6 @@
   }
 
   .mobile-actions {
-    position: absolute;
-    right: 24px;
     flex-wrap: nowrap;
     display: flex;
     align-items: center;
@@ -105,8 +102,6 @@
 
   .mobile-menu-toggle {
     display: flex;
-    position: absolute;
-    left: 24px;
   }
 
   .mobile-actions .header-icon-button {
@@ -133,7 +128,6 @@
   }
 
   .mobile-actions {
-    right: 18px;
     gap: 10px;
   }
 
