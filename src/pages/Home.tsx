@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react'
+import './Home.css'
 import Header from '../components/Header'
 import Hero from '../components/Hero'
 import CategoryGrid from '../components/CategoryGrid'
@@ -6,9 +8,58 @@ import type { Product } from '../types/Products'
 import FeaturedProductCarousel from '../components/FeaturedProductCarousel'
 import ShopByCategory from '../components/ShopByCategory'
 import ServiceHighlights from '../components/ServiceHighlights'
-import { products } from '../data/products'
+import ProductCardSkeleton from '../components/ProductCardSkeleton'
+import { transformProduct } from '../utils/apiUtils'
+import type { DummyProductResponse } from '../types/DummyProduct'
 
 function Home() {
+  const [products, setProducts] = useState<Product[]>([])
+  const [error, setError] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  const fetchProducts = async (signal?: AbortSignal) => {
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      const response = await fetch(
+        'https://dummyjson.com/products',
+        { signal }
+      )
+
+      if (!response.ok) {
+        console.error(`API HTTP Error: ${response.status} ${response.statusText}`)
+        if (response.status === 404) {
+          throw new Error('We could not find the products you are looking for.')
+        }
+        throw new Error('We are having trouble loading the products right now. Please try again.')
+      }
+
+      const data: DummyProductResponse = await response.json()
+      const transformedProducts = data.products.map(transformProduct)
+
+      setProducts(transformedProducts)
+      setIsLoading(false)
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        return
+      }
+
+      console.error("API Error:", error)
+      setError(error instanceof Error ? error.message : 'An unexpected error occurred.')
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    const controller = new AbortController()
+    fetchProducts(controller.signal)
+
+    return () => {
+      controller.abort()
+    }
+  }, [])
+
   const handleAddToCart = (product: Product) => {
     console.log(`Added product ${product.id}: ${product.name}`)
   }
@@ -22,14 +73,40 @@ function Home() {
       <main>
         <CategoryGrid />
 
-        <section  id="products" className="products-section" >
-         <FeaturedProductCarousel
-            products={products}
-            onAddToCart={handleAddToCart}
-          />
-        </section>
+        {isLoading ? (
+          <section className="products-section skeleton-carousel-section">
+            <div className="skeleton-carousel-track">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <div key={index} className="skeleton-carousel-slide">
+                  <ProductCardSkeleton />
+                </div>
+              ))}
+            </div>
+          </section>
+        ) : error ? (
+          <section className="products-section empty-state empty-state-section">
+            <p className="error-message">{error}</p>
+            <button className="button button-primary" onClick={() => fetchProducts()}>
+              Refresh
+            </button>
+          </section>
+        ) : products.length === 0 ? (
+          <section className="products-section empty-state empty-state-section">
+            <h2>No products available.</h2>
+            <p>The store is currently empty. Please check back later!</p>
+          </section>
+        ) : (
+          <>
+            <section id="products" className="products-section">
+              <FeaturedProductCarousel
+                products={products}
+                onAddToCart={handleAddToCart}
+              />
+            </section>
+            <ShopByCategory products={products} />
+          </>
+        )}
 
-        <ShopByCategory products={products} />
         <ServiceHighlights />
       </main>
 

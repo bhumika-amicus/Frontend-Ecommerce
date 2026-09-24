@@ -1,0 +1,25 @@
+.skeleton-carousel-section {
+  padding: 60px 20px;
+  overflow: hidden;
+}
+
+.skeleton-carousel-track {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+
+.skeleton-carousel-slide {
+  width: 280px;
+  flex-shrink: 0;
+}
+
+.empty-state-section {
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.error-message {
+  color: red;
+  margin-bottom: 16px;
+}

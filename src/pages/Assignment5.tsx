@@ -3,18 +3,9 @@ import type { Product } from '../types/Products'
 import ProductGrid from '../components/ProductGrid'
 import ProductCardSkeleton from '../components/ProductCardSkeleton'
 import './Assignment5.css'
-import type { DummyProduct, DummyProductResponse } from '../types/DummyProduct'
+import type { DummyProductResponse } from '../types/DummyProduct'
 
-function transformProduct(product: DummyProduct): Product {
-  return {
-    id: product.id,
-    name: product.title,
-    price: product.price,
-    imageUrl: product.thumbnail,
-    category: product.category,
-    rating: product.rating,
-  }
-}
+import { transformProduct } from '../utils/apiUtils'
 
 function Assignment5() {
   const [products, setProducts] = useState<Product[]>([])
@@ -99,12 +90,17 @@ function Assignment5() {
     return (
       <main className="product-listing">
         <div className="product-listing-header">
-          <h1>Product Listing</h1>
+          <div>
+            <h1>Product Listing</h1>
+          </div>
+          <button className="button button-primary" onClick={() => fetchProducts()} disabled={isLoading}>
+            Refresh
+          </button>
         </div>
         <div className="product-listing-content">
           <aside className="filter-sidebar">
             <h2>CATEGORIES</h2>
-            <div className="empty-state" style={{ padding: '20px' }}>Loading...</div>
+            <div className="empty-state empty-state-sidebar">Loading...</div>
           </aside>
           <section className="product-listing-products">
             <div className="product-grid">
@@ -122,12 +118,17 @@ function Assignment5() {
     return (
       <main className="product-listing">
         <div className="product-listing-header">
-          <h1>Product Listing</h1>
-        </div>
-        <div className="empty-state">
-          <p style={{ color: 'red', marginBottom: '16px' }}>{error}</p>
+          <div>
+            <h1>Product Listing</h1>
+          </div>
           <button className="button button-primary" onClick={() => fetchProducts()}>
             Refresh
+          </button>
+        </div>
+        <div className="empty-state">
+          <p className="empty-state-error">{error}</p>
+          <button className="button button-primary" onClick={() => fetchProducts()}>
+            Try Again
           </button>
         </div>
       </main>
@@ -137,14 +138,19 @@ function Assignment5() {
   return (
     <main className="product-listing">
       <div className="product-listing-header">
-        <h1>Product Listing</h1>
-        <p className="product-listing-filter-summary">
-          Filtering by: {activeCategoryLabel}
-        </p>
+        <div>
+          <h1>Product Listing</h1>
+          <p className="product-listing-filter-summary">
+            Filtering by: {activeCategoryLabel}
+          </p>
+        </div>
+        <button className="button button-primary" onClick={() => fetchProducts()}>
+          Refresh
+        </button>
       </div>
 
       {products.length === 0 ? (
-        <div className="empty-state" style={{ marginTop: '40px' }}>
+        <div className="empty-state empty-state-container">
           <h2>No products available.</h2>
           <p>The store is currently empty. Please check back later!</p>
         </div>
