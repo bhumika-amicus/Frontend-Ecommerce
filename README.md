@@ -101,15 +101,18 @@ Source files:
 
 - `src/pages/Assignment5.tsx`
 - `src/pages/Assignment5.css`
-- `src/data/products.ts`
+- `src/utils/apiUtils.ts`
 
 This page demonstrates:
 
-- Product grid rendering
-- Category filtering
-- Multiple selected categories
-- An `All` categories option
-- Shared product data from `src/data/products.ts`
+- **API Data Fetching**: Retrieves product data from a real REST API (`DummyJSON`) on component mount using `useEffect`.
+- **Robust State Management**: Gracefully handles three distinct states:
+  - **Loading**: Displays animated Skeleton cards while data fetches.
+  - **Error**: Catches network and HTTP errors, displaying a fallback UI with a `Refresh / Try Again` button.
+  - **Success**: Renders the complete Product Grid.
+- **Data Transformation**: Uses a utility layer to map external API data to internal `ProductCard` props.
+- **Memory Safety**: Implements `AbortController` cleanup to cancel pending requests on unmount, preventing race conditions and memory leaks.
+- **Advanced Filtering**: Filters the live API data by multiple categories and includes an `All` categories option.
 
 Assignment 4 was removed because it was no longer required. It is not available as an application route.
 
@@ -171,7 +174,7 @@ npm run preview  # Preview the production build locally
 - `src/main.tsx` mounts the React application and imports global styles.
 - `src/components/` contains reusable UI components and their local styles.
 - `src/pages/` contains route-level layouts and page-specific styles.
-- `src/data/products.ts` is the shared source of truth for product data and categories.
+- `src/utils/` contains helper functions for API data transformation and type mapping.
 - `src/styles/global.css` contains global reset and root styles.
 - `src/styles/shared.css` contains shared Button, Card, and section styles.
 - `src/types/` contains shared TypeScript interfaces.
@@ -181,7 +184,7 @@ npm run preview  # Preview the production build locally
 
 ### Product data
 
-Product records are stored in `src/data/products.ts` and reused by the home page and Assignment 5. Categories are derived from the same data so the filter list stays synchronized with the catalog.
+Product records are fetched live from the DummyJSON API (`https://dummyjson.com/products`) using native `fetch` and mapped to a shared internal interface using `apiUtils.ts`. Categories are dynamically derived from this fetched data so the filter list always stays synchronized with the live catalog.
 
 ### Quantity and live pricing
 
