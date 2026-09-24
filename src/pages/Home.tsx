@@ -16,6 +16,7 @@ function Home() {
   const [products, setProducts] = useState<Product[]>([])
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [refreshCount, setRefreshCount] = useState(0)
 
   const fetchProducts = async (signal?: AbortSignal) => {
     setIsLoading(true)
@@ -58,7 +59,7 @@ function Home() {
     return () => {
       controller.abort()
     }
-  }, [])
+  }, [refreshCount])
 
   const handleAddToCart = (product: Product) => {
     console.log(`Added product ${product.id}: ${product.name}`)
@@ -86,8 +87,8 @@ function Home() {
         ) : error ? (
           <section className="products-section empty-state empty-state-section">
             <p className="error-message">{error}</p>
-            <button className="button button-primary" onClick={() => fetchProducts()}>
-              Refresh
+            <button className="button button-outline" onClick={() => setRefreshCount(prev => prev + 1)}>
+              Try Again
             </button>
           </section>
         ) : products.length === 0 ? (

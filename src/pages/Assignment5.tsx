@@ -11,6 +11,7 @@ function Assignment5() {
   const [products, setProducts] = useState<Product[]>([])
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [refreshCount, setRefreshCount] = useState(0)
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
 
@@ -60,7 +61,7 @@ function Assignment5() {
     return () => {
       controller.abort()
     }
-  }, [])
+  }, [refreshCount])
 
   const productCategories = [...new Set(products.map((product) => product.category)),]
 
@@ -93,7 +94,7 @@ function Assignment5() {
           <div>
             <h1>Product Listing</h1>
           </div>
-          <button className="button button-primary" onClick={() => fetchProducts()} disabled={isLoading}>
+          <button className="button button-primary" onClick={() => setRefreshCount(prev => prev + 1)}>
             Refresh
           </button>
         </div>
@@ -121,13 +122,10 @@ function Assignment5() {
           <div>
             <h1>Product Listing</h1>
           </div>
-          <button className="button button-primary" onClick={() => fetchProducts()}>
-            Refresh
-          </button>
         </div>
         <div className="empty-state">
           <p className="empty-state-error">{error}</p>
-          <button className="button button-primary" onClick={() => fetchProducts()}>
+          <button className="button button-outline" onClick={() => setRefreshCount(prev => prev + 1)}>
             Try Again
           </button>
         </div>
@@ -144,7 +142,7 @@ function Assignment5() {
             Filtering by: {activeCategoryLabel}
           </p>
         </div>
-        <button className="button button-primary" onClick={() => fetchProducts()}>
+        <button className="button button-primary" onClick={() => setRefreshCount(prev => prev + 1)}>
           Refresh
         </button>
       </div>
