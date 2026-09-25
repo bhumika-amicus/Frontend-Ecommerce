@@ -108,11 +108,14 @@ This page demonstrates:
 - **API Data Fetching**: Retrieves product data from a real REST API (`DummyJSON`) on component mount using `useEffect`.
 - **Robust State Management**: Gracefully handles three distinct states:
   - **Loading**: Displays animated Skeleton cards while data fetches.
-  - **Error**: Catches network and HTTP errors, displaying a fallback UI with a `Refresh / Try Again` button.
+  - **Error / Empty States**: Catches network errors and empty search results, displaying responsive fallback UIs with a `Refresh / Try Again` button and helpful tips.
   - **Success**: Renders the complete Product Grid.
+- **Advanced UI/UX Alignment**: Utilizes CSS `-webkit-line-clamp` to strictly enforce 2-line product titles, ensuring mathematically perfect horizontal alignment for all grid components across all cards.
+- **Dynamic Pricing Logic**: Automatically reverse-engineers original product prices from the API's discount percentage, rendering a highly optimized, baseline-aligned pricing block (Original Strikethrough + Final Price + Discount % badge) that dynamically scales with quantity.
+- **Mobile-First Responsive Design**: Transforms the desktop sidebar into a collapsible, state-driven accordion menu on mobile devices (`max-width: 768px`), and seamlessly repositions the search bar for optimal thumb reach.
 - **Data Transformation**: Uses a utility layer to map external API data to internal `ProductCard` props.
 - **Memory Safety**: Implements `AbortController` cleanup to cancel pending requests on unmount, preventing race conditions and memory leaks.
-- **Advanced Filtering**: Filters the live API data by multiple categories and includes an `All` categories option.
+- **Advanced Filtering & Search**: Filters live API data by multiple categories and supports real-time text searching with dynamic quantity updates.
 
 Assignment 4 was removed because it was no longer required. It is not available as an application route.
 
@@ -123,6 +126,17 @@ Assignment 4 was removed because it was no longer required. It is not available 
 | `/` | Home | `src/pages/Home.tsx` | JLG parts storefront |
 | `/assignment3` | Assignment 3 | `src/pages/Assignment3.tsx` | Button and Card variants |
 | `/assignment5` | Assignment 5 | `src/pages/Assignment5.tsx` | Product listing and category filters |
+
+## User Flow (Assignment 5)
+
+When a user interacts with the application, they experience the following optimized flow:
+1. **Navigation:** The user launches the application on Desktop or Mobile and navigates to the `/assignment5` route.
+2. **Data Initialization:** While the live product catalog is fetched from the DummyJSON API, the user is presented with a smooth Skeleton loading state, preventing layout shift.
+3. **Product Discovery:** Once loaded, the user can browse the highly-optimized product grid. Product titles are strictly truncated to ensure perfect horizontal alignment of ratings, quantity selectors, and dynamic prices.
+4. **Filtering & Searching:** 
+   - **Desktop:** The user can instantly filter products via the always-visible left sidebar (by Category or Sorting mechanism) and search using the Header search bar.
+   - **Mobile:** The search bar seamlessly drops into the header row, and the sidebar transforms into a touch-friendly accordion dropdown to conserve screen real estate.
+5. **Add to Cart:** The user can increase/decrease quantities using the custom `QuantitySelector`. The UI dynamically calculates the total price in real-time, including calculating original strikethrough prices if a product is on sale.
 
 ## Project Structure
 
