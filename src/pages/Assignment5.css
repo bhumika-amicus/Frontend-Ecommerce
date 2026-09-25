@@ -67,15 +67,18 @@
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  margin-top: 80px;
+  margin-top: 30px;
   width: 100%;
 }
 
 .search-empty-state {
   padding: 20px;
-  text-align: left;
+  text-align: center;
   max-width: 500px;
-  width: max-content;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .search-empty-state h2 {
@@ -89,6 +92,11 @@
   color: #555;
   margin-bottom: 24px;
   font-size: 15px;
+}
+
+.search-tips {
+  display: inline-block;
+  text-align: left;
 }
 
 .search-tips p {

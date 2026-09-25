@@ -25,14 +25,14 @@ function ProductCard({
   const fullStars = rating !== undefined ? Math.floor(rating) : 0
   const emptyStars = 5 - fullStars
 
-  const isSale = product.discountPercentage ? product.discountPercentage > 0 : false;
+  const isSale = product.discountPercentage ? product.discountPercentage > 10 : false;
 
-  let isNew = false
+  let isNew = false;
   if (product.createdAt) {
     const createdDate = new Date(product.createdAt);
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    isNew = createdDate > thirtyDaysAgo;
+    const twelveMonthsAgo = new Date();
+    twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
+    isNew = createdDate > twelveMonthsAgo;
   }
 
   return (
