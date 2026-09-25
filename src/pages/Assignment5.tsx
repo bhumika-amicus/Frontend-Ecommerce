@@ -155,7 +155,7 @@ function Assignment5() {
             <h1>Product Listing</h1>
 
           </div>
-          <button className="button button-primary" onClick={() => setRefreshCount(prev => prev + 1)}>
+          <button className="button button-outline" onClick={() => setRefreshCount(prev => prev + 1)}>
             Refresh
           </button>
         </div>

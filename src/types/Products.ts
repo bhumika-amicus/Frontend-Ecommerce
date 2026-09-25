@@ -5,5 +5,7 @@
   imageUrl: string
   category: string
   rating?: number
+  discountPercentage?: number
+  createdAt?: string
 }
 

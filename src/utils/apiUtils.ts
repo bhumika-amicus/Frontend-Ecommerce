@@ -9,5 +9,7 @@ export function transformProduct(product: DummyProduct): Product {
     imageUrl: product.thumbnail,
     category: product.category,
     rating: product.rating,
+    discountPercentage: product.discountPercentage,
+    createdAt: product.meta?.createdAt,
   }
 }

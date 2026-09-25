@@ -25,9 +25,23 @@ function ProductCard({
   const fullStars = rating !== undefined ? Math.floor(rating) : 0
   const emptyStars = 5 - fullStars
 
+  const isSale = product.discountPercentage ? product.discountPercentage > 0 : false;
+
+  let isNew = false
+  if (product.createdAt) {
+    const createdDate = new Date(product.createdAt);
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    isNew = createdDate > thirtyDaysAgo;
+  }
+
   return (
     <Card variant="elevated">
       <div className="product-image-container">
+        <div className="badge-container">
+          {isSale && <span className="badge badge-sale">SALE</span>}
+          {isNew && <span className="badge badge-new">NEW</span>}
+        </div>
         <img
           src={product.imageUrl}
           alt={product.name}

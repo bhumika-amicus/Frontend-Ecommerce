@@ -5,6 +5,10 @@ export interface DummyProduct {
   category: string
   rating: number
   thumbnail: string
+  discountPercentage?: number
+  meta?: {
+    createdAt?: string
+  }
 }
 
 export interface DummyProductResponse {
