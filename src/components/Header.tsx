@@ -106,13 +106,7 @@ function Header() {
 
         {/* Mobile actions */}
         <div className="mobile-actions">
-          <button
-            type="button"
-            className="header-icon-button"
-            aria-label="Search"
-          >
-            <Search size={25} />
-          </button>
+
 
           <button
             type="button"

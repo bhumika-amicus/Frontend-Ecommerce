@@ -32,11 +32,18 @@
   padding: 14px 12px 20px;
 }
 
-.filter-sidebar h2 {
+.filter-sidebar h3 {
   margin: 0 0 14px;
   padding-bottom: 8px;
   border-bottom: 3px solid #ff5a00;
   font-size: 16px;
+}
+
+.mobile-filter-toggle {
+  display: none;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
 }
 
 .filter-section label {
@@ -120,8 +127,8 @@
   margin: 32px auto 0;
 }
 
-.sort-heading {
-  margin-top: 24px;
+.filter-sidebar .sort-heading {
+  margin-top: 32px;
 }
 
 .search-results-count {
@@ -241,6 +248,23 @@
 
   .product-listing-products .product-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .mobile-filter-toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    margin: 0;
+  }
+
+  .filter-content {
+    display: none;
+    margin-top: 20px;
+  }
+
+  .filter-content.open {
+    display: block;
   }
 }
 

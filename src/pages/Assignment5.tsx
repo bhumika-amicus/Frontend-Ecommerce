@@ -16,6 +16,7 @@ function Assignment5() {
     const [selectedCategories, setSelectedCategories] = useState<string[]>([])
     const [sortCategory, setSortCategory] = useState<string | null>(null)
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
+    const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false)
 
     const [searchParams, setSearchParams] = useSearchParams()
     const searchTerm = searchParams.get('search') || ''
@@ -108,8 +109,13 @@ function Assignment5() {
                     </div>
                     <div className="product-listing-content">
                         <aside className="filter-sidebar">
-                            <h2>CATEGORIES</h2>
-                            <div className="empty-state empty-state-sidebar">Loading...</div>
+                            <h2 className="mobile-filter-toggle" onClick={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}>
+                                Filters <span className="toggle-icon">{isMobileFiltersOpen ? '▲' : '▼'}</span>
+                            </h2>
+                            <div className={`filter-content ${isMobileFiltersOpen ? 'open' : ''}`}>
+                                <h3>CATEGORIES</h3>
+                                <div className="empty-state empty-state-sidebar">Loading...</div>
+                            </div>
                         </aside>
                         <section className="product-listing-products">
                             <div className="product-grid">
@@ -244,7 +250,11 @@ function Assignment5() {
                 ) : (
                     <div className="product-listing-content">
                         <aside className="filter-sidebar">
-                            <h2>CATEGORIES</h2>
+                            <h2 className="mobile-filter-toggle" onClick={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}>
+                                Filters <span className="toggle-icon">{isMobileFiltersOpen ? '▲' : '▼'}</span>
+                            </h2>
+                            <div className={`filter-content ${isMobileFiltersOpen ? 'open' : ''}`}>
+                                <h3>CATEGORIES</h3>
                             <section className="filter-section">
                                 <label>
                                     <input
@@ -267,7 +277,7 @@ function Assignment5() {
                                 ))}
                             </section>
 
-                            <h2 className="sort-heading">Sort by</h2>
+                            <h3 className="sort-heading">Sort by</h3>
                             <section className="filter-section sort-options">
 
                                 {/* NAME SORT */}
@@ -366,6 +376,7 @@ function Assignment5() {
                                     </div>
                                 </div>
                             </section>
+                            </div>
                         </aside>
 
                         <section className="product-listing-products">
