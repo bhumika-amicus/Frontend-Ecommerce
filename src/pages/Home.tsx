@@ -9,8 +9,7 @@ import FeaturedProductCarousel from '../components/FeaturedProductCarousel'
 import ShopByCategory from '../components/ShopByCategory'
 import ServiceHighlights from '../components/ServiceHighlights'
 import ProductCardSkeleton from '../components/ProductCardSkeleton'
-import { transformProduct } from '../utils/apiUtils'
-import type { DummyProductResponse } from '../types/DummyProduct'
+import { getProducts } from '../services/api'
 
 function Home() {
   const [products, setProducts] = useState<Product[]>([])
@@ -23,21 +22,7 @@ function Home() {
     setError(null)
 
     try {
-      const response = await fetch(
-        'https://dummyjson.com/products',
-        { signal }
-      )
-
-      if (!response.ok) {
-        console.error(`API HTTP Error: ${response.status} ${response.statusText}`)
-        if (response.status === 404) {
-          throw new Error('We could not find the products you are looking for.')
-        }
-        throw new Error('We are having trouble loading the products right now. Please try again.')
-      }
-
-      const data: DummyProductResponse = await response.json()
-      const transformedProducts = data.products.map(transformProduct)
+      const transformedProducts = await getProducts(signal)
 
       setProducts(transformedProducts)
       setIsLoading(false)

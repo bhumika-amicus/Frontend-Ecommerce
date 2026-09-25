@@ -3,9 +3,7 @@ import type { Product } from '../types/Products'
 import ProductGrid from '../components/ProductGrid'
 import ProductCardSkeleton from '../components/ProductCardSkeleton'
 import './Assignment5.css'
-import type { DummyProductResponse } from '../types/DummyProduct'
-
-import { transformProduct } from '../utils/apiUtils'
+import { getProducts } from '../services/api'
 
 function Assignment5() {
   const [products, setProducts] = useState<Product[]>([])
@@ -20,21 +18,7 @@ function Assignment5() {
     setError(null)
 
     try {
-      const response = await fetch(
-        'https://dummyjson.com/products',
-        { signal }
-      )
-
-      if (!response.ok) {
-        console.error(`API HTTP Error: ${response.status} ${response.statusText}`)
-        if (response.status === 404) {
-          throw new Error('We could not find the products you are looking for.')
-        }
-        throw new Error('We are having trouble loading the products right now. Please try again.')
-      }
-
-      const data: DummyProductResponse = await response.json()
-      const transformedProducts = data.products.map(transformProduct)
+      const transformedProducts = await getProducts(signal)
 
       setProducts(transformedProducts)
       setIsLoading(false)
