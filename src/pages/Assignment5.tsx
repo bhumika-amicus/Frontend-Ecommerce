@@ -17,7 +17,7 @@ function Assignment5() {
   const [sortCategory, setSortCategory] = useState<string | null>(null)
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
 
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const searchTerm = searchParams.get('search') || ''
 
   const fetchProducts = async (signal?: AbortSignal) => {
@@ -47,6 +47,7 @@ function Assignment5() {
     const controller = new AbortController()
 
     console.log('Fetching products from API...')
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchProducts(controller.signal)
 
     return () => {
@@ -72,7 +73,9 @@ function Assignment5() {
       return sortDirection === 'asc' ? a.price - b.price : b.price - a.price
     }
     if (sortCategory === 'rating') {
-      return sortDirection === 'asc' ? a.rating - b.rating : b.rating - a.rating
+      const ratingA = a.rating ?? 0;
+      const ratingB = b.rating ?? 0;
+      return sortDirection === 'asc' ? ratingA - ratingB : ratingB - ratingA
     }
     return 0
   })
@@ -162,6 +165,31 @@ function Assignment5() {
             <h2>No products available.</h2>
             <p>The store is currently empty. Please check back later!</p>
           </div>
+        ) : sortedProducts.length === 0 ? (
+          <div className="search-empty-state-full">
+            <div className="search-empty-state">
+              <h2>No Search Results</h2>
+              <p>We could not find results for {searchTerm ? `"${searchTerm}"` : 'your selected filters'}</p>
+              <div className="search-tips">
+                <p>Search Tips:</p>
+                <ul>
+                  <li>Check your spelling</li>
+                  <li>Enter a valid product name</li>
+                </ul>
+              </div>
+              <button
+                className="button button-outline search-try-again-btn"
+                onClick={() => {
+                  searchParams.delete('search');
+                  setSearchParams(searchParams);
+                  setSelectedCategories([]);
+                  setSortCategory(null);
+                }}
+              >
+                Try Again
+              </button>
+            </div>
+          </div>
         ) : (
           <div className="product-listing-content">
             <aside className="filter-sidebar">
@@ -188,7 +216,7 @@ function Assignment5() {
                 ))}
               </section>
 
-              <h2 style={{ marginTop: '24px' }}>Sort by</h2>
+              <h2 className="sort-heading">Sort by</h2>
               <section className="filter-section sort-options">
 
                 {/* NAME SORT */}
@@ -291,22 +319,14 @@ function Assignment5() {
 
             <section className="product-listing-products">
               {searchTerm && (
-                <h3 className="search-results-count" style={{ marginBottom: '20px', fontWeight: 600 }}>
+                <h3 className="search-results-count">
                   Showing {sortedProducts.length} results for "{searchTerm}"
                 </h3>
               )}
-
-              {sortedProducts.length > 0 ? (
-                <ProductGrid
-                  products={sortedProducts}
-                  onAddToCart={handleAddToCart}
-                />
-              ) : (
-                <div className="empty-state search-empty-state">
-                  <h2>No products found</h2>
-                  <p>We couldn't find any products matching your search criteria.</p>
-                </div>
-              )}
+              <ProductGrid
+                products={sortedProducts}
+                onAddToCart={handleAddToCart}
+              />
             </section>
           </div>
         )}
