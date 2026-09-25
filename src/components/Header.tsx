@@ -21,7 +21,7 @@ function Header() {
     setSearchInput(searchParams.get('search') || '');
   }, [searchParams]);
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const query = searchInput.trim();
 
@@ -32,10 +32,27 @@ function Header() {
       } else {
         searchParams.delete('search');
       }
-      setSearchParams(searchParams);
+      setSearchParams(searchParams, { replace: true });
     } else {
       // We are on Home or another page. Navigate to the listing page.
       navigate(query ? `/assignment5?search=${encodeURIComponent(query)}` : '/assignment5');
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchInput(value);
+
+    // If we are on the product listing page, update the URL as they type!
+    if (window.location.pathname === '/assignment5') {
+      const query = value.trim();
+      if (query) {
+        searchParams.set('search', query);
+      } else {
+        searchParams.delete('search');
+      }
+      // replace: true ensures the browser Back button works flawlessly
+      setSearchParams(searchParams, { replace: true });
     }
   };
 
@@ -59,7 +76,7 @@ function Header() {
             type="search"
             placeholder="Search by part number or keyword"
             value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
+            onChange={handleInputChange}
             className="header-search-input"
           />
           <button type="submit" className="header-search-button" aria-label="Search">
