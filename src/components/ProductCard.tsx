@@ -21,11 +21,20 @@ function ProductCard({
     currency: 'INR',
   }).format(product.price * quantity)
 
+  const isSale = product.discountPercentage ? product.discountPercentage > 10 : false;
+
+  let formattedOldPrice = null;
+  if (isSale && product.discountPercentage) {
+    const originalUnitPrice = product.price / (1 - (product.discountPercentage / 100));
+    formattedOldPrice = new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+    }).format(originalUnitPrice * quantity);
+  }
+
   const rating = product.rating
   const fullStars = rating !== undefined ? Math.floor(rating) : 0
   const emptyStars = 5 - fullStars
-
-  const isSale = product.discountPercentage ? product.discountPercentage > 10 : false;
 
   let isNew = false;
   if (product.createdAt) {
@@ -75,9 +84,17 @@ function ProductCard({
           </div>
         )}
 
-        <p className="product-price">
-          {formattedTotalPrice}
-        </p>
+        <div className="product-price-wrapper">
+          {formattedOldPrice && (
+            <span className="product-price-old">{formattedOldPrice}</span>
+          )}
+          <span className="product-price">{formattedTotalPrice}</span>
+          {isSale && product.discountPercentage && (
+            <span className="product-price-discount">
+              ({Math.round(product.discountPercentage)}% off)
+            </span>
+          )}
+        </div>
 
         <Button
           variant="primary"
