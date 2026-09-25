@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import type { Product } from '../types/Products'
 import ProductGrid from '../components/ProductGrid'
 import ProductCardSkeleton from '../components/ProductCardSkeleton'
+import Header from '../components/Header'
 import './Assignment5.css'
 import { getProducts } from '../services/api'
 
@@ -12,6 +14,8 @@ function Assignment5() {
   const [refreshCount, setRefreshCount] = useState(0)
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
+  const [searchParams] = useSearchParams()
+  const searchTerm = searchParams.get('search') || ''
 
   const fetchProducts = async (signal?: AbortSignal) => {
     setIsLoading(true)
@@ -49,10 +53,11 @@ function Assignment5() {
 
   const productCategories = [...new Set(products.map((product) => product.category)),]
 
-  const filteredProducts =
-    selectedCategories.length === 0
-      ? products
-      : products.filter((product) => selectedCategories.includes(product.category))
+  const filteredProducts = products.filter((product) => {
+    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(product.category);
+    return matchesSearch && matchesCategory;
+  })
 
   const activeCategoryLabel =
     selectedCategories.length === 0
@@ -73,111 +78,127 @@ function Assignment5() {
 
   if (isLoading) {
     return (
-      <main className="product-listing">
-        <div className="product-listing-header">
-          <div>
-            <h1>Product Listing</h1>
-          </div>
-          <button className="button button-primary" onClick={() => setRefreshCount(prev => prev + 1)}>
-            Refresh
-          </button>
-        </div>
-        <div className="product-listing-content">
-          <aside className="filter-sidebar">
-            <h2>CATEGORIES</h2>
-            <div className="empty-state empty-state-sidebar">Loading...</div>
-          </aside>
-          <section className="product-listing-products">
-            <div className="product-grid">
-              {Array.from({ length: 8 }).map((_, index) => (
-                <ProductCardSkeleton key={index} />
-              ))}
+      <>
+        <Header />
+        <main className="product-listing">
+          <div className="product-listing-header">
+            <div>
+              <h1>Product Listing</h1>
             </div>
-          </section>
-        </div>
-      </main>
+            <button className="button button-primary" onClick={() => setRefreshCount(prev => prev + 1)}>
+              Refresh
+            </button>
+          </div>
+          <div className="product-listing-content">
+            <aside className="filter-sidebar">
+              <h2>CATEGORIES</h2>
+              <div className="empty-state empty-state-sidebar">Loading...</div>
+            </aside>
+            <section className="product-listing-products">
+              <div className="product-grid">
+                {Array.from({ length: 8 }).map((_, index) => (
+                  <ProductCardSkeleton key={index} />
+                ))}
+              </div>
+            </section>
+          </div>
+        </main>
+      </>
     )
   }
 
   if (error) {
     return (
-      <main className="product-listing">
-        <div className="product-listing-header">
-          <div>
-            <h1>Product Listing</h1>
+      <>
+        <Header />
+        <main className="product-listing">
+          <div className="product-listing-header">
+            <div>
+              <h1>Product Listing</h1>
+            </div>
           </div>
-        </div>
-        <div className="empty-state">
-          <p className="empty-state-error">{error}</p>
-          <button className="button button-outline" onClick={() => setRefreshCount(prev => prev + 1)}>
-            Try Again
-          </button>
-        </div>
-      </main>
+          <div className="empty-state">
+            <p className="empty-state-error">{error}</p>
+            <button className="button button-outline" onClick={() => setRefreshCount(prev => prev + 1)}>
+              Try Again
+            </button>
+          </div>
+        </main>
+      </>
     )
   }
 
   return (
-    <main className="product-listing">
-      <div className="product-listing-header">
-        <div>
-          <h1>Product Listing</h1>
-          <p className="product-listing-filter-summary">
-            Filtering by: {activeCategoryLabel}
-          </p>
+    <>
+      <Header />
+      <main className="product-listing">
+        <div className="product-listing-header">
+          <div>
+            <h1>Product Listing</h1>
+            <p className="product-listing-filter-summary">
+              Filtering by: {activeCategoryLabel}
+            </p>
+          </div>
+          <button className="button button-primary" onClick={() => setRefreshCount(prev => prev + 1)}>
+            Refresh
+          </button>
         </div>
-        <button className="button button-primary" onClick={() => setRefreshCount(prev => prev + 1)}>
-          Refresh
-        </button>
-      </div>
 
-      {products.length === 0 ? (
-        <div className="empty-state empty-state-container">
-          <h2>No products available.</h2>
-          <p>The store is currently empty. Please check back later!</p>
-        </div>
-      ) : (
-        <div className="product-listing-content">
-          <aside className="filter-sidebar">
-            <h2>CATEGORIES</h2>
-            <section className="filter-section">
-              <label>
-                <input
-                  type="checkbox"
-                  checked={selectedCategories.length === 0}
-                  onChange={() => setSelectedCategories([])}
-                />
-                All
-              </label>
-
-              {productCategories.map((category) => (
-                <label key={category}>
+        {products.length === 0 ? (
+          <div className="empty-state empty-state-container">
+            <h2>No products available.</h2>
+            <p>The store is currently empty. Please check back later!</p>
+          </div>
+        ) : (
+          <div className="product-listing-content">
+            <aside className="filter-sidebar">
+              <h2>CATEGORIES</h2>
+              <section className="filter-section">
+                <label>
                   <input
                     type="checkbox"
-                    checked={selectedCategories.includes(category)}
-                    onChange={() => toggleCategory(category)}
+                    checked={selectedCategories.length === 0}
+                    onChange={() => setSelectedCategories([])}
                   />
-                  {category}
+                  All
                 </label>
-              ))}
-            </section>
-          </aside>
 
-          <section className="product-listing-products">
-            {filteredProducts.length > 0 ? (
-              <ProductGrid
-                products={filteredProducts}
-                onAddToCart={handleAddToCart}
-              />
-            ) : (
-              <p className="empty-state">
-                No products found in this category.
-              </p>
-            )}
-          </section>
-        </div>
-      )}
-    </main>
+                {productCategories.map((category) => (
+                  <label key={category}>
+                    <input
+                      type="checkbox"
+                      checked={selectedCategories.includes(category)}
+                      onChange={() => toggleCategory(category)}
+                    />
+                    {category}
+                  </label>
+                ))}
+              </section>
+            </aside>
+
+            <section className="product-listing-products">
+              {searchTerm && (
+                <h3 className="search-results-count" style={{ marginBottom: '20px', fontWeight: 600 }}>
+                  {filteredProducts.length} results for "{searchTerm}"
+                </h3>
+              )}
+
+              {filteredProducts.length > 0 ? (
+                <ProductGrid
+                  products={filteredProducts}
+                  onAddToCart={handleAddToCart}
+                />
+              ) : (
+                <div className="empty-state search-empty-state">
+                  <h2>No products found</h2>
+                  <p>We couldn't find any products matching your search criteria.</p>
+                </div>
+              )}
+            </section>
+          </div>
+        )}
+      </main>
+    </>
   )
 }
 

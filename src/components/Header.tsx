@@ -7,10 +7,38 @@ import {
   Search,
   ShoppingCart,
 } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import './Header.css'
 
 function Header() {
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchInput, setSearchInput] = useState(searchParams.get('search') || '');
+
+  // Keep the input in sync with the URL (handles browser back/forward buttons)
+  useEffect(() => {
+    setSearchInput(searchParams.get('search') || '');
+  }, [searchParams]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const query = searchInput.trim();
+
+    if (window.location.pathname === '/assignment5') {
+      // We are already on the listing page. Safely update ONLY the search param.
+      if (query) {
+        searchParams.set('search', query);
+      } else {
+        searchParams.delete('search');
+      }
+      setSearchParams(searchParams);
+    } else {
+      // We are on Home or another page. Navigate to the listing page.
+      navigate(query ? `/assignment5?search=${encodeURIComponent(query)}` : '/assignment5');
+    }
+  };
+
   return (
     <header className="site-header">
       <div className="header-container">
@@ -25,15 +53,22 @@ function Header() {
           <img src="/jlg-logo.png" alt="JLG" />
         </Link>
 
+        {/* Search Bar */}
+        <form className="header-search-form" onSubmit={handleSearch}>
+          <input
+            type="search"
+            placeholder="Search by part number or keyword"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            className="header-search-input"
+          />
+          <button type="submit" className="header-search-button" aria-label="Search">
+            <Search size={20} />
+          </button>
+        </form>
+
         {/* Desktop navigation */}
         <nav className="desktop-nav">
-          <button type="button" className="header-icon-button" aria-label="Search">
-            <Search size={22} />
-          </button>
-
-          <Link to="/assignment5" className="header-link">
-            Categories
-          </Link>
 
           <button type="button" className="header-link">
             <Globe size={18} />
