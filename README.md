@@ -210,6 +210,15 @@ product price x selected quantity
 
 The quantity defaults to `1` and invalid values are corrected to `1`.
 
+### Search, Filter, and Sort Pipeline
+
+The product grid utilizes a highly optimized, strictly unidirectional, client-side data pipeline to provide instant user feedback without unnecessary network requests:
+
+1. **State Management (The URL Bridge)**: The search functionality uses a decoupled Publisher/Subscriber pattern via the URL. The `Header` acts as the Publisher, capturing keystrokes and updating the URL (`?search=...`). `Assignment5` acts as the Subscriber, reading that URL to perform the actual product filtering. This prevents unnecessary global state re-renders while allowing users to bookmark and share specific search results.
+2. **The Filter Stage (`filteredProducts`)**: On every render, the app checks the master in-memory product list against both the URL search term and the selected category checkboxes simultaneously. Only products that match *both* criteria pass through.
+3. **The Sort Stage (`sortedProducts`)**: The filtered array is copied and sorted based on the selected Radio button (Name, Price, or Rating). It features smart defaults, such as automatically defaulting to `High -> Low` when a user selects Ratings.
+4. **Error Boundary Resolution (Empty States)**: If the final `sortedProducts` array is empty, the UI conditionally renders highly specific Empty States explaining exactly *why* no products were found. It handles 3 distinct edge cases: (A) Search + Category mismatch, (B) Category-only mismatch, and (C) Search-only typo. All empty states provide customized advice and a unified "Try Again" button that resets the URL and clears all filters.
+
 ### Styling
 
 Styles are separated into global, shared, component, and page layers. Component CSS is imported by the component it styles, while page CSS is imported by the related page.

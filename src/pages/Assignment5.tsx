@@ -255,127 +255,127 @@ function Assignment5() {
                             </h2>
                             <div className={`filter-content ${isMobileFiltersOpen ? 'open' : ''}`}>
                                 <h3>CATEGORIES</h3>
-                            <section className="filter-section">
-                                <label>
-                                    <input
-                                        type="checkbox"
-                                        checked={selectedCategories.length === 0}
-                                        onChange={() => setSelectedCategories([])}
-                                    />
-                                    All
-                                </label>
-
-                                {productCategories.map((category) => (
-                                    <label key={category}>
+                                <section className="filter-section">
+                                    <label>
                                         <input
                                             type="checkbox"
-                                            checked={selectedCategories.includes(category)}
-                                            onChange={() => toggleCategory(category)}
+                                            checked={selectedCategories.length === 0}
+                                            onChange={() => setSelectedCategories([])}
                                         />
-                                        {category}
+                                        All
                                     </label>
-                                ))}
-                            </section>
 
-                            <h3 className="sort-heading">Sort by</h3>
-                            <section className="filter-section sort-options">
-
-                                {/* NAME SORT */}
-                                <div className={`sort-group ${sortCategory === 'name' ? 'active' : ''}`}>
-                                    <label className="sort-main-label">
-                                        <div>
+                                    {productCategories.map((category) => (
+                                        <label key={category}>
                                             <input
-                                                type="radio"
-                                                checked={sortCategory === 'name'}
-                                                onChange={() => setSortCategory('name')}
+                                                type="checkbox"
+                                                checked={selectedCategories.includes(category)}
+                                                onChange={() => toggleCategory(category)}
                                             />
-                                            Name
-                                        </div>
-                                        {sortCategory === 'name' && (
-                                            <button className="clear-sort" onClick={(e) => { e.preventDefault(); setSortCategory(null); }} aria-label="Clear sort">✕</button>
-                                        )}
-                                    </label>
-                                    <div className={`sort-sub-options-wrapper ${sortCategory === 'name' ? 'open' : ''}`}>
-                                        <div className="sort-sub-options">
-                                            <div className="sort-sub-options-inner">
-                                                <label>
-                                                    <input type="radio" checked={sortDirection === 'asc'} onChange={() => setSortDirection('asc')} />
-                                                    A → Z
-                                                </label>
-                                                <label>
-                                                    <input type="radio" checked={sortDirection === 'desc'} onChange={() => setSortDirection('desc')} />
-                                                    Z → A
-                                                </label>
+                                            {category}
+                                        </label>
+                                    ))}
+                                </section>
+
+                                <h3 className="sort-heading">Sort by</h3>
+                                <section className="filter-section sort-options">
+
+                                    {/* NAME SORT */}
+                                    <div className={`sort-group ${sortCategory === 'name' ? 'active' : ''}`}>
+                                        <label className="sort-main-label">
+                                            <div>
+                                                <input
+                                                    type="radio"
+                                                    checked={sortCategory === 'name'}
+                                                    onChange={() => setSortCategory('name')}
+                                                />
+                                                Name
+                                            </div>
+                                            {sortCategory === 'name' && (
+                                                <button className="clear-sort" onClick={(e) => { e.preventDefault(); setSortCategory(null); }} aria-label="Clear sort">✕</button>
+                                            )}
+                                        </label>
+                                        <div className={`sort-sub-options-wrapper ${sortCategory === 'name' ? 'open' : ''}`}>
+                                            <div className="sort-sub-options">
+                                                <div className="sort-sub-options-inner">
+                                                    <label>
+                                                        <input type="radio" checked={sortDirection === 'asc'} onChange={() => setSortDirection('asc')} />
+                                                        A → Z
+                                                    </label>
+                                                    <label>
+                                                        <input type="radio" checked={sortDirection === 'desc'} onChange={() => setSortDirection('desc')} />
+                                                        Z → A
+                                                    </label>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                {/* PRICE SORT */}
-                                <div className={`sort-group ${sortCategory === 'price' ? 'active' : ''}`}>
-                                    <label className="sort-main-label">
-                                        <div>
-                                            <input
-                                                type="radio"
-                                                checked={sortCategory === 'price'}
-                                                onChange={() => setSortCategory('price')}
-                                            />
-                                            Price
-                                        </div>
-                                        {sortCategory === 'price' && (
-                                            <button className="clear-sort" onClick={(e) => { e.preventDefault(); setSortCategory(null); }} aria-label="Clear sort">✕</button>
-                                        )}
-                                    </label>
-                                    <div className={`sort-sub-options-wrapper ${sortCategory === 'price' ? 'open' : ''}`}>
-                                        <div className="sort-sub-options">
-                                            <div className="sort-sub-options-inner">
-                                                <label>
-                                                    <input type="radio" checked={sortDirection === 'asc'} onChange={() => setSortDirection('asc')} />
-                                                    Low → High
-                                                </label>
-                                                <label>
-                                                    <input type="radio" checked={sortDirection === 'desc'} onChange={() => setSortDirection('desc')} />
-                                                    High → Low
-                                                </label>
+                                    {/* PRICE SORT */}
+                                    <div className={`sort-group ${sortCategory === 'price' ? 'active' : ''}`}>
+                                        <label className="sort-main-label">
+                                            <div>
+                                                <input
+                                                    type="radio"
+                                                    checked={sortCategory === 'price'}
+                                                    onChange={() => setSortCategory('price')}
+                                                />
+                                                Price
+                                            </div>
+                                            {sortCategory === 'price' && (
+                                                <button className="clear-sort" onClick={(e) => { e.preventDefault(); setSortCategory(null); }} aria-label="Clear sort">✕</button>
+                                            )}
+                                        </label>
+                                        <div className={`sort-sub-options-wrapper ${sortCategory === 'price' ? 'open' : ''}`}>
+                                            <div className="sort-sub-options">
+                                                <div className="sort-sub-options-inner">
+                                                    <label>
+                                                        <input type="radio" checked={sortDirection === 'asc'} onChange={() => setSortDirection('asc')} />
+                                                        Low → High
+                                                    </label>
+                                                    <label>
+                                                        <input type="radio" checked={sortDirection === 'desc'} onChange={() => setSortDirection('desc')} />
+                                                        High → Low
+                                                    </label>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                {/* RATING SORT */}
-                                <div className={`sort-group ${sortCategory === 'rating' ? 'active' : ''}`}>
-                                    <label className="sort-main-label">
-                                        <div>
-                                            <input
-                                                type="radio"
-                                                checked={sortCategory === 'rating'}
-                                                onChange={() => {
-                                                    setSortCategory('rating');
-                                                    setSortDirection('desc'); // Ratings default to High->Low usually
-                                                }}
-                                            />
-                                            Ratings
-                                        </div>
-                                        {sortCategory === 'rating' && (
-                                            <button className="clear-sort" onClick={(e) => { e.preventDefault(); setSortCategory(null); setSortDirection('asc'); }} aria-label="Clear sort">✕</button>
-                                        )}
-                                    </label>
-                                    <div className={`sort-sub-options-wrapper ${sortCategory === 'rating' ? 'open' : ''}`}>
-                                        <div className="sort-sub-options">
-                                            <div className="sort-sub-options-inner">
-                                                <label>
-                                                    <input type="radio" checked={sortDirection === 'desc'} onChange={() => setSortDirection('desc')} />
-                                                    High → Low
-                                                </label>
-                                                <label>
-                                                    <input type="radio" checked={sortDirection === 'asc'} onChange={() => setSortDirection('asc')} />
-                                                    Low → High
-                                                </label>
+                                    {/* RATING SORT */}
+                                    <div className={`sort-group ${sortCategory === 'rating' ? 'active' : ''}`}>
+                                        <label className="sort-main-label">
+                                            <div>
+                                                <input
+                                                    type="radio"
+                                                    checked={sortCategory === 'rating'}
+                                                    onChange={() => {
+                                                        setSortCategory('rating');
+                                                        setSortDirection('desc'); // Ratings default to High->Low usually
+                                                    }}
+                                                />
+                                                Ratings
+                                            </div>
+                                            {sortCategory === 'rating' && (
+                                                <button className="clear-sort" onClick={(e) => { e.preventDefault(); setSortCategory(null); setSortDirection('asc'); }} aria-label="Clear sort">✕</button>
+                                            )}
+                                        </label>
+                                        <div className={`sort-sub-options-wrapper ${sortCategory === 'rating' ? 'open' : ''}`}>
+                                            <div className="sort-sub-options">
+                                                <div className="sort-sub-options-inner">
+                                                    <label>
+                                                        <input type="radio" checked={sortDirection === 'desc'} onChange={() => setSortDirection('desc')} />
+                                                        High → Low
+                                                    </label>
+                                                    <label>
+                                                        <input type="radio" checked={sortDirection === 'asc'} onChange={() => setSortDirection('asc')} />
+                                                        Low → High
+                                                    </label>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </section>
+                                </section>
                             </div>
                         </aside>
 

@@ -30,7 +30,7 @@ function Home() {
       if (error instanceof Error && error.name === 'AbortError') {
         return
       }
-
+      
       console.error("API Error:", error)
       setError(error instanceof Error ? error.message : 'An unexpected error occurred.')
       setIsLoading(false)

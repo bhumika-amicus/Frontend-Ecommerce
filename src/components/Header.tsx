@@ -1,15 +1,10 @@
-import {
-  ChevronsRight,
-  Globe,
-  Info,
-  LogIn,
-  Menu,
-  Search,
-  ShoppingCart,
-} from 'lucide-react'
+import { ChevronsRight, Globe, Info, LogIn, Menu, Search, ShoppingCart, } from 'lucide-react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useState, useEffect } from 'react'
+import type { ComponentProps } from 'react'
 import './Header.css'
+
+type HeaderFormSubmitEvent = Parameters<NonNullable<ComponentProps<'form'>['onSubmit']>>[0]
 
 function Header() {
   const navigate = useNavigate();
@@ -21,7 +16,7 @@ function Header() {
     setSearchInput(searchParams.get('search') || '');
   }, [searchParams]);
 
-  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSearch = (e: HeaderFormSubmitEvent) => {
     e.preventDefault();
     const query = searchInput.trim();
 
