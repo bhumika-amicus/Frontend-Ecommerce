@@ -40,10 +40,11 @@ interface ShippingFormErrors {
 }
 
 type ShippingField = keyof ShippingFormData
+type RequiredShippingField = Exclude<ShippingField, 'apartment'>
 
 type TouchedFields = Partial<Record<ShippingField, boolean>>
 
-const requiredFields: ShippingField[] = [
+const requiredFields: RequiredShippingField[] = [
     'fullName',
     'email',
     'phone',
@@ -55,8 +56,128 @@ const requiredFields: ShippingField[] = [
     'shippingMethod',
 ]
 
-function Checkout() {
+const shippingRates: Record<string, number> = {
+    standard: 5.00,
+    express: 15.00,
+    overnight: 25.00
+}
+const subtotal = 404.94
+const tax = 32.40
 
+const validateField = (field: ShippingField, value: string): string | undefined => {
+    switch (field) {
+        case 'fullName':
+            if (!value.trim()) {
+                return 'Full name is required'
+            }
+
+            if (value.trim().length < 3) {
+                return 'Full name must be at least 3 characters'
+            }
+
+            if (value.trim().length > 50) {
+                return 'Full name must be 50 characters or less'
+            }
+
+            break
+
+        case 'email':
+            if (!value.trim()) {
+                return 'Email is required'
+            }
+
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())) {
+                return 'Enter a valid email address'
+            }
+
+            break
+
+        case 'phone':
+            if (!value.trim()) {
+                return 'Phone number is required'
+            }
+
+            if (!/^\d{10}$/.test(value)) {
+                return 'Phone number must contain exactly 10 digits'
+            }
+
+            break
+
+        case 'address':
+            if (!value.trim()) {
+                return 'Street address is required'
+            }
+
+            if (value.trim().length < 10) {
+                return 'Street address must be at least 10 characters'
+            }
+
+            break
+
+        case 'apartment':
+            break
+
+        case 'country':
+            if (!value) {
+                return 'Country is required'
+            }
+
+            break
+
+        case 'state':
+            if (!value) {
+                return 'State is required'
+            }
+
+            break
+
+        case 'city':
+            if (!value) {
+                return 'City is required'
+            }
+
+            break
+
+        case 'postalCode':
+            if (!value.trim()) {
+                return 'ZIP code is required'
+            }
+
+            if (!/^\d{5,6}$/.test(value)) {
+                return 'ZIP code must contain 5–6 digits'
+            }
+
+            break
+
+        case 'shippingMethod':
+            if (!value) {
+                return 'Shipping method is required'
+            }
+
+            break
+    }
+
+    return undefined
+}
+
+function Checkout() {
+    // --- 1. State Declarations ---
+    const [formData, setFormData] = useState<ShippingFormData>(initialFormData)
+    const [isSubmitted, setIsSubmitted] = useState(false)
+    const [errors, setErrors] = useState<ShippingFormErrors>({})
+    const [touched, setTouched] = useState<TouchedFields>({})
+    const [countries, setCountries] = useState<string[]>([])
+    const [states, setStates] = useState<{ name: string, state_code: string }[]>([])
+    const [cities, setCities] = useState<string[]>([])
+    const [isLoadingStates, setIsLoadingStates] = useState(false)
+    const [isLoadingCities, setIsLoadingCities] = useState(false)
+
+    // --- 2. Derived State ---
+    const isFormValid = requiredFields.every((field) => validateField(field, formData[field]) === undefined)
+    const shippingFee = formData.shippingMethod ? shippingRates[formData.shippingMethod] || 0 : 0
+    const total = subtotal + shippingFee + tax
+
+    // --- 3. Effects ---
     useEffect(() => {
         const controller = new AbortController()
 
@@ -94,19 +215,7 @@ function Checkout() {
         }
     }, [])
 
-    const [formData, setFormData] = useState<ShippingFormData>(initialFormData)
-    const [isSubmitted, setIsSubmitted] = useState(false)
-
-    const [errors, setErrors] = useState<ShippingFormErrors>({})
-
-    const [touched, setTouched] = useState<TouchedFields>({})
-
-    const [countries, setCountries] = useState<string[]>([])
-    const [states, setStates] = useState<{ name: string, state_code: string }[]>([])
-    const [cities, setCities] = useState<string[]>([])
-    const [isLoadingStates, setIsLoadingStates] = useState(false)
-    const [isLoadingCities, setIsLoadingCities] = useState(false)
-
+    // --- 4. Event Handlers ---
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target
         const field = name as ShippingField
@@ -115,7 +224,6 @@ function Checkout() {
 
         if (touched[field]) {
             const error = validateField(field, value)
-
             setErrors((previousErrors) => ({ ...previousErrors, [field]: error, }))
         }
     }
@@ -236,102 +344,6 @@ function Checkout() {
         }))
     }
 
-    const validateField = (field: ShippingField, value: string): string | undefined => {
-        switch (field) {
-            case 'fullName':
-                if (!value.trim()) {
-                    return 'Full name is required'
-                }
-
-                if (value.trim().length < 3) {
-                    return 'Full name must be at least 3 characters'
-                }
-
-                if (value.trim().length > 50) {
-                    return 'Full name must be 50 characters or less'
-                }
-
-                break
-
-            case 'email':
-                if (!value.trim()) {
-                    return 'Email is required'
-                }
-
-                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())) {
-                    return 'Enter a valid email address'
-                }
-
-                break
-
-            case 'phone':
-                if (!value.trim()) {
-                    return 'Phone number is required'
-                }
-
-                if (!/^\d{10}$/.test(value)) {
-                    return 'Phone number must contain exactly 10 digits'
-                }
-
-                break
-
-            case 'address':
-                if (!value.trim()) {
-                    return 'Street address is required'
-                }
-
-                if (value.trim().length < 10) {
-                    return 'Street address must be at least 10 characters'
-                }
-
-                break
-
-            case 'apartment':
-                break
-
-            case 'country':
-                if (!value) {
-                    return 'Country is required'
-                }
-
-                break
-
-            case 'state':
-                if (!value) {
-                    return 'State is required'
-                }
-
-                break
-
-            case 'city':
-                if (!value) {
-                    return 'City is required'
-                }
-
-                break
-
-            case 'postalCode':
-                if (!value.trim()) {
-                    return 'ZIP code is required'
-                }
-
-                if (!/^\d{5,6}$/.test(value)) {
-                    return 'ZIP code must contain 5–6 digits'
-                }
-
-                break
-
-            case 'shippingMethod':
-                if (!value) {
-                    return 'Shipping method is required'
-                }
-
-                break
-        }
-
-        return undefined
-    }
-
     const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target
         const field = name as ShippingField
@@ -342,8 +354,6 @@ function Checkout() {
 
         setErrors((previousErrors) => ({ ...previousErrors, [field]: error, }))
     }
-
-    const isFormValid = requiredFields.every((field) => validateField(field, formData[field]) === undefined)
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
@@ -356,18 +366,20 @@ function Checkout() {
                 setTouched({})
                 setErrors({})
             }, 3000)
+        } else {
+            // Trigger all validation errors to show
+            const newTouched: TouchedFields = {}
+            const newErrors: ShippingFormErrors = {}
+
+            requiredFields.forEach(field => {
+                newTouched[field] = true
+                newErrors[field] = validateField(field, formData[field])
+            })
+
+            setTouched(newTouched)
+            setErrors(newErrors)
         }
     }
-
-    const shippingRates: Record<string, number> = {
-        standard: 5.00,
-        express: 15.00,
-        overnight: 25.00
-    }
-    const shippingFee = formData.shippingMethod ? shippingRates[formData.shippingMethod] || 0 : 0
-    const subtotal = 404.94
-    const tax = 32.40
-    const total = subtotal + shippingFee + tax
 
     return (
         <main className="checkout-container">
@@ -617,7 +629,7 @@ function Checkout() {
                     </div>
 
                     <div className="submit-section">
-                        <button type="submit" disabled={!isFormValid} className="place-order-btn">
+                        <button type="submit" className="place-order-btn">
                             PLACE ORDER
                         </button>
                     </div>
