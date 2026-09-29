@@ -138,6 +138,26 @@ When a user interacts with the application, they experience the following optimi
    - **Mobile:** The search bar seamlessly drops into the header row, and the sidebar transforms into a touch-friendly accordion dropdown to conserve screen real estate.
 5. **Add to Cart:** The user can increase/decrease quantities using the custom `QuantitySelector`. The UI dynamically calculates the total price in real-time, including calculating original strikethrough prices if a product is on sale.
 
+## Assignment 9 — Checkout Shipping Form
+
+This assignment implements a fully responsive checkout shipping form, built in two separate stages to demonstrate the evolution of form handling in React.
+
+### Part 1: Controlled Components (Vanilla React)
+**Route:** `/Checkout1` (File: `src/pages/checkout1.tsx`)
+
+In the first implementation, the entire form is built from scratch using pure React state. 
+- **State Management:** A single `useState` hook manages the entire form data object, while separate states track user interactions (which fields have been "touched") and validation errors.
+- **Validation:** A centralized validation function runs dynamically. Errors only display for fields the user has already touched, ensuring a clean initial user experience. The "Place Order" button remains disabled until all required fields pass validation.
+- **Dynamic Dropdowns:** The Country, State, and City dropdowns are powered by live data from an external API (`countriesnow.space`). The state is completely reactive—if a user changes their selected Country, the dependent State and City fields automatically clear themselves and fetch the new correct values.
+
+### Part 2: React Hook Form
+**Route:** `/checkout2` (File: `src/pages/checkout2.tsx`)
+
+The second implementation rebuilds the form using industry-standard tools: **React Hook Form**.
+- **Refactored Architecture:** Manual state objects, change handlers, and blur handlers are replaced by the `useForm` and `register` hooks.
+- **Performance:** Form interactions are much faster as uncontrolled inputs prevent the entire page from re-rendering on every keystroke. 
+- **Validation Configuration:** The form uses `mode: 'onTouched'`, which automatically waits for the first blur event before showing errors, and then instantly re-validates on every keystroke after that. This provides the exact same high-quality UX as Part 1 but with significantly less manual code.
+
 ## Project Structure
 
 ```text
