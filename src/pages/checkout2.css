@@ -1,0 +1,258 @@
+.checkout2-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 10px 20px;
+}
+
+.checkout2-container h1 {
+    margin-bottom: 10px;
+    font-size: 22px;
+}
+
+.checkout2-form {
+    border: 0;
+    overflow: visible;
+    background: transparent;
+}
+
+.checkout2-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+    align-items: start;
+    gap: 24px;
+}
+
+.shipping-section,
+.order-summary {
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #fff;
+}
+
+.order-summary {
+    position: sticky;
+    top: 20px;
+}
+
+.section-header {
+    padding: 15px;
+    background: #222;
+    color: #fff;
+    font-size: 14px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.shipping-content {
+    padding: 15px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.form-group label {
+    margin-bottom: 4px;
+    color: #555;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    min-height: 36px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #fff;
+    font: inherit;
+    font-size: 13px;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: #f97316;
+    outline: none;
+}
+
+.form-group .input-error {
+    border-color: #dc3545;
+}
+
+.error-message {
+    margin: 5px 0 0;
+    color: #dc3545;
+    font-size: 12px;
+}
+
+.success-message {
+    margin-bottom: 20px;
+    padding: 15px;
+    border-radius: 4px;
+    background: #d4edda;
+    color: #155724;
+    text-align: center;
+    font-weight: bold;
+}
+
+.location-error {
+    margin: 0 0 15px;
+    color: #a12622;
+    font-size: 13px;
+}
+
+.shipping-method-section {
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid #eee;
+}
+
+.shipping-method-section h2 {
+    margin: 0 0 14px;
+    font-size: 15px;
+}
+
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.radio-label,
+.radio-label span {
+    display: flex;
+    align-items: center;
+}
+
+.radio-label {
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.radio-label span:first-child {
+    gap: 10px;
+}
+
+.radio-label input[type='radio'] {
+    width: auto;
+    min-height: auto;
+    margin: 0;
+    accent-color: #ea580c;
+}
+
+.order-items,
+.order-totals {
+    padding: 15px;
+}
+
+.order-items {
+    border-bottom: 1px solid #eee;
+}
+
+.order-item,
+.summary-row,
+.summary-total {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.order-item {
+    margin-bottom: 12px;
+    color: #555;
+    font-size: 13px;
+}
+
+.order-item:last-child {
+    margin-bottom: 0;
+}
+
+.summary-row {
+    margin-bottom: 8px;
+    color: #555;
+    font-size: 13px;
+}
+
+.summary-total {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 2px solid #f97316;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.total-amount {
+    color: #ea580c;
+}
+
+.submit-section {
+    padding: 15px;
+    border-top: 1px solid #eee;
+    background: #fafafa;
+}
+
+.place-order-btn {
+    width: 100%;
+    padding: 12px;
+    border: 0;
+    border-radius: 4px;
+    background: #ea580c;
+    color: #fff;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.place-order-btn:hover:not(:disabled) {
+    background: #c2410c;
+}
+
+.place-order-btn:disabled {
+    background: #fdba74;
+    cursor: not-allowed;
+}
+
+.place-order-btn:focus-visible {
+    outline: 3px solid #f97316;
+    outline-offset: 2px;
+}
+
+@media (max-width: 600px) {
+    .checkout2-container {
+        padding: 10px 12px;
+    }
+
+    .checkout2-layout,
+    .form-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .order-summary {
+        position: static;
+    }
+
+    .radio-label {
+        align-items: flex-start;
+    }
+
+    .radio-label span {
+        align-items: flex-start;
+    }
+
+    .radio-label input[type='radio'] {
+        margin-top: 2px;
+    }
+}

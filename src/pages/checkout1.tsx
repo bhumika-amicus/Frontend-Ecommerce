@@ -366,18 +366,6 @@ function Checkout() {
                 setTouched({})
                 setErrors({})
             }, 3000)
-        } else {
-            // Trigger all validation errors to show
-            const newTouched: TouchedFields = {}
-            const newErrors: ShippingFormErrors = {}
-
-            requiredFields.forEach(field => {
-                newTouched[field] = true
-                newErrors[field] = validateField(field, formData[field])
-            })
-
-            setTouched(newTouched)
-            setErrors(newErrors)
         }
     }
 
@@ -629,7 +617,7 @@ function Checkout() {
                     </div>
 
                     <div className="submit-section">
-                        <button type="submit" className="place-order-btn">
+                        <button type="submit" disabled={!isFormValid} className="place-order-btn">
                             PLACE ORDER
                         </button>
                     </div>
