@@ -1,6 +1,5 @@
 import ProductCard from './ProductCard'
 import type { Product } from '../types/Products'
-import './ProductGrid.css'
 
 interface ProductGridProps {
   products: Product[]
@@ -12,7 +11,7 @@ function ProductGrid({
   onAddToCart,
 }: ProductGridProps) {
   return (
-    <div className="product-grid">
+    <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
       {products.map((product) => (
         <ProductCard
           key={product.id}
