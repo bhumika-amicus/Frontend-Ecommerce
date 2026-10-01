@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import './checkout1.css'
+import './Checkout1.css'
 
 interface ShippingFormData {
     fullName: string

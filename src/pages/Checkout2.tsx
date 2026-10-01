@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
-import './checkout2.css'
+import './Checkout2.css'
 
 type ShippingMethod = '' | 'standard' | 'express' | 'overnight'
 
