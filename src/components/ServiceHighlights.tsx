@@ -3,12 +3,12 @@ import {
   Headphones,
   Truck,
 } from 'lucide-react'
-import './ServiceHighlights.css'
+import type { ReactNode } from 'react'
 
 interface ServiceHighlight {
   title: string
   description: string
-  icon: React.ReactNode
+  icon: ReactNode
 }
 
 const serviceHighlights: ServiceHighlight[] = [
@@ -31,20 +31,25 @@ const serviceHighlights: ServiceHighlight[] = [
 
 function ServiceHighlights() {
   return (
-    <section className="service-highlights">
-      <div className="service-highlights-container">
+    <section className="bg-[#4b4c4e] px-5 py-9 text-white md:px-6 md:py-12">
+      <div className="mx-auto grid max-w-300 grid-cols-1 gap-7 md:grid-cols-3 md:gap-10">
         {serviceHighlights.map((service) => (
           <div
             key={service.title}
-            className="service-highlight"
+            className="flex items-center gap-5"
           >
-            <div className="service-highlight-icon">
+            <div className="flex shrink-0 items-center justify-center">
               {service.icon}
             </div>
 
             <div>
-              <h3>{service.title}</h3>
-              <p>{service.description}</p>
+              <h3 className="m-0 mb-0.5 text-lg font-light">
+                {service.title}
+              </h3>
+
+              <p className="m-0 text-xs md:text-sm">
+                {service.description}
+              </p>
             </div>
           </div>
         ))}

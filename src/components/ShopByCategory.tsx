@@ -1,25 +1,34 @@
+import { Link } from 'react-router-dom'
 import Card from './Card'
-import type { Product } from '../types/Products'
-import './ShopByCategory.css'
+import type { Category } from '../types/Categories'
 
 interface ShopByCategoryProps {
-  products: Product[]
+  categories: Category[]
 }
 
-function ShopByCategory({ products }: ShopByCategoryProps) {
-  const categories = Array.from(new Set(products.map((p) => p.category)))
-
+function ShopByCategory({ categories }: ShopByCategoryProps) {
   return (
-    <section className="shop-by-category-section">
+    <section className="mx-auto max-w-350 px-12 pt-5 pb-15">
       <div className="section-heading">
-        <h2>Part Categories</h2>
+        <h2>Shop by Category</h2>
       </div>
 
-      <div className="category-list-grid">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         {categories.map((category) => (
-          <Card key={category} variant="bordered" className="category-list-card">
-            <h3 className="category-list-title">{category}</h3>
-          </Card>
+          <Link
+            key={category.id}
+            to={`/products?categoryId=${category.id}`}
+            className="no-underline"
+          >
+            <Card
+              variant="bordered"
+              className="cursor-pointer items-center justify-center px-5 py-4 text-center transition duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_8px_16px_rgba(0,0,0,0.05)]"
+            >
+              <h3 className="m-0 text-sm font-semibold tracking-normal text-brand-orange">
+                {category.name}
+              </h3>
+            </Card>
+          </Link>
         ))}
       </div>
     </section>

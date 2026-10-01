@@ -1,15 +1,27 @@
-import type { DummyProduct } from '../types/DummyProduct'
+import type { ProductDto } from '../types/ProductDto'
 import type { Product } from '../types/Products'
+import type { CategoryDto } from '../types/CategoryDto'
+import type { Category } from '../types/Categories'
 
-export function transformProduct(product: DummyProduct): Product {
+export function transformProduct(product: ProductDto): Product {
   return {
-    id: product.id,
-    name: product.title,
+    id: product.productId,
+    name: product.name ?? 'Unnamed Product',
+    description: product.description ?? '',
     price: product.price,
-    imageUrl: product.thumbnail,
-    category: product.category,
+    imageUrl: '',
+    categoryId: product.categoryId,
+    category: product.categoryName ?? 'Uncategorized',
+    brandId: product.brandId,
+    brand: product.brandName ?? 'Unknown Brand',
     rating: product.rating,
-    discountPercentage: product.discountPercentage,
-    createdAt: product.meta?.createdAt,
   }
 }
+
+export function transformCategory(category: CategoryDto): Category {
+  return {
+    id: category.categoryId,
+    name: category.name,
+  }
+}
+

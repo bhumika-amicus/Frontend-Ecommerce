@@ -7,7 +7,6 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
-import './FeaturedProductCarousel.css'
 
 import type { Product } from '../types/Products'
 import ProductCard from './ProductCard'
@@ -24,22 +23,26 @@ function FeaturedProductCarousel({
   const swiperRef = useRef<SwiperInstance | null>(null)
 
   return (
-    <section className="featured-products">
+  <section className="w-full px-11 max-[650px]:px-4.5 [&_.swiper-pagination-bullet-active]:bg-[#555555]!">
       <div className="section-heading">
         <h2>Featured Parts</h2>
       </div>
 
-      <div className="featured-products-carousel">
+      <div className="relative">
         <button
           type="button"
-          className="featured-products-prev"
+          className="absolute top-1/2 -left-9 z-2 grid h-8 w-8 -translate-y-1/2 place-items-center border-0 bg-transparent p-0 text-brand-orange transition-colors hover:text-brand-orange-hover max-[650px]:-left-1"
           aria-label="Previous featured part"
           onClick={() => swiperRef.current?.slidePrev()}
         >
-          <ChevronLeft aria-hidden="true" />
+          <ChevronLeft
+            aria-hidden="true"
+            className="h-7.5 w-7.5"
+          />
         </button>
 
         <Swiper
+          className="overflow-hidden! pb-10!"
           modules={[Pagination]}
           onSwiper={(swiper) => {
             swiperRef.current = swiper
@@ -64,11 +67,14 @@ function FeaturedProductCarousel({
 
         <button
           type="button"
-          className="featured-products-next"
+          className="absolute top-1/2 -right-9 z-2 grid h-8 w-8 -translate-y-1/2 place-items-center border-0 bg-transparent p-0 text-brand-orange transition-colors hover:text-brand-orange-hover max-[650px]:-right-1"
           aria-label="Next featured part"
           onClick={() => swiperRef.current?.slideNext()}
         >
-          <ChevronRight aria-hidden="true" />
+          <ChevronRight
+            aria-hidden="true"
+            className="h-7.5 w-7.5"
+          />
         </button>
       </div>
     </section>

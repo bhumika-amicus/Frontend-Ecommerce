@@ -103,7 +103,7 @@ function Assignment5() {
                     {/* Mobile Header */}
                     <button
                         type="button"
-                        className="flex w-full cursor-pointer items-center justify-between border-b-2 border-orange-500 bg-transparent p-0 pb-2 text-left text-lg md:text-xl font-bold uppercase tracking-wide text-gray-800 transition-colors hover:text-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2 lg:hidden"
+                        className="flex w-full cursor-pointer items-center justify-between border-b-2 border-brand-orange-500 bg-transparent p-0 pb-2 text-left text-lg md:text-xl font-bold uppercase tracking-wide text-gray-800 transition-colors hover:text-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2 lg:hidden"
                         aria-expanded={isMobileFiltersOpen}
                         aria-controls="listing-filter-content"
                         onClick={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}
@@ -112,7 +112,7 @@ function Assignment5() {
                         <span aria-hidden="true">{isMobileFiltersOpen ? '▲' : '▼'}</span>
                     </button>
                     {/* Desktop Header */}
-                    <h2 className="hidden lg:block m-0 pb-2 mb-4 border-b-2 border-orange-500 font-bold uppercase tracking-wide text-gray-800">
+                    <h2 className="hidden lg:block m-0 pb-2 mb-4 border-b-2 border-brand-orange-500 font-bold uppercase tracking-wide text-gray-800">
                         FILTERS
                     </h2>
                     <div
@@ -288,7 +288,7 @@ function Assignment5() {
                     {/* Mobile Header */}
                     <button
                         type="button"
-                        className="flex w-full cursor-pointer items-center justify-between border-b-2 border-orange-500 bg-transparent p-0 pb-2 text-left text-lg md:text-xl font-bold uppercase tracking-wide text-gray-800 transition-colors hover:text-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2 lg:hidden"
+                        className="flex w-full cursor-pointer items-center justify-between border-b-2 border-brand-orange-500 bg-transparent p-0 pb-2 text-left text-lg md:text-xl font-bold uppercase tracking-wide text-gray-800 transition-colors hover:text-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2 lg:hidden"
                         aria-expanded={isMobileFiltersOpen}
                         aria-controls="listing-filter-content"
                         onClick={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}
@@ -297,7 +297,7 @@ function Assignment5() {
                         <span aria-hidden="true">{isMobileFiltersOpen ? '▲' : '▼'}</span>
                     </button>
                     {/* Desktop Header */}
-                    <h2 className="hidden lg:block m-0 pb-2 mb-4 border-b-2 border-orange-500 font-bold uppercase tracking-wide text-gray-800">
+                    <h2 className="hidden lg:block m-0 pb-2 mb-4 border-b-2 border-brand-orange-500 font-bold uppercase tracking-wide text-gray-800">
                         FILTERS
                     </h2>
 
@@ -343,8 +343,8 @@ function Assignment5() {
                             {/* NAME SORT */}
                             <div className="flex flex-col">
                                 <div
-                                    className={`mb-2 flex items-center justify-between rounded px-1 text-sm text-gray-600 transition-colors hover:bg-orange-50 ${sortCategory === 'name'
-                                        ? 'bg-orange-50 font-medium text-orange-600'
+                                    className={`mb-2 flex items-center justify-between rounded px-1 text-sm text-gray-600 transition-colors hover:bg-brand-orange-50 ${sortCategory === 'name'
+                                        ? 'bg-brand-orange-50 font-medium text-brand-orange-600'
                                         : ''
                                         }`}
                                 >
@@ -361,7 +361,7 @@ function Assignment5() {
                                     {sortCategory === 'name' && (
                                         <button
                                             type="button"
-                                            className="cursor-pointer rounded border-0 bg-transparent px-1 text-orange-600 font-bold transition-colors hover:bg-orange-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2"
+                                            className="cursor-pointer rounded border-0 bg-transparent px-1 text-brand-orange-600 font-bold transition-colors hover:bg-brand-orange-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2"
                                             onClick={() => setSortCategory(null)}
                                             aria-label="Clear sort"
                                         >✕</button>
@@ -374,7 +374,7 @@ function Assignment5() {
                                         }`}
                                 >
                                     <div>
-                                        <div className="ml-5 mt-2 flex flex-col gap-2 border-l-2 border-orange-500 pl-3">
+                                        <div className="ml-5 mt-2 flex flex-col gap-2 border-l-2 border-brand-orange-500 pl-3">
                                             <label className="flex cursor-pointer items-center gap-1.5 rounded text-sm text-gray-600" >
                                                 <input type="radio" name="sort-direction-name" className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2" checked={sortDirection === 'asc'} onChange={() => setSortDirection('asc')} />
                                                 A → Z
@@ -391,8 +391,8 @@ function Assignment5() {
                             {/* PRICE SORT */}
                             <div className="flex flex-col">
                                 <div
-                                    className={`mb-2 flex items-center justify-between rounded px-1 text-sm text-gray-600 transition-colors hover:bg-orange-50 ${sortCategory === 'price'
-                                        ? 'bg-orange-50 font-medium text-orange-600'
+                                    className={`mb-2 flex items-center justify-between rounded px-1 text-sm text-gray-600 transition-colors hover:bg-brand-orange-50 ${sortCategory === 'price'
+                                        ? 'bg-brand-orange-50 font-medium text-brand-orange-600'
                                         : ''
                                         }`}
                                 >
@@ -409,7 +409,7 @@ function Assignment5() {
                                     {sortCategory === 'price' && (
                                         <button
                                             type="button"
-                                            className="cursor-pointer rounded border-0 bg-transparent px-1 text-orange-600 font-bold transition-colors hover:bg-orange-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2"
+                                            className="cursor-pointer rounded border-0 bg-transparent px-1 text-brand-orange-600 font-bold transition-colors hover:bg-brand-orange-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2"
                                             onClick={() => setSortCategory(null)}
                                             aria-label="Clear sort"
                                         >✕</button>
@@ -422,7 +422,7 @@ function Assignment5() {
                                         }`}
                                 >
                                     <div>
-                                        <div className="ml-5 mt-2 flex flex-col gap-2 border-l-2 border-orange-500 pl-3">
+                                        <div className="ml-5 mt-2 flex flex-col gap-2 border-l-2 border-brand-orange-500 pl-3">
                                             <label className="flex cursor-pointer items-center gap-1.5 rounded text-sm text-gray-600">
                                                 <input type="radio" name="sort-direction-price" className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2" checked={sortDirection === 'asc'} onChange={() => setSortDirection('asc')} />
                                                 Low → High
@@ -439,8 +439,8 @@ function Assignment5() {
                             {/* RATING SORT */}
                             <div className="flex flex-col">
                                 <div
-                                    className={`mb-2 flex items-center justify-between rounded px-1 text-sm text-gray-600 transition-colors hover:bg-orange-50 ${sortCategory === 'rating'
-                                        ? 'bg-orange-50 font-medium text-orange-600'
+                                    className={`mb-2 flex items-center justify-between rounded px-1 text-sm text-gray-600 transition-colors hover:bg-brand-orange-50 ${sortCategory === 'rating'
+                                        ? 'bg-brand-orange-50 font-medium text-brand-orange-600'
                                         : ''
                                         }`}
                                 >
@@ -460,7 +460,7 @@ function Assignment5() {
                                     {sortCategory === 'rating' && (
                                         <button
                                             type="button"
-                                            className="cursor-pointer rounded border-0 bg-transparent px-1 text-orange-600 font-bold transition-colors hover:bg-orange-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2"
+                                            className="cursor-pointer rounded border-0 bg-transparent px-1 text-brand-orange-600 font-bold transition-colors hover:bg-brand-orange-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2"
                                             onClick={() => { setSortCategory(null); setSortDirection('asc'); }}
                                             aria-label="Clear sort"
                                         >✕</button>
@@ -473,7 +473,7 @@ function Assignment5() {
                                         }`}
                                 >
                                     <div>
-                                        <div className="ml-5 mt-2 flex flex-col gap-2 border-l-2 border-orange-500 pl-3">
+                                        <div className="ml-5 mt-2 flex flex-col gap-2 border-l-2 border-brand-orange-500 pl-3">
                                             <label className="flex cursor-pointer items-center gap-1.5 rounded text-sm text-gray-600">
                                                 <input type="radio" name="sort-direction-rating" className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2" checked={sortDirection === 'desc'} onChange={() => setSortDirection('desc')} />
                                                 High → Low
@@ -506,7 +506,7 @@ function Assignment5() {
                                 <button
                                     type="button"
                                     disabled
-                                    className="inline-flex h-8 items-center justify-center rounded-sm px-2 text-xs font-medium text-brand-orange transition-colors hover:bg-orange-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:text-gray-400 disabled:hover:bg-transparent"
+                                    className="inline-flex h-8 items-center justify-center rounded-sm px-2 text-xs font-medium text-brand-orange transition-colors hover:bg-brand-orange-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:text-gray-400 disabled:hover:bg-transparent"
                                 >
                                     Previous
                                 </button>
@@ -519,7 +519,7 @@ function Assignment5() {
                                         aria-label={page === 1 ? `Page ${page}, current page` : `Page ${page}`}
                                         className={`inline-flex h-8 min-w-8 items-center justify-center rounded-sm px-2 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2 ${page === 1
                                             ? 'bg-brand-orange text-white hover:bg-brand-orange-hover'
-                                            : 'text-gray-700 hover:bg-orange-50 hover:text-brand-orange'
+                                            : 'text-gray-700 hover:bg-brand-orange-50 hover:text-brand-orange'
                                             }`}
                                     >
                                         {page}
@@ -529,7 +529,7 @@ function Assignment5() {
                             <li>
                                 <button
                                     type="button"
-                                    className="inline-flex h-8 items-center justify-center rounded-sm px-2 text-xs font-medium text-brand-orange transition-colors hover:bg-orange-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:text-gray-400 disabled:hover:bg-transparent"
+                                    className="inline-flex h-8 items-center justify-center rounded-sm px-2 text-xs font-medium text-brand-orange transition-colors hover:bg-brand-orange-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:text-gray-400 disabled:hover:bg-transparent"
                                 >
                                     Next
                                 </button>
