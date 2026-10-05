@@ -51,7 +51,7 @@ function ProductCard({
           {isNew && <span className="w-max rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold tracking-wider text-emerald-600 uppercase">NEW</span>}
         </div> */}
         <img
-          src={product.imageUrl}
+          src="/placeholder.jpg"
           alt={product.name}
           className="block h-full w-full object-contain"
         />
@@ -85,7 +85,7 @@ function ProductCard({
 
         <div className="mb-3 flex items-baseline justify-center gap-1 whitespace-nowrap">
           {/* {formattedOldPrice && ( */}
-            <span className="text-base font-bold text-brand-orange">{formattedTotalPrice}</span>
+          <span className="text-base font-bold text-brand-orange">{formattedTotalPrice}</span>
           {/* )} */}
           {/* <span className="text-base font-bold text-brand-orange">{formattedTotalPrice}</span>
           {isSale && product.discountPercentage && (

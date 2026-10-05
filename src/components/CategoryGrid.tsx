@@ -12,16 +12,16 @@ function CategoryGrid() {
         >
           <div className="flex grow flex-col gap-6">
             <h3 className="m-0 text-[28px] font-bold leading-[1.2]">
-              Order Now
+              New Arrivals
             </h3>
 
             <p className="m-0 mb-2.5 text-[15px] leading-[1.4] text-[#444444]">
-              Already know your part number?
+              Check out the latest additions.
             </p>
           </div>
 
           <Button variant="primary" className="w-full">
-            ORDER NOW
+            SHOP NEW
           </Button>
         </Card>
 
@@ -31,16 +31,16 @@ function CategoryGrid() {
         >
           <div className="flex grow flex-col gap-6">
             <h3 className="m-0 text-[28px] font-bold leading-[1.2]">
-              Aftermarket Products
+              Best Sellers
             </h3>
 
             <p className="m-0 mb-2.5 text-[15px] leading-[1.4] text-[#444444]">
-              Browse through our parts catalog.
+              Shop our most popular items.
             </p>
           </div>
 
           <Button variant="primary" className="w-full">
-            AFTERMARKET PRODUCTS
+            SHOP BEST SELLERS
           </Button>
         </Card>
 
@@ -50,16 +50,16 @@ function CategoryGrid() {
         >
           <div className="flex grow flex-col gap-6">
             <h3 className="m-0 text-[28px] font-bold leading-[1.2]">
-              Interactive Parts Manuals
+              Gift Cards
             </h3>
 
             <p className="m-0 mb-2.5 text-[15px] leading-[1.4] text-[#444444]">
-              Find the right parts in our interactive manuals.
+              Give the perfect gift to someone special.
             </p>
           </div>
 
           <Button variant="primary" className="w-full">
-            VIEW MANUALS
+            BUY GIFT CARDS
           </Button>
         </Card>
 
@@ -69,16 +69,16 @@ function CategoryGrid() {
         >
           <div className="flex grow flex-col gap-6">
             <h3 className="m-0 text-[28px] font-bold leading-[1.2]">
-              Technical Publications
+              Sale Items
             </h3>
 
             <p className="m-0 mb-2.5 text-[15px] leading-[1.4] text-[#444444]">
-              Download schematics, forms and manuals (Parts, Operation, Service and Supplemental).
+              Discover great deals on top products.
             </p>
           </div>
 
           <Button variant="primary" className="w-full">
-            SEARCH PUBLICATIONS
+            SHOP SALE
           </Button>
         </Card>
 

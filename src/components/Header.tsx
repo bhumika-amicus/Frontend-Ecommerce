@@ -1,55 +1,8 @@
-import { ChevronsRight, Globe, Info, LogIn, Menu, Search, ShoppingCart, } from 'lucide-react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { useState, useEffect } from 'react'
-import type { ComponentProps } from 'react'
-
-type HeaderFormSubmitEvent = Parameters<NonNullable<ComponentProps<'form'>['onSubmit']>>[0]
+import { ChevronsRight, Globe, Info, LogIn, Menu, ShoppingCart } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import ProductSearch from './ProductSearch'
 
 function Header() {
-  const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [searchInput, setSearchInput] = useState(searchParams.get('search') || '');
-
-  // Keep the input in sync with the URL (handles browser back/forward buttons)
-  useEffect(() => {
-    setSearchInput(searchParams.get('search') || '');
-  }, [searchParams]);
-
-  const handleSearch = (e: HeaderFormSubmitEvent) => {
-    e.preventDefault();
-    const query = searchInput.trim();
-
-    if (window.location.pathname === '/assignment5') {
-      // We are already on the listing page. Safely update ONLY the search param.
-      if (query) {
-        searchParams.set('search', query);
-      } else {
-        searchParams.delete('search');
-      }
-      setSearchParams(searchParams, { replace: true });
-    } else {
-      // We are on Home or another page. Navigate to the listing page.
-      navigate(query ? `/assignment5?search=${encodeURIComponent(query)}` : '/assignment5');
-    }
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchInput(value);
-
-    // If we are on the product listing page, update the URL as they type!
-    if (window.location.pathname === '/assignment5') {
-      const query = value.trim();
-      if (query) {
-        searchParams.set('search', query);
-      } else {
-        searchParams.delete('search');
-      }
-      // replace: true ensures the browser Back button works flawlessly
-      setSearchParams(searchParams, { replace: true });
-    }
-  };
-
   return (
     <header className="w-full border-b border-[#e5e5e5] bg-white">
       <div className="mx-auto flex w-full max-w-360 flex-wrap justify-between items-center px-4.5 py-3 sm:px-6 md:h-17.5 md:flex-nowrap md:px-10 md:py-0">
@@ -61,23 +14,19 @@ function Header() {
 
         {/* Logo */}
         <Link to="/" className="flex shrink-0 items-center no-underline">
-          <img className="block h-auto w-27 sm:w-28 md:w-28.75" src="/jlg-logo.png" alt="JLG" />
+          <span className="text-2xl font-black tracking-tight text-[#ff5a00] italic">
+            Trendify
+          </span>
         </Link>
 
         {/* Search Bar */}
-        <form className="order-4 mx-0 mt-3 flex h-10.5 w-full flex-none items-center overflow-hidden rounded border border-gray-300 bg-white transition-colors focus-within:border-brand-orange focus-within:ring-2 focus-within:ring-brand-orange/30 md:order-none md:mx-10 md:mt-0 md:max-w-150 md:flex-1" onSubmit={handleSearch}>
-          <input
-            type="search"
-            placeholder="Search by part number or keyword"
-            value={searchInput}
-            onChange={handleInputChange}
-            aria-label="Search products"
-            className="h-full min-w-0 flex-1 border-0 bg-transparent px-4 text-sm text-gray-700 outline-none placeholder:text-gray-400"
-          />
-          <button type="submit" className="flex h-full w-11.5 shrink-0 items-center justify-center border-0 bg-transparent text-brand-orange transition-colors hover:bg-gray-50 focus-visible:outline-none" aria-label="Search">
-            <Search size={20} />
-          </button>
-        </form>
+        <ProductSearch
+          formClassName="order-4 mx-0 mt-3 flex h-10.5 w-full flex-none items-center overflow-hidden rounded border border-gray-300 bg-white transition-colors focus-within:border-brand-orange focus-within:ring-2 focus-within:ring-brand-orange/30 md:order-none md:mx-10 md:mt-0 md:max-w-150 md:flex-1"
+          inputClassName="h-full min-w-0 flex-1 border-0 bg-transparent px-4 text-sm text-gray-700 outline-none placeholder:text-gray-400"
+          buttonClassName="flex h-full w-11.5 shrink-0 items-center justify-center border-0 bg-transparent text-brand-orange transition-colors hover:bg-gray-50 focus-visible:outline-none"
+          placeholder="Search for products, brands and more"
+          iconSize={20}
+        />
 
         {/* Desktop navigation */}
         <nav className="ml-auto hidden items-center gap-7 md:flex">

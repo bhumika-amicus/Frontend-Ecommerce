@@ -25,7 +25,7 @@ function FeaturedProductCarousel({
   return (
   <section className="w-full px-11 max-[650px]:px-4.5 [&_.swiper-pagination-bullet-active]:bg-[#555555]!">
       <div className="section-heading">
-        <h2>Featured Parts</h2>
+        <h2>Featured Products</h2>
       </div>
 
       <div className="relative">

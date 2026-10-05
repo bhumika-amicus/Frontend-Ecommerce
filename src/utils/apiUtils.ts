@@ -2,6 +2,8 @@ import type { ProductDto } from '../types/ProductDto'
 import type { Product } from '../types/Products'
 import type { CategoryDto } from '../types/CategoryDto'
 import type { Category } from '../types/Categories'
+import type { BrandDto } from '../types/BrandDto'
+import type { Brand } from '../types/Brands'
 
 export function transformProduct(product: ProductDto): Product {
   return {
@@ -25,3 +27,9 @@ export function transformCategory(category: CategoryDto): Category {
   }
 }
 
+export function transformBrand(brand: BrandDto): Brand {
+  return {
+    id: brand.brandId,
+    name: brand.name,
+  }
+}

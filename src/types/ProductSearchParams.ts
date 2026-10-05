@@ -1,3 +1,5 @@
+import type { ProductSortBy, SortOrder } from './ProductSorting'
+
 export interface ProductSearchParams {
   search?: string
   categoryId?: number
@@ -5,8 +7,8 @@ export interface ProductSearchParams {
   minPrice?: number
   maxPrice?: number
   minRating?: number
-  sortBy?: string
-  sortOrder?: string
+  sortBy?: ProductSortBy
+  sortOrder?: SortOrder
   page?: number
   pageSize?: number
 }

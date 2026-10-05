@@ -1,10 +1,13 @@
-import { transformCategory, transformProduct } from '../utils/apiUtils'
+import { transformCategory, transformProduct, transformBrand } from '../utils/apiUtils'
 import type { ProductDto } from '../types/ProductDto'
 import type { Product } from '../types/Products'
 import type { CategoryDto } from '../types/CategoryDto';
 import type { Category } from '../types/Categories';
+import type { BrandDto } from '../types/BrandDto';
+import type { Brand } from '../types/Brands';
 import type { ProductSearchParams } from '../types/ProductSearchParams'
-import type { ProductSearchResultDto } from '../types/ProductSearchResult'
+import type { ProductSearchResultDto } from '../types/ProductSearchResultDto'
+import type { ProductSearchResult } from '../types/ProductSearchResult'
 
 const BASE_URL =  'https://training-ecom1-a9a2cmbsefdvgwha.centralindia-01.azurewebsites.net';
 
@@ -47,11 +50,19 @@ export async function getCategories(signal?: AbortSignal): Promise<Category[]> {
   return data.map(transformCategory)
 }
 
-export async function searchProducts( params: ProductSearchParams, signal?: AbortSignal): Promise<ProductSearchResultDto> {
+export async function getBrands(signal?: AbortSignal): Promise<Brand[]> {
+  const data = await apiFetch<BrandDto[]>('/api/Brands?api-version=1', signal)
+
+  return data.map(transformBrand)
+}
+
+export async function searchProducts( params: ProductSearchParams, signal?: AbortSignal): Promise<ProductSearchResult> {
   const queryParams = new URLSearchParams()
 
-  if (params.search) {
-    queryParams.set('Search', params.search)
+  const search = params.search?.trim()
+
+  if (search) {
+    queryParams.set('Search', search)
   }
 
   if (params.categoryId !== undefined) {
@@ -90,7 +101,14 @@ export async function searchProducts( params: ProductSearchParams, signal?: Abor
     queryParams.set('PageSize', String(params.pageSize))
   }
 
-  const data = await apiFetch<ProductSearchResultDto>(`/api/v1/Products/search?${queryParams.toString()}`, signal )
+   const data = await apiFetch<ProductSearchResultDto>(
+    `/api/v1/Products/search?${queryParams.toString()}`,
+    signal
+  )
 
-  return data
+  return {
+    ...data,
+    products: data.products.map(transformProduct),
+  }
+
 }

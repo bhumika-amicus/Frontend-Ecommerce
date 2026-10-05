@@ -1,7 +1,7 @@
-import type { ProductDto } from './ProductDto'
+import type { Product } from './Products'
 
-export interface ProductSearchResultDto {
-  products: ProductDto[]
+export interface ProductSearchResult {
+  products: Product[]
   page: number
   pageSize: number
   totalRecords: number

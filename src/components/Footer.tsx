@@ -68,15 +68,11 @@ function Footer() {
         {/* Column 4: Company Info & Copyright */}
         <div className="flex flex-col text-[13px] leading-[1.6] text-[#333333]">
           <p className="m-0 mb-4">
-            Copyright © 2026 JLG Industries
+            Copyright © 2026 Trendify
           </p>
 
           <p className="m-0 mb-6">
-            JLG Industries, Inc. is a leading manufacturer of mobile elevating
-            work platforms and related access equipment. Its product portfolio
-            includes aerial work platforms, telehandlers, and complementary
-            accessories designed to support productivity and efficiency across
-            a wide range of applications.
+            Trendify is your ultimate destination for the latest products across all categories. We bring you the most popular and trending items at unbeatable prices. Shop with confidence and elevate your lifestyle with our curated collections.
           </p>
         </div>
 

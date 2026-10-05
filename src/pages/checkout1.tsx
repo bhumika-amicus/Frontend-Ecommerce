@@ -199,8 +199,8 @@ function Checkout() {
                 )
 
                 setCountries(countryNames)
-            } catch (error: any) {
-                if (error.name === 'AbortError') {
+            } catch (error: unknown) {
+                if (error instanceof Error && error.name === 'AbortError') {
                     console.log('Fetch countries aborted')
                 } else {
                     console.error('Failed to fetch countries:', error)

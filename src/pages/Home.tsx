@@ -19,9 +19,6 @@ function Home() {
   const [refreshCount, setRefreshCount] = useState(0)
 
   const fetchProducts = async (signal?: AbortSignal) => {
-    setIsLoading(true)
-    setError(null)
-
     try {
       const transformedProducts = await getProducts(signal)
 
@@ -54,6 +51,7 @@ function Home() {
   useEffect(() => {
     const controller = new AbortController()
     fetchProducts(controller.signal)
+
     fetchCategories(controller.signal)
 
     return () => {
