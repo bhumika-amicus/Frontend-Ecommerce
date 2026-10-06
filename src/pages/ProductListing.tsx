@@ -244,6 +244,8 @@ function ProductListing() {
             nextParams.delete('minPrice')
             nextParams.delete('maxPrice')
             nextParams.delete('minRating')
+            nextParams.delete('sortBy')
+            nextParams.delete('sortOrder')
             nextParams.delete('page')
             return nextParams
         })

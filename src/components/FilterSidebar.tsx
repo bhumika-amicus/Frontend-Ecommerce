@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { Star } from 'lucide-react'
 import { ProductSortBy, SortOrder } from '../types/ProductSorting'
 import type { Category } from '../types/Categories'
 import type { Brand } from '../types/Brands'
@@ -50,10 +51,10 @@ function FilterSidebar({
             const nextParams = new URLSearchParams(currentParams)
             if (nextMinPrice === undefined) nextParams.delete('minPrice')
             else nextParams.set('minPrice', String(nextMinPrice))
-            
+
             if (nextMaxPrice === undefined) nextParams.delete('maxPrice')
             else nextParams.set('maxPrice', String(nextMaxPrice))
-            
+
             nextParams.set('page', '1')
             return nextParams
         })
@@ -64,7 +65,7 @@ function FilterSidebar({
             const nextParams = new URLSearchParams(currentParams)
             if (nextRating === undefined) nextParams.delete('minRating')
             else nextParams.set('minRating', String(nextRating))
-            
+
             nextParams.set('page', '1')
             return nextParams
         })
@@ -91,7 +92,7 @@ function FilterSidebar({
     }
 
     return (
-        <aside className="sticky top-0 z-10 border border-gray-300 bg-white p-3 lg:top-6 overflow-y-auto max-h-[100vh] lg:max-h-[calc(100vh-3rem)]">
+        <aside className="sticky top-0 z-10 border border-gray-300 bg-white p-3 lg:top-6 overflow-y-auto max-h-screen lg:max-h-[calc(100vh-3rem)]">
             <button
                 type="button"
                 className="flex w-full cursor-pointer items-center justify-between border-b-2 border-brand-orange-500 bg-transparent p-0 pb-2 text-left text-lg md:text-xl font-bold uppercase tracking-wide text-gray-800 transition-colors hover:text-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2 lg:hidden"
@@ -275,10 +276,10 @@ function FilterSidebar({
                 <h3 className="hidden lg:block m-0 mb-2 mt-5 text-base font-bold text-gray-800">Rating</h3>
                 <section className={`${isRatingOpen ? 'block' : 'hidden'} lg:block`}>
                     {[
-                        { label: '1 star & above', value: 1, stars: '★☆☆☆☆' },
-                        { label: '2 stars & above', value: 2, stars: '★★☆☆☆' },
-                        { label: '3 stars & above', value: 3, stars: '★★★☆☆' },
-                        { label: '4 stars & above', value: 4, stars: '★★★★☆' },
+                        { label: '1 star & above', value: 1 },
+                        { label: '2 stars & above', value: 2 },
+                        { label: '3 stars & above', value: 3 },
+                        { label: '4 stars & above', value: 4 },
                     ].map((rating, index) => {
                         const isChecked = minRating === rating.value
                         return (
@@ -298,10 +299,15 @@ function FilterSidebar({
                                         }
                                     }}
                                 />
-                                <div className="flex flex-col gap-0.5">
+                                <div className="flex flex-col gap-1 mt-0.5">
                                     <span>{rating.label}</span>
-                                    <span className="text-brand-orange-500 text-xs tracking-widest leading-none">
-                                        {rating.stars}
+                                    <span className="flex items-center text-brand-orange-500">
+                                        {Array.from({ length: 5 }).map((_, i) => (
+                                            <Star 
+                                                key={i} 
+                                                className={`h-3 w-3 ${i < rating.value ? 'fill-current' : 'text-gray-300'}`} 
+                                            />
+                                        ))}
                                     </span>
                                 </div>
                             </label>
