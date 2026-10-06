@@ -137,9 +137,11 @@ function ProductListing() {
 
     const [categories, setCategories] = useState<Category[]>([])
     const [isCategoriesLoading, setIsCategoriesLoading] = useState(true)
+    const [categoriesError, setCategoriesError] = useState<string | null>(null)
 
     const [brands, setBrands] = useState<Brand[]>([])
     const [isBrandsLoading, setIsBrandsLoading] = useState(true)
+    const [brandsError, setBrandsError] = useState<string | null>(null)
 
     useEffect(() => {
         const controller = new AbortController()
@@ -205,19 +207,23 @@ function ProductListing() {
     ])
 
     useEffect(() => {
+        setCategoriesError(null)
         getCategories()
             .then(setCategories)
             .catch((error) => {
                 console.error('Failed to load categories:', error)
+                setCategoriesError('Failed to load categories.')
             })
             .finally(() => setIsCategoriesLoading(false))
     }, [refreshCount])
 
     useEffect(() => {
+        setBrandsError(null)
         getBrands()
             .then(setBrands)
             .catch((error) => {
                 console.error('Failed to load brands:', error)
+                setBrandsError('Failed to load brands.')
             })
             .finally(() => setIsBrandsLoading(false))
     }, [refreshCount])
@@ -349,8 +355,10 @@ function ProductListing() {
                     <FilterSidebar
                         categories={categories}
                         isCategoriesLoading={isCategoriesLoading}
+                        categoriesError={categoriesError}
                         brands={brands}
                         isBrandsLoading={isBrandsLoading}
+                        brandsError={brandsError}
                         hasActiveFilters={hasActiveFilters}
                         onClearAllFilters={clearAllFilters}
                     />

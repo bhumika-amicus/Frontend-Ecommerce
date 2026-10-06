@@ -2,7 +2,7 @@ import ProductSearch from './ProductSearch'
 
 function Hero() {
   return (
-    <section className="relative w-full overflow-hidden aspect-auto min-h-100 md:aspect-[15/4] md:min-h-0">
+    <section className="relative w-full overflow-hidden aspect-auto min-h-100 md:aspect-15/4 md:min-h-0">
       <img
         src="/hero.png"
         alt="Construction equipment"
@@ -11,8 +11,8 @@ function Hero() {
 
       <div className="absolute inset-0 bg-black/35" />
 
-      <div className="absolute inset-0 flex flex-col items-center justify-center px-6 py-[50px] text-center text-white sm:px-16 sm:py-0">
-        <h1 className="m-0 max-w-[700px] text-4xl font-bold uppercase leading-[1.1] md:text-5xl">
+      <div className="absolute inset-0 flex flex-col items-center justify-center px-6 py-12.5 text-center text-white sm:px-16 sm:py-0">
+        <h1 className="m-0 max-w-175 text-4xl font-bold uppercase leading-[1.1] md:text-5xl">
           Discover Top Products
         </h1>
 

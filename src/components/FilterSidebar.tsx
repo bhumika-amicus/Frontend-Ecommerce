@@ -7,8 +7,10 @@ import type { Brand } from '../types/Brands'
 interface FilterSidebarProps {
     categories: Category[]
     isCategoriesLoading: boolean
+    categoriesError?: string | null
     brands: Brand[]
     isBrandsLoading: boolean
+    brandsError?: string | null
     hasActiveFilters: boolean
     onClearAllFilters: () => void
 }
@@ -16,8 +18,10 @@ interface FilterSidebarProps {
 function FilterSidebar({
     categories,
     isCategoriesLoading,
+    categoriesError,
     brands,
     isBrandsLoading,
+    brandsError,
     hasActiveFilters,
     onClearAllFilters,
 }: FilterSidebarProps) {
@@ -133,8 +137,10 @@ function FilterSidebar({
                                 <div className="h-4 w-24 rounded bg-gray-200 animate-pulse"></div>
                             </div>
                         ))
+                    ) : categoriesError ? (
+                        <p className="text-sm text-red-500 py-1 italic">{categoriesError}</p>
                     ) : categories.length === 0 ? (
-                        <p className="text-sm text-gray-500 py-1 italic">Failed to load categories.</p>
+                        <p className="text-sm text-gray-500 py-1 italic">No categories found.</p>
                     ) : (
                         <>
                             {categories.map((category) => (
@@ -184,8 +190,10 @@ function FilterSidebar({
                                 <div className="h-4 w-24 rounded bg-gray-200 animate-pulse"></div>
                             </div>
                         ))
+                    ) : brandsError ? (
+                        <p className="text-sm text-red-500 py-1 italic">{brandsError}</p>
                     ) : brands.length === 0 ? (
-                        <p className="text-sm text-gray-500 py-1 italic">Failed to load brands.</p>
+                        <p className="text-sm text-gray-500 py-1 italic">No brands found.</p>
                     ) : (
                         brands.map((brand) => (
                             <label
