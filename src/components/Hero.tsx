@@ -1,10 +1,11 @@
 import ProductSearch from './ProductSearch'
+import heroImg from '../assets/hero.png'
 
 function Hero() {
   return (
     <section className="relative w-full overflow-hidden aspect-auto min-h-100 md:aspect-15/4 md:min-h-0">
       <img
-        src="/hero.png"
+        src={heroImg}
         alt="Construction equipment"
         className="absolute inset-0 h-full w-full object-cover object-center"
       />

@@ -1,9 +1,22 @@
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Star } from 'lucide-react'
+import { Star, ChevronUp, ChevronDown, X, ArrowRight } from 'lucide-react'
 import { ProductSortBy, SortOrder } from '../types/ProductSorting'
 import type { Category } from '../types/Categories'
 import type { Brand } from '../types/Brands'
+
+const PRICE_RANGES = [
+    { label: 'Below ₹10,000', min: undefined, max: 10000 },
+    { label: '₹10,000 – ₹50,000', min: 10000, max: 50000 },
+    { label: 'Above ₹50,000', min: 50000, max: undefined },
+]
+
+const RATING_OPTIONS = [
+    { label: '1 star & above', value: 1 },
+    { label: '2 stars & above', value: 2 },
+    { label: '3 stars & above', value: 3 },
+    { label: '4 stars & above', value: 4 },
+]
 
 interface FilterSidebarProps {
     categories: Category[]
@@ -34,62 +47,54 @@ function FilterSidebar({
     const minPrice = searchParams.has('minPrice') ? Number(searchParams.get('minPrice')) : undefined
     const maxPrice = searchParams.has('maxPrice') ? Number(searchParams.get('maxPrice')) : undefined
     const minRating = searchParams.has('minRating') ? Number(searchParams.get('minRating')) : undefined
-    const sortBy = searchParams.get('sortBy') as ProductSortBy | undefined
-    const sortOrder = searchParams.get('sortOrder') as SortOrder | undefined
+    const rawSortBy = searchParams.get('sortBy')
+    const isValidSortBy = (val: string | null): val is ProductSortBy => Object.values(ProductSortBy).some(v => v === val)
+    const sortBy = isValidSortBy(rawSortBy) ? rawSortBy : undefined
+
+    const rawSortOrder = searchParams.get('sortOrder')
+    const isValidSortOrder = (val: string | null): val is SortOrder => Object.values(SortOrder).some(v => v === val)
+    const sortOrder = isValidSortOrder(rawSortOrder) ? rawSortOrder : undefined
 
     // Mobile toggle states
     const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false)
-    const [isCategoryOpen, setIsCategoryOpen] = useState(false)
-    const [isBrandOpen, setIsBrandOpen] = useState(false)
-    const [isPriceOpen, setIsPriceOpen] = useState(false)
-    const [isRatingOpen, setIsRatingOpen] = useState(false)
-    const [isSortOpen, setIsSortOpen] = useState(false)
+    type FilterSection = 'category' | 'brand' | 'price' | 'rating' | 'sort'
+    const [openSections, setOpenSections] = useState<Record<FilterSection, boolean>>({
+        category: selectedCategoryId !== undefined,
+        brand: brandId !== undefined,
+        price: minPrice !== undefined || maxPrice !== undefined,
+        rating: minRating !== undefined,
+        sort: sortBy !== undefined
+    })
+
+    const toggleSection = (section: FilterSection) => {
+        setOpenSections((prev) => ({
+            ...prev,
+            [section]: !prev[section]
+        }))
+    }
 
     // Updater functions
-    function updatePriceRange(nextMinPrice: number | undefined, nextMaxPrice: number | undefined) {
+    function updateFilters(updates: Record<string, string | number | null | undefined>) {
         setSearchParams((currentParams) => {
             const nextParams = new URLSearchParams(currentParams)
-            if (nextMinPrice === undefined) nextParams.delete('minPrice')
-            else nextParams.set('minPrice', String(nextMinPrice))
-
-            if (nextMaxPrice === undefined) nextParams.delete('maxPrice')
-            else nextParams.set('maxPrice', String(nextMaxPrice))
-
+            Object.entries(updates).forEach(([key, value]) => {
+                if (value === undefined || value === null) {
+                    nextParams.delete(key)
+                } else {
+                    nextParams.set(key, String(value))
+                }
+            })
             nextParams.set('page', '1')
             return nextParams
         })
     }
 
-    function updateMinRating(nextRating: number | undefined) {
-        setSearchParams((currentParams) => {
-            const nextParams = new URLSearchParams(currentParams)
-            if (nextRating === undefined) nextParams.delete('minRating')
-            else nextParams.set('minRating', String(nextRating))
-
-            nextParams.set('page', '1')
-            return nextParams
-        })
-    }
-
-    function updateSort(nextSortBy: ProductSortBy, nextSortOrder: SortOrder) {
-        setSearchParams((currentParams) => {
-            const nextParams = new URLSearchParams(currentParams)
-            nextParams.set('sortBy', nextSortBy)
-            nextParams.set('sortOrder', nextSortOrder)
-            nextParams.set('page', '1')
-            return nextParams
-        })
-    }
-
-    function clearSort() {
-        setSearchParams((currentParams) => {
-            const nextParams = new URLSearchParams(currentParams)
-            nextParams.delete('sortBy')
-            nextParams.delete('sortOrder')
-            nextParams.set('page', '1')
-            return nextParams
-        })
-    }
+    const updateCategory = (id: number) => updateFilters({ categoryId: selectedCategoryId === id ? null : id })
+    const updateBrand = (id: number) => updateFilters({ brandId: brandId === id ? null : id })
+    const updatePriceRange = (minPrice?: number, maxPrice?: number) => updateFilters({ minPrice, maxPrice })
+    const updateMinRating = (minRating?: number) => updateFilters({ minRating })
+    const updateSort = (sortBy: ProductSortBy, sortOrder: SortOrder) => updateFilters({ sortBy, sortOrder })
+    const clearSort = () => updateFilters({ sortBy: null, sortOrder: null })
 
     return (
         <aside className="sticky top-0 z-10 border border-gray-300 bg-white p-3 lg:top-6 overflow-y-auto max-h-screen lg:max-h-[calc(100vh-3rem)]">
@@ -101,7 +106,7 @@ function FilterSidebar({
                 onClick={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}
             >
                 FILTERS
-                <span aria-hidden="true">{isMobileFiltersOpen ? '▲' : '▼'}</span>
+                <span aria-hidden="true">{isMobileFiltersOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}</span>
             </button>
             <h2 className="hidden lg:block m-0 pb-2 mb-4 border-b-2 border-brand-orange-500 font-bold uppercase tracking-wide text-gray-800">
                 FILTERS
@@ -122,15 +127,15 @@ function FilterSidebar({
             >
                 <button
                     type="button"
-                    onClick={() => setIsCategoryOpen((open) => !open)}
-                    aria-expanded={isCategoryOpen}
+                    onClick={() => toggleSection('category')}
+                    aria-expanded={openSections.category}
                     className="flex w-full items-center justify-between lg:hidden m-0 mb-2 text-base font-bold text-gray-800"
                 >
                     <span>Category</span>
-                    <span aria-hidden="true">{isCategoryOpen ? '▲' : '▼'}</span>
+                    <span aria-hidden="true">{openSections.category ? <ChevronUp size={20} /> : <ChevronDown size={20} />}</span>
                 </button>
                 <h3 className="hidden lg:block m-0 mb-2 text-base font-bold text-gray-800">Category</h3>
-                <section className={`${isCategoryOpen ? 'block' : 'hidden'} lg:block`}>
+                <section className={`${openSections.category ? 'block' : 'hidden'} lg:block`}>
                     {isCategoriesLoading ? (
                         Array.from({ length: 4 }).map((_, index) => (
                             <div key={index} className="mb-2 flex items-center gap-1.5 px-1 py-0.5">
@@ -153,18 +158,7 @@ function FilterSidebar({
                                         type="checkbox"
                                         className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2"
                                         checked={selectedCategoryId === category.id}
-                                        onChange={() => {
-                                            setSearchParams((currentParams) => {
-                                                const nextParams = new URLSearchParams(currentParams)
-                                                if (selectedCategoryId === category.id) {
-                                                    nextParams.delete('categoryId')
-                                                } else {
-                                                    nextParams.set('categoryId', String(category.id))
-                                                }
-                                                nextParams.set('page', '1')
-                                                return nextParams
-                                            })
-                                        }}
+                                        onChange={() => updateCategory(category.id)}
                                     />
                                     {category.name}
                                 </label>
@@ -175,15 +169,15 @@ function FilterSidebar({
 
                 <button
                     type="button"
-                    onClick={() => setIsBrandOpen((open) => !open)}
-                    aria-expanded={isBrandOpen}
+                    onClick={() => toggleSection('brand')}
+                    aria-expanded={openSections.brand}
                     className="flex w-full items-center justify-between lg:hidden m-0 mb-2 mt-5 text-base font-bold text-gray-800"
                 >
                     <span>Brand</span>
-                    <span aria-hidden="true">{isBrandOpen ? '▲' : '▼'}</span>
+                    <span aria-hidden="true">{openSections.brand ? <ChevronUp size={20} /> : <ChevronDown size={20} />}</span>
                 </button>
                 <h3 className="hidden lg:block m-0 mb-2 mt-5 text-base font-bold text-gray-800">Brand</h3>
-                <section className={`${isBrandOpen ? 'block' : 'hidden'} lg:block`}>
+                <section className={`${openSections.brand ? 'block' : 'hidden'} lg:block`}>
                     {isBrandsLoading ? (
                         Array.from({ length: 4 }).map((_, index) => (
                             <div key={index} className="mb-2 flex items-center gap-1.5 px-1 py-0.5">
@@ -205,18 +199,7 @@ function FilterSidebar({
                                     type="checkbox"
                                     className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2"
                                     checked={brandId === brand.id}
-                                    onChange={() => {
-                                        setSearchParams((currentParams) => {
-                                            const nextParams = new URLSearchParams(currentParams)
-                                            if (brandId === brand.id) {
-                                                nextParams.delete('brandId')
-                                            } else {
-                                                nextParams.set('brandId', String(brand.id))
-                                            }
-                                            nextParams.set('page', '1')
-                                            return nextParams
-                                        })
-                                    }}
+                                    onChange={() => updateBrand(brand.id)}
                                 />
                                 {brand.name}
                             </label>
@@ -226,20 +209,16 @@ function FilterSidebar({
 
                 <button
                     type="button"
-                    onClick={() => setIsPriceOpen((open) => !open)}
-                    aria-expanded={isPriceOpen}
+                    onClick={() => toggleSection('price')}
+                    aria-expanded={openSections.price}
                     className="flex w-full items-center justify-between lg:hidden m-0 mb-2 mt-5 text-base font-bold text-gray-800"
                 >
                     <span>Price</span>
-                    <span aria-hidden="true">{isPriceOpen ? '▲' : '▼'}</span>
+                    <span aria-hidden="true">{openSections.price ? <ChevronUp size={20} /> : <ChevronDown size={20} />}</span>
                 </button>
                 <h3 className="hidden lg:block m-0 mb-2 mt-5 text-base font-bold text-gray-800">Price</h3>
-                <section className={`${isPriceOpen ? 'block' : 'hidden'} lg:block`}>
-                    {[
-                        { label: 'Below ₹10,000', min: undefined, max: 10000 },
-                        { label: '₹10,000 – ₹50,000', min: 10000, max: 50000 },
-                        { label: 'Above ₹50,000', min: 50000, max: undefined },
-                    ].map((range, index) => {
+                <section className={`${openSections.price ? 'block' : 'hidden'} lg:block`}>
+                    {PRICE_RANGES.map((range, index) => {
                         const isChecked = minPrice === range.min && maxPrice === range.max
                         return (
                             <label
@@ -266,21 +245,16 @@ function FilterSidebar({
 
                 <button
                     type="button"
-                    onClick={() => setIsRatingOpen((open) => !open)}
-                    aria-expanded={isRatingOpen}
+                    onClick={() => toggleSection('rating')}
+                    aria-expanded={openSections.rating}
                     className="flex w-full items-center justify-between lg:hidden m-0 mb-2 mt-5 text-base font-bold text-gray-800"
                 >
                     <span>Rating</span>
-                    <span aria-hidden="true">{isRatingOpen ? '▲' : '▼'}</span>
+                    <span aria-hidden="true">{openSections.rating ? <ChevronUp size={20} /> : <ChevronDown size={20} />}</span>
                 </button>
                 <h3 className="hidden lg:block m-0 mb-2 mt-5 text-base font-bold text-gray-800">Rating</h3>
-                <section className={`${isRatingOpen ? 'block' : 'hidden'} lg:block`}>
-                    {[
-                        { label: '1 star & above', value: 1 },
-                        { label: '2 stars & above', value: 2 },
-                        { label: '3 stars & above', value: 3 },
-                        { label: '4 stars & above', value: 4 },
-                    ].map((rating, index) => {
+                <section className={`${openSections.rating ? 'block' : 'hidden'} lg:block`}>
+                    {RATING_OPTIONS.map((rating, index) => {
                         const isChecked = minRating === rating.value
                         return (
                             <label
@@ -317,15 +291,15 @@ function FilterSidebar({
 
                 <button
                     type="button"
-                    onClick={() => setIsSortOpen((open) => !open)}
-                    aria-expanded={isSortOpen}
+                    onClick={() => toggleSection('sort')}
+                    aria-expanded={openSections.sort}
                     className="flex w-full items-center justify-between lg:hidden m-0 mb-2 mt-5 text-base font-bold text-gray-800"
                 >
                     <span>Sort by</span>
-                    <span aria-hidden="true">{isSortOpen ? '▲' : '▼'}</span>
+                    <span aria-hidden="true">{openSections.sort ? <ChevronUp size={20} /> : <ChevronDown size={20} />}</span>
                 </button>
                 <h3 className="hidden lg:block m-0 mb-2 mt-5 text-base font-bold text-gray-800">Sort by</h3>
-                <section className={`flex-col ${isSortOpen ? 'flex' : 'hidden'} lg:flex`}>
+                <section className={`flex-col ${openSections.sort ? 'flex' : 'hidden'} lg:flex`}>
                     <div className="flex flex-col">
                         <div
                             className={`mb-2 flex items-center justify-between rounded px-1 text-sm text-gray-600 transition-colors hover:bg-brand-orange-50 ${sortBy === ProductSortBy.Name
@@ -349,7 +323,7 @@ function FilterSidebar({
                                     className="cursor-pointer rounded border-0 bg-transparent px-1 text-brand-orange-600 font-bold transition-colors hover:bg-brand-orange-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2"
                                     onClick={clearSort}
                                     aria-label="Clear sort"
-                                >✕</button>
+                                ><X size={16} /></button>
                             )}
                         </div>
                         <div
@@ -362,11 +336,11 @@ function FilterSidebar({
                                 <div className="ml-5 mt-2 flex flex-col gap-2 border-l-2 border-brand-orange-500 pl-3">
                                     <label className="flex cursor-pointer items-center gap-1.5 rounded text-sm text-gray-600" >
                                         <input type="radio" name="sort-direction-name" className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2" checked={sortBy === ProductSortBy.Name && sortOrder === SortOrder.Asc} onChange={() => updateSort(ProductSortBy.Name, SortOrder.Asc)} />
-                                        A → Z
+                                        A <ArrowRight size={14} className="inline mx-0.5" /> Z
                                     </label>
                                     <label className="flex cursor-pointer items-center gap-1.5 rounded text-sm text-gray-600" >
                                         <input type="radio" name="sort-direction-name" className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2" checked={sortBy === ProductSortBy.Name && sortOrder === SortOrder.Desc} onChange={() => updateSort(ProductSortBy.Name, SortOrder.Desc)} />
-                                        Z → A
+                                        Z <ArrowRight size={14} className="inline mx-0.5" /> A
                                     </label>
                                 </div>
                             </div>
@@ -395,7 +369,7 @@ function FilterSidebar({
                                     className="cursor-pointer rounded border-0 bg-transparent px-1 text-brand-orange-600 font-bold transition-colors hover:bg-brand-orange-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2"
                                     onClick={clearSort}
                                     aria-label="Clear sort"
-                                >✕</button>
+                                ><X size={16} /></button>
                             )}
                         </div>
                         <div
@@ -408,11 +382,11 @@ function FilterSidebar({
                                 <div className="ml-5 mt-2 flex flex-col gap-2 border-l-2 border-brand-orange-500 pl-3">
                                     <label className="flex cursor-pointer items-center gap-1.5 rounded text-sm text-gray-600">
                                         <input type="radio" name="sort-direction-price" className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2" checked={sortBy === ProductSortBy.Price && sortOrder === SortOrder.Asc} onChange={() => updateSort(ProductSortBy.Price, SortOrder.Asc)} />
-                                        Low → High
+                                        Low <ArrowRight size={14} className="inline mx-0.5" /> High
                                     </label>
                                     <label className="flex cursor-pointer items-center gap-1.5 rounded text-sm text-gray-600">
                                         <input type="radio" name="sort-direction-price" className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2" checked={sortBy === ProductSortBy.Price && sortOrder === SortOrder.Desc} onChange={() => updateSort(ProductSortBy.Price, SortOrder.Desc)} />
-                                        High → Low
+                                        High <ArrowRight size={14} className="inline mx-0.5" /> Low
                                     </label>
                                 </div>
                             </div>
@@ -441,7 +415,7 @@ function FilterSidebar({
                                     className="cursor-pointer rounded border-0 bg-transparent px-1 text-brand-orange-600 font-bold transition-colors hover:bg-brand-orange-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2"
                                     onClick={clearSort}
                                     aria-label="Clear sort"
-                                >✕</button>
+                                ><X size={16} /></button>
                             )}
                         </div>
                         <div
@@ -454,11 +428,11 @@ function FilterSidebar({
                                 <div className="ml-5 mt-2 flex flex-col gap-2 border-l-2 border-brand-orange-500 pl-3">
                                     <label className="flex cursor-pointer items-center gap-1.5 rounded text-sm text-gray-600">
                                         <input type="radio" name="sort-direction-rating" className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2" checked={sortBy === ProductSortBy.Rating && sortOrder === SortOrder.Desc} onChange={() => updateSort(ProductSortBy.Rating, SortOrder.Desc)} />
-                                        High → Low
+                                        High <ArrowRight size={14} className="inline mx-0.5" /> Low
                                     </label>
                                     <label className="flex cursor-pointer items-center gap-1.5 rounded text-sm text-gray-600">
                                         <input type="radio" name="sort-direction-rating" className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2" checked={sortBy === ProductSortBy.Rating && sortOrder === SortOrder.Asc} onChange={() => updateSort(ProductSortBy.Rating, SortOrder.Asc)} />
-                                        Low → High
+                                        Low <ArrowRight size={14} className="inline mx-0.5" /> High
                                     </label>
                                 </div>
                             </div>

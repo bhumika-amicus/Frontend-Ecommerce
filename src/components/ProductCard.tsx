@@ -4,6 +4,7 @@ import type { Product } from '../types/Products'
 import Button from './Button'
 import Card from './Card'
 import QuantitySelector from './QuantitySelector'
+import placeholderImg from '../assets/placeholder.jpg'
 
 interface ProductCardProps {
   product: Product
@@ -53,7 +54,7 @@ function ProductCard({
           {isNew && <span className="w-max rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold tracking-wider text-emerald-600 uppercase">NEW</span>}
         </div> */}
         <img
-          src="/placeholder.jpg"
+          src={placeholderImg}
           alt={product.name}
           className="block h-full w-full object-contain"
         />
