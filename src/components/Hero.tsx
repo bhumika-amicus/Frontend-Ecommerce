@@ -18,11 +18,8 @@ function Hero() {
         </h1>
 
         <ProductSearch
-          formClassName="mt-6 flex h-12 w-full max-w-[600px] items-center overflow-hidden rounded bg-white transition-colors focus-within:ring-2 focus-within:ring-brand-orange/30"
-          inputClassName="h-full min-w-0 flex-1 border-0 bg-transparent px-4 text-base text-gray-700 outline-none placeholder:text-gray-400"
-          buttonClassName="flex h-full w-12 shrink-0 items-center justify-center border-0 bg-transparent text-brand-orange transition-colors hover:bg-gray-50 focus-visible:outline-none"
+          variant="hero"
           placeholder="Search"
-          iconSize={20}
         />
       </div>
     </section>

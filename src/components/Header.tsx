@@ -21,11 +21,8 @@ function Header() {
 
         {/* Search Bar */}
         <ProductSearch
-          formClassName="order-4 mx-0 mt-3 flex h-10.5 w-full flex-none items-center overflow-hidden rounded border border-gray-300 bg-white transition-colors focus-within:border-brand-orange focus-within:ring-2 focus-within:ring-brand-orange/30 md:order-none md:mx-10 md:mt-0 md:max-w-150 md:flex-1"
-          inputClassName="h-full min-w-0 flex-1 border-0 bg-transparent px-4 text-sm text-gray-700 outline-none placeholder:text-gray-400"
-          buttonClassName="flex h-full w-11.5 shrink-0 items-center justify-center border-0 bg-transparent text-brand-orange transition-colors hover:bg-gray-50 focus-visible:outline-none"
+          variant="header"
           placeholder="Search for products, brands and more"
-          iconSize={20}
         />
 
         {/* Desktop navigation */}

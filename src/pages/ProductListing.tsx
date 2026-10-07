@@ -238,7 +238,6 @@ function ProductListing() {
     function clearAllFilters() {
         setSearchParams((currentParams) => {
             const nextParams = new URLSearchParams(currentParams)
-            nextParams.delete('search')
             nextParams.delete('categoryId')
             nextParams.delete('brandId')
             nextParams.delete('minPrice')
@@ -251,7 +250,7 @@ function ProductListing() {
         })
     }
 
-    const hasActiveFilters = Boolean(searchTerm) || categoryId !== undefined || brandId !== undefined || minPrice !== undefined || maxPrice !== undefined || minRating !== undefined
+    const hasActiveFilters = categoryId !== undefined || brandId !== undefined || minPrice !== undefined || maxPrice !== undefined || minRating !== undefined
 
 
     let content: ReactNode

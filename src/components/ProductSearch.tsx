@@ -3,21 +3,25 @@ import { useState } from 'react'
 import type { SubmitEvent } from 'react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 
-interface ProductSearchProps {
-  formClassName: string
-  inputClassName: string
-  buttonClassName: string
-  placeholder: string
-  iconSize?: number
+const styles = {
+  header: {
+    form: 'order-4 mx-0 mt-3 flex h-10.5 w-full flex-none items-center overflow-hidden rounded border border-gray-300 bg-white transition-colors focus-within:border-brand-orange focus-within:ring-2 focus-within:ring-brand-orange/30 md:order-none md:mx-10 md:mt-0 md:max-w-150 md:flex-1',
+    input: 'h-full min-w-0 flex-1 border-0 bg-transparent px-4 text-sm text-gray-700 outline-none placeholder:text-gray-400',
+    button: 'flex h-full w-11.5 shrink-0 items-center justify-center border-0 bg-transparent text-brand-orange transition-colors hover:bg-gray-50 focus-visible:outline-none'
+  },
+  hero: {
+    form: 'mt-6 flex h-12 w-full max-w-[600px] items-center overflow-hidden rounded bg-white transition-colors focus-within:ring-2 focus-within:ring-brand-orange/30',
+    input: 'h-full min-w-0 flex-1 border-0 bg-transparent px-4 text-base text-gray-700 outline-none placeholder:text-gray-400',
+    button: 'flex h-full w-12 shrink-0 items-center justify-center border-0 bg-transparent text-brand-orange transition-colors hover:bg-gray-50 focus-visible:outline-none'
+  }
 }
 
-function ProductSearch({
-  formClassName,
-  inputClassName,
-  buttonClassName,
-  placeholder,
-  iconSize = 20,
-}: ProductSearchProps) {
+interface ProductSearchProps {
+  variant?: 'header' | 'hero'
+  placeholder?: string
+}
+
+function ProductSearch({ variant = 'header', placeholder = 'Search' }: ProductSearchProps) {
   const navigate = useNavigate()
   const location = useLocation()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -65,7 +69,7 @@ function ProductSearch({
 
   return (
     <form
-      className={formClassName}
+      className={styles[variant].form}
       onSubmit={handleSubmit}
       role="search"
     >
@@ -75,15 +79,15 @@ function ProductSearch({
         value={searchInput}
         onChange={(event) => setSearchInput(event.target.value)}
         aria-label="Search products"
-        className={inputClassName}
+        className={styles[variant].input}
       />
 
       <button
         type="submit"
-        className={buttonClassName}
+        className={styles[variant].button}
         aria-label="Search"
       >
-        <Search size={iconSize} />
+        <Search size={20} />
       </button>
     </form>
   )
