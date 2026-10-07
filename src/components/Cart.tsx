@@ -1,6 +1,6 @@
-import { useNavigate, Link } from 'react-router-dom'
-import { ChevronRight } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import Header from './Header'
+import Breadcrumbs from './Breadcrumbs'
 import CartItem from './CartItem'
 import CartItemSkeleton from './CartItemSkeleton'
 import Button from './Button'
@@ -124,7 +124,7 @@ function Cart({ cartItems, isLoading, error, onRetry, onUpdateQuantity, onRemove
               </div>
 
               <div className="flex flex-col gap-4">
-                <Button variant="primary" className="w-full">
+                <Button variant="primary" className="w-full" onClick={() => navigate('/checkout2')}>
                   PROCEED TO CHECKOUT
                 </Button>
                 <Button
@@ -146,21 +146,7 @@ function Cart({ cartItems, isLoading, error, onRetry, onUpdateQuantity, onRemove
       <Header cartCount={totalQuantity} />
 
       <main className="p-6 md:p-8 max-w-7xl mx-auto w-full min-h-[50vh]">
-        <nav aria-label="Breadcrumb" className="mb-6 text-sm">
-          <ol className="flex items-center gap-3">
-            <li>
-              <Link to="/" className="font-semibold text-brand-orange hover:text-[#e65c00]">
-                Home
-              </Link>
-            </li>
-            <li aria-hidden="true" className="text-gray-400">
-              <ChevronRight size={16} />
-            </li>
-            <li aria-current="page" className="text-gray-600">
-              Shopping Cart
-            </li>
-          </ol>
-        </nav>
+        <Breadcrumbs items={[{ label: 'Home', path: '/' }, { label: 'Shopping Cart' }]} />
 
         <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-8">
           Shopping Cart {(!isLoading && !error && cartItems.length > 0) ? `(${totalQuantity} Items)` : ''}

@@ -103,7 +103,7 @@ function App() {
           />
         } />
         <Route path="/checkout1" element={<Checkout/> }/>
-        <Route path="/checkout2" element={<Checkout2/> }/>
+        <Route path="/checkout2" element={<Checkout2 cartCount={cartCount} /> }/>
       </Routes>
     </BrowserRouter>
   )

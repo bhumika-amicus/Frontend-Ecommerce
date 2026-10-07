@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import type { ReactNode } from 'react'
-import { ChevronRight } from 'lucide-react'
+
 import type { Product } from '../types/Products'
 import ProductGrid from '../components/ProductGrid'
 import ProductCardSkeleton from '../components/ProductCardSkeleton'
 import Header from '../components/Header'
+import Breadcrumbs from '../components/Breadcrumbs'
 import StateMessage from '../components/StateMessage'
 import Pagination from '../components/Pagination'
 import FilterSidebar from '../components/FilterSidebar'
@@ -321,26 +322,7 @@ function ProductListing({ onAddToCart, cartCount }: ProductListingProps) {
         <>
             <Header cartCount={cartCount} />
             <main className="p-6">
-                <nav aria-label="Breadcrumb" className="mb-6 text-sm">
-                    <ol className="flex items-center gap-3">
-                        <li>
-                            <Link
-                                to="/"
-                                className="font-semibold text-brand-orange-600 hover:text-brand-orange-700"
-                            >
-                                Home
-                            </Link>
-                        </li>
-
-                        <li aria-hidden="true" className="text-gray-400">
-                            <ChevronRight size={16} />
-                        </li>
-
-                        <li aria-current="page" className="text-gray-600">
-                            Products
-                        </li>
-                    </ol>
-                </nav>
+                <Breadcrumbs items={[{ label: 'Home', path: '/' }, { label: 'Products' }]} />
                 <div className="flex items-center justify-between mb-3">
                     <h1 className="text-lg md:text-xl lg:text-2xl font-bold m-0">Product Listing</h1>
                     {isLoading ? (
