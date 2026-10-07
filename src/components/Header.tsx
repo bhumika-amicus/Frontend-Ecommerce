@@ -2,7 +2,11 @@ import { ChevronsRight, Globe, Info, LogIn, Menu, ShoppingCart } from 'lucide-re
 import { Link } from 'react-router-dom'
 import ProductSearch from './ProductSearch'
 
-function Header() {
+interface HeaderProps {
+  cartCount?: number
+}
+
+function Header({ cartCount = 0 }: HeaderProps) {
   return (
     <header className="w-full border-b border-[#e5e5e5] bg-white">
       <div className="mx-auto flex w-full max-w-360 flex-wrap justify-between items-center px-4.5 py-3 sm:px-6 md:h-17.5 md:flex-nowrap md:px-10 md:py-0">
@@ -40,7 +44,7 @@ function Header() {
 
           <Link to="/cart" className="flex cursor-pointer items-center gap-2 text-sm text-gray-600 no-underline transition-colors hover:text-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2" aria-label="Shopping cart">
             <ShoppingCart size={22} />
-            <span>0</span>
+            <span>{cartCount}</span>
             <ChevronsRight size={18} />
           </Link>
         </nav>
@@ -63,7 +67,7 @@ function Header() {
             aria-label="Shopping cart"
           >
             <ShoppingCart size={27} />
-            <span className="text-xl font-semibold">0</span>
+            <span className="text-xl font-semibold">{cartCount}</span>
           </Link>
         </div>
 

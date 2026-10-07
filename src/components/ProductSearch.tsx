@@ -1,7 +1,8 @@
 import { Search } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { SubmitEvent } from 'react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+import { useDebounce } from '../hooks/useDebounce'
 
 const styles = {
   header: {
@@ -35,10 +36,9 @@ function ProductSearch({ variant = 'header', placeholder = 'Search' }: ProductSe
     setSearchInput(committedSearch)
   }
 
-  function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
-    event.preventDefault()
+  const debouncedSearchTerm = useDebounce(searchInput, 350)
 
-    const query = searchInput.trim()
+  function performSearch(query: string) {
     const isListingPage = location.pathname === '/products'
 
     // Preserve existing filters only when already on the listing page.
@@ -65,6 +65,21 @@ function ProductSearch({ variant = 'header', placeholder = 'Search' }: ProductSe
           : '/products',
       )
     }
+  }
+
+  useEffect(() => {
+    // Only search on type if we are already on the products page
+    if (location.pathname !== '/products') return
+
+    // Prevent searching if it matches the current URL (e.g. on mount)
+    if (debouncedSearchTerm === (searchParams.get('search') ?? '')) return
+
+    performSearch(debouncedSearchTerm.trim())
+  }, [debouncedSearchTerm, location.pathname, searchParams])
+
+  function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
+    event.preventDefault()
+    performSearch(searchInput.trim())
   }
 
   return (

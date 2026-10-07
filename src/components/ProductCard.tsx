@@ -8,7 +8,7 @@ import placeholderImg from '../assets/placeholder.jpg'
 
 interface ProductCardProps {
   product: Product
-  onAddToCart: (product: Product) => void
+  onAddToCart: (product: Product, quantity: number) => void
 }
 
 function ProductCard({
@@ -105,7 +105,7 @@ function ProductCard({
         <Button
           variant="primary"
           className="mt-auto w-full px-3! py-2! text-sm!"
-          onClick={() => onAddToCart(product)}
+          onClick={() => onAddToCart(product, quantity)}
         >
           ADD TO CART
         </Button>

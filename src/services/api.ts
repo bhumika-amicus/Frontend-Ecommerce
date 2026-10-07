@@ -9,13 +9,32 @@ import type { ProductSearchParams } from '../types/ProductSearchParams'
 import type { ProductSearchResultDto } from '../types/ProductSearchResultDto'
 import type { ProductSearchResult } from '../types/ProductSearchResult'
 
-const BASE_URL =  'https://training-ecom1-a9a2cmbsefdvgwha.centralindia-01.azurewebsites.net';
+import { BASE_URL } from '../config';
+import { getAccessToken } from '../utils/token';
+import { refreshAuthToken } from './auth';
 
+export type ApiFetchOptions = RequestInit & {
+  auth?: boolean;
+};
 
-async function apiFetch<T>(endpoint: string, signal?: AbortSignal): Promise<T> {
-  const response = await fetch(`${BASE_URL}${endpoint}`, { signal });
+export async function apiFetch<T>(endpoint: string, init: ApiFetchOptions = {}, isRetry = false): Promise<T | undefined> {
+  const headers = new Headers(init.headers);
+  
+  if (init.auth) {
+    const token = getAccessToken();
+    if (token) {
+      headers.set('Authorization', `Bearer ${token}`);
+    }
+  }
+
+  const response = await fetch(`${BASE_URL}${endpoint}`, { ...init, headers });
 
   if (!response.ok) {
+    // 401 Unauthorized Interceptor
+    if (response.status === 401 && init.auth && !isRetry) {
+      await refreshAuthToken(); // If this fails, it throws and aborts the request
+      return apiFetch<T>(endpoint, init, true); // Retry exactly once
+    }
     console.error(
       `API HTTP Error: ${response.status} ${response.statusText}`
     )
@@ -35,25 +54,29 @@ async function apiFetch<T>(endpoint: string, signal?: AbortSignal): Promise<T> {
     )
   }
 
+  if (response.status === 204) {
+    return undefined
+  }
+
   return response.json()
 }
 
 export async function getProducts(signal?: AbortSignal): Promise<Product[]> {
-  const data = await apiFetch<ProductDto[]>('/api/v1/Products', signal);
+  const data = await apiFetch<ProductDto[]>('/api/v1/Products', { signal });
 
-  return data.map(transformProduct);
+  return data ? data.map(transformProduct) : [];
 }
 
 export async function getCategories(signal?: AbortSignal): Promise<Category[]> {
-  const data = await apiFetch<CategoryDto[]>('/api/Categories?api-version=1', signal)
+  const data = await apiFetch<CategoryDto[]>('/api/Categories?api-version=1', { signal })
 
-  return data.map(transformCategory)
+  return data ? data.map(transformCategory) : []
 }
 
 export async function getBrands(signal?: AbortSignal): Promise<Brand[]> {
-  const data = await apiFetch<BrandDto[]>('/api/Brands?api-version=1', signal)
+  const data = await apiFetch<BrandDto[]>('/api/Brands?api-version=1', { signal })
 
-  return data.map(transformBrand)
+  return data ? data.map(transformBrand) : []
 }
 
 export async function searchProducts( params: ProductSearchParams, signal?: AbortSignal): Promise<ProductSearchResult> {
@@ -103,8 +126,12 @@ export async function searchProducts( params: ProductSearchParams, signal?: Abor
 
    const data = await apiFetch<ProductSearchResultDto>(
     `/api/v1/Products/search?${queryParams.toString()}`,
-    signal
+    { signal }
   )
+
+  if (!data) {
+    return { products: [], totalRecords: 0, totalPages: 0, page: params.page || 1, pageSize: params.pageSize || 10 }
+  }
 
   return {
     ...data,

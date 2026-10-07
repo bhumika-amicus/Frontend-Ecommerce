@@ -3,7 +3,7 @@ import type { Product } from '../types/Products'
 
 interface ProductGridProps {
   products: Product[]
-  onAddToCart: (product: Product) => void
+  onAddToCart: (product: Product, quantity: number) => void
 }
 
 function ProductGrid({

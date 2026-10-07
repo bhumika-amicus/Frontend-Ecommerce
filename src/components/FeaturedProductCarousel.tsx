@@ -13,7 +13,7 @@ import ProductCard from './ProductCard'
 
 interface FeaturedProductCarouselProps {
   products: Product[]
-  onAddToCart: (product: Product) => void
+  onAddToCart: (product: Product, quantity: number) => void
 }
 
 function FeaturedProductCarousel({

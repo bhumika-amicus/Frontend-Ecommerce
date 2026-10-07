@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import type { ReactNode } from 'react'
+import { ChevronRight } from 'lucide-react'
 import type { Product } from '../types/Products'
 import ProductGrid from '../components/ProductGrid'
 import ProductCardSkeleton from '../components/ProductCardSkeleton'
@@ -13,7 +14,12 @@ import { ProductSortBy, SortOrder } from '../types/ProductSorting'
 import type { Category } from '../types/Categories'
 import type { Brand } from '../types/Brands'
 
-function ProductListing() {
+interface ProductListingProps {
+    onAddToCart: (product: Product, quantity: number) => void;
+    cartCount: number;
+}
+
+function ProductListing({ onAddToCart, cartCount }: ProductListingProps) {
     const [products, setProducts] = useState<Product[]>([])
     const [totalRecords, setTotalRecords] = useState(0)
     const [totalPages, setTotalPages] = useState(0)
@@ -229,11 +235,6 @@ function ProductListing() {
     }, [refreshCount])
 
 
-    const handleAddToCart = (product: Product) => {
-        console.log(`Added product ${product.id}: ${product.name}`)
-    }
-
-
 
     function clearAllFilters() {
         setSearchParams((currentParams) => {
@@ -305,7 +306,7 @@ function ProductListing() {
                 </p>
                 <ProductGrid
                     products={products}
-                    onAddToCart={handleAddToCart}
+                    onAddToCart={onAddToCart}
                 />
                 <Pagination
                     currentPage={page}
@@ -318,7 +319,7 @@ function ProductListing() {
 
     return (
         <>
-            <Header />
+            <Header cartCount={cartCount} />
             <main className="p-6">
                 <nav aria-label="Breadcrumb" className="mb-6 text-sm">
                     <ol className="flex items-center gap-3">
@@ -332,7 +333,7 @@ function ProductListing() {
                         </li>
 
                         <li aria-hidden="true" className="text-gray-400">
-                            »
+                            <ChevronRight size={16} />
                         </li>
 
                         <li aria-current="page" className="text-gray-600">

@@ -11,7 +11,12 @@ import ProductCardSkeleton from '../components/ProductCardSkeleton'
 import type { Category } from '../types/Categories'
 import { getCategories, getProducts } from '../services/api'
 
-function Home() {
+interface HomeProps {
+  onAddToCart: (product: Product, quantity: number) => void;
+  cartCount: number;
+}
+
+function Home({ onAddToCart, cartCount }: HomeProps) {
   const [products, setProducts] = useState<Product[]>([])
   const [categories, setCategories] = useState<Category[]>([])
 
@@ -98,13 +103,9 @@ function Home() {
     }
   }, [categoriesRefreshCount])
 
-  const handleAddToCart = (product: Product) => {
-    console.log(`Added product ${product.id}: ${product.name}`)
-  }
-
   return (
     <>
-      <Header />
+      <Header cartCount={cartCount} />
 
       <Hero />
 
@@ -148,7 +149,7 @@ function Home() {
           <section id="products" className="py-16">
             <FeaturedProductCarousel
               products={products}
-              onAddToCart={handleAddToCart}
+              onAddToCart={onAddToCart}
             />
           </section>
         )}
