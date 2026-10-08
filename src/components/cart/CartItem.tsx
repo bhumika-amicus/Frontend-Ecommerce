@@ -1,15 +1,47 @@
-import type { CartItemDto } from '../types/CartDto'
-import placeholderImg from '../assets/placeholder.jpg'
+import React, { useState, useEffect } from 'react'
+import type { CartItemDto } from '../../types/CartDto'
+import placeholderImg from '../../assets/placeholder.jpg'
 import QuantitySelector from './QuantitySelector'
 
 interface CartItemProps {
   item: CartItemDto
-  onQuantityChange: (productId: number, quantity: number) => void
+  onQuantityChange: (productId: number, quantity: number) => Promise<boolean> | void
   onRemove: (productId: number) => void
   isUpdating: boolean
 }
 
 function CartItem({ item, onQuantityChange, onRemove, isUpdating }: CartItemProps) {
+
+  const [localQuantity, setLocalQuantity] = useState(item.quantity)
+  const debounceTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // 1. Keep local UI in sync if the server data updates from somewhere else
+  useEffect(() => {
+    setLocalQuantity(item.quantity)
+  }, [item.quantity])
+
+  // 2. A single, clean function to handle typing
+  const handleQuantityChange = React.useCallback((newQuantity: number) => {
+    setLocalQuantity(newQuantity) // Update text box instantly
+
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current)
+    }
+
+    // Wait 600ms of silence before doing anything
+    debounceTimer.current = setTimeout(async () => {
+      if (newQuantity === 0) {
+        onRemove(item.productId)
+      } else if (newQuantity !== item.quantity) {
+        // Await the API call. If it returns false (failed), revert the text box!
+        const success = await onQuantityChange(item.productId, newQuantity)
+        if (success === false) {
+          setLocalQuantity(item.quantity)
+        }
+      }
+    }, 600)
+  }, [item.productId, item.quantity, onQuantityChange, onRemove])
+
   const formatINR = (amount: number) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -49,10 +81,11 @@ function CartItem({ item, onQuantityChange, onRemove, isUpdating }: CartItemProp
       <div className="w-full md:w-32 flex justify-between md:justify-center items-center">
         <span className="md:hidden text-gray-500 text-sm font-bold">Qty</span>
         <div>
-          <QuantitySelector 
-            quantity={item.quantity} 
-            onQuantityChange={(quantity) => onQuantityChange(item.productId, quantity)} 
+          <QuantitySelector
+            quantity={localQuantity}
+            onQuantityChange={handleQuantityChange}
             disabled={isUpdating}
+            minQuantity={0}
           />
         </div>
       </div>

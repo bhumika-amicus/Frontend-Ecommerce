@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
-import Card from './Card'
-import type { Category } from '../types/Categories'
+import Card from '../ui/Card'
+import type { Category } from '../../types/Categories'
 
 interface ShopByCategoryProps {
   categories: Category[]

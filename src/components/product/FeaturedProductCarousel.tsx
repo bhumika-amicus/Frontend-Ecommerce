@@ -8,17 +8,15 @@ import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
 
-import type { Product } from '../types/Products'
+import type { Product } from '../../types/Products'
 import ProductCard from './ProductCard'
 
 interface FeaturedProductCarouselProps {
   products: Product[]
-  onAddToCart: (product: Product, quantity: number) => void
 }
 
 function FeaturedProductCarousel({
   products,
-  onAddToCart,
 }: FeaturedProductCarouselProps) {
   const swiperRef = useRef<SwiperInstance | null>(null)
 
@@ -59,7 +57,6 @@ function FeaturedProductCarousel({
             <SwiperSlide key={product.id}>
               <ProductCard
                 product={product}
-                onAddToCart={onAddToCart}
               />
             </SwiperSlide>
           ))}

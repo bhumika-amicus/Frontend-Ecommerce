@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { getCountries, getStates, getCities } from '../services/locationApi'
+import { useFetch } from '../hooks/useFetch'
 import './Checkout1.css'
 
 interface ShippingFormData {
@@ -162,45 +163,35 @@ const validateField = (field: ShippingField, value: string): string | undefined 
 }
 
 function Checkout() {
-    // --- 1. State Declarations ---
     const [formData, setFormData] = useState<ShippingFormData>(initialFormData)
     const [isSubmitted, setIsSubmitted] = useState(false)
     const [errors, setErrors] = useState<ShippingFormErrors>({})
     const [touched, setTouched] = useState<TouchedFields>({})
-    const [countries, setCountries] = useState<string[]>([])
-    const [states, setStates] = useState<{ name: string, state_code: string }[]>([])
-    const [cities, setCities] = useState<string[]>([])
-    const [isLoadingStates, setIsLoadingStates] = useState(false)
-    const [isLoadingCities, setIsLoadingCities] = useState(false)
+
+    const { data: countriesData, isLoading: isLoadingCountries } = useFetch(getCountries)
+    
+    const { data: statesData, isLoading: isLoadingStates } = useFetch(
+        (signal) => getStates(formData.country, signal),
+        [formData.country],
+        { skip: !formData.country }
+    )
+
+    const { data: citiesData, isLoading: isLoadingCities } = useFetch(
+        (signal) => getCities(formData.country, formData.state, signal),
+        [formData.country, formData.state],
+        { skip: !formData.country || !formData.state }
+    )
+
+    const countries = countriesData || []
+    const states = statesData || []
+    const cities = citiesData || []
 
     // --- 2. Derived State ---
     const isFormValid = requiredFields.every((field) => validateField(field, formData[field]) === undefined)
     const shippingFee = formData.shippingMethod ? shippingRates[formData.shippingMethod] || 0 : 0
     const total = subtotal + shippingFee + tax
 
-    // --- 3. Effects ---
-    useEffect(() => {
-        const controller = new AbortController()
 
-        const fetchCountries = async () => {
-            try {
-                const countryNames = await getCountries(controller.signal)
-                setCountries(countryNames)
-            } catch (error: unknown) {
-                if (error instanceof Error && error.name === 'AbortError') {
-                    console.log('Fetch countries aborted')
-                } else {
-                    console.error('Failed to fetch countries:', error)
-                }
-            }
-        }
-
-        fetchCountries()
-
-        return () => {
-            controller.abort()
-        }
-    }, [])
 
     // --- 4. Event Handlers ---
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -215,7 +206,7 @@ function Checkout() {
         }
     }
 
-    const handleCountryChange = async (
+    const handleCountryChange = (
         e: React.ChangeEvent<HTMLSelectElement>
     ) => {
         const country = e.target.value
@@ -240,28 +231,12 @@ function Checkout() {
             state: false,
             city: false,
         }))
-
-        setStates([])
-        setCities([])
-
-        if (!country) return
-
-        setIsLoadingStates(true)
-        try {
-            const statesData = await getStates(country)
-            setStates(statesData)
-        } catch (error) {
-            console.error('Failed to fetch states:', error)
-        } finally {
-            setIsLoadingStates(false)
-        }
     }
 
-    const handleStateChange = async (
+    const handleStateChange = (
         e: React.ChangeEvent<HTMLSelectElement>
     ) => {
         const state = e.target.value
-        const country = formData.country
 
         setFormData((previousData) => ({
             ...previousData,
@@ -280,20 +255,6 @@ function Checkout() {
             state: false,
             city: false,
         }))
-
-        setCities([])
-
-        if (!state || !country) return
-
-        setIsLoadingCities(true)
-        try {
-            const citiesData = await getCities(country, state)
-            setCities(citiesData)
-        } catch (error) {
-            console.error('Failed to fetch cities:', error)
-        } finally {
-            setIsLoadingCities(false)
-        }
     }
 
     const handleCityChange = (
@@ -493,8 +454,11 @@ function Checkout() {
                                     value={formData.country}
                                     onChange={handleCountryChange}
                                     onBlur={handleBlur}
+                                    disabled={isLoadingCountries}
                                 >
-                                    <option value="">Select country</option>
+                                    <option value="">
+                                        {isLoadingCountries ? 'Loading countries...' : 'Select country'}
+                                    </option>
                                     {countries.map((country) => (
                                         <option key={country} value={country}>{country}</option>
                                     ))}

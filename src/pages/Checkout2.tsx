@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
-import Header from '../components/Header'
-import Breadcrumbs from '../components/Breadcrumbs'
-import CheckoutSteps from '../components/CheckoutSteps'
-import { getCountries, getStates, getCities, type StateOption } from '../services/locationApi'
+import Header from '../components/layout/Header'
+import Breadcrumbs from '../components/ui/Breadcrumbs'
+import CheckoutSteps from '../components/layout/CheckoutSteps'
+import { getCountries, getStates, getCities } from '../services/locationApi'
+import { useFetch } from '../hooks/useFetch'
 
 type ShippingMethod = '' | 'standard' | 'express' | 'overnight'
 
@@ -46,19 +47,7 @@ const shippingRates: Record<Exclude<ShippingMethod, ''>, number> = {
 
 
 
-interface CheckoutRHFProps {
-    cartCount?: number
-}
-
-function CheckoutRHF({ cartCount = 0 }: CheckoutRHFProps) {
-    const [isSubmitted, setIsSubmitted] = useState(false)
-    const [countries, setCountries] = useState<string[]>([])
-    const [states, setStates] = useState<StateOption[]>([])
-    const [cities, setCities] = useState<string[]>([])
-    const [isLoadingCountries, setIsLoadingCountries] = useState(true)
-    const [isLoadingStates, setIsLoadingStates] = useState(false)
-    const [isLoadingCities, setIsLoadingCities] = useState(false)
-    const [locationError, setLocationError] = useState('')
+function CheckoutRHF() {
     const {
         control,
         register,
@@ -71,83 +60,52 @@ function CheckoutRHF({ cartCount = 0 }: CheckoutRHFProps) {
         mode: 'onTouched',
         reValidateMode: 'onChange'
     })
+
     const selectedCountry = useWatch({ control, name: 'country' })
     const selectedState = useWatch({ control, name: 'state' })
     const selectedShippingMethod = useWatch({ control, name: 'shippingMethod' })
+
+    const [isSubmitted, setIsSubmitted] = useState(false)
+
+    const { 
+        data: countriesData, 
+        isLoading: isLoadingCountries, 
+        error: countriesError 
+    } = useFetch(getCountries)
+
+    const { 
+        data: statesData, 
+        isLoading: isLoadingStates, 
+        error: statesError 
+    } = useFetch(
+        (signal) => getStates(selectedCountry, signal), 
+        [selectedCountry], 
+        { skip: !selectedCountry }
+    )
+
+    const { 
+        data: citiesData, 
+        isLoading: isLoadingCities, 
+        error: citiesError 
+    } = useFetch(
+        (signal) => getCities(selectedCountry, selectedState, signal), 
+        [selectedCountry, selectedState], 
+        { skip: !selectedCountry || !selectedState }
+    )
+
+    const countries = countriesData || []
+    const states = statesData || []
+    const cities = citiesData || []
+    
+    // Combine errors for the UI
+    const locationError = countriesError || statesError || citiesError
+
     const shippingFee = selectedShippingMethod ? shippingRates[selectedShippingMethod] : 0
     const total = subtotal + tax + shippingFee
 
-    useEffect(() => {
-        const controller = new AbortController()
-
-        const loadCountries = async () => {
-            try {
-                const countryNames = await getCountries(controller.signal)
-                setCountries(countryNames)
-            } catch {
-                if (!controller.signal.aborted) {
-                    setLocationError('Countries could not be loaded. Please try again later.')
-                }
-            } finally {
-                if (!controller.signal.aborted) setIsLoadingCountries(false)
-            }
-        }
-
-        void loadCountries()
-        return () => controller.abort()
-    }, [])
-
-    useEffect(() => {
-        const controller = new AbortController()
-
-        if (!selectedCountry) {
-            return () => controller.abort()
-        }
-
-        const loadStates = async () => {
-            try {
-                const statesData = await getStates(selectedCountry, controller.signal)
-                setStates(statesData)
-            } catch {
-                if (!controller.signal.aborted) {
-                    setLocationError('States could not be loaded. Please select the country again.')
-                }
-            } finally {
-                if (!controller.signal.aborted) setIsLoadingStates(false)
-            }
-        }
-
-        void loadStates()
-        return () => controller.abort()
-    }, [selectedCountry])
-
-    useEffect(() => {
-        const controller = new AbortController()
-
-        if (!selectedCountry || !selectedState) {
-            return () => controller.abort()
-        }
-
-        const loadCities = async () => {
-            try {
-                const citiesData = await getCities(selectedCountry, selectedState, controller.signal)
-                setCities(citiesData)
-            } catch {
-                if (!controller.signal.aborted) {
-                    setLocationError('Cities could not be loaded. Please select the state again.')
-                }
-            } finally {
-                if (!controller.signal.aborted) setIsLoadingCities(false)
-            }
-        }
-
-        void loadCities()
-        return () => controller.abort()
-    }, [selectedCountry, selectedState])
-
     return (
         <>
-            <Header cartCount={cartCount} />
+            <Header />
 
             <main className="p-6 md:p-8 max-w-7xl mx-auto w-full min-h-[50vh]">
                 <Breadcrumbs items={[{ label: 'Home', path: '/' }, { label: 'Cart', path: '/cart' }, { label: 'Checkout' }]} />
@@ -301,9 +259,6 @@ function CheckoutRHF({ cartCount = 0 }: CheckoutRHFProps) {
                                                 required: 'State is required',
                                                 onChange: () => {
                                                     resetField('city')
-                                                    setCities([])
-                                                    setIsLoadingCities(Boolean(selectedCountry))
-                                                    setLocationError('')
                                                 },
                                             })}
                                         >
@@ -340,15 +295,9 @@ function CheckoutRHF({ cartCount = 0 }: CheckoutRHFProps) {
                                             disabled={isLoadingCountries}
                                             {...register('country', {
                                                 required: 'Country is required',
-                                                onChange: (event) => {
-                                                    const country = event.target.value as string
+                                                onChange: () => {
                                                     resetField('state')
                                                     resetField('city')
-                                                    setStates([])
-                                                    setCities([])
-                                                    setIsLoadingStates(Boolean(country))
-                                                    setIsLoadingCities(false)
-                                                    setLocationError('')
                                                 },
                                             })}
                                         >

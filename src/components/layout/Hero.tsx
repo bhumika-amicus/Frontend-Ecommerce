@@ -1,5 +1,5 @@
-import ProductSearch from './ProductSearch'
-import heroImg from '../assets/hero.png'
+import ProductSearch from '../product/ProductSearch'
+import heroImg from '../../assets/hero.png'
 
 function Hero() {
   return (

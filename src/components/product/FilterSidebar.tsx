@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Star, ChevronUp, ChevronDown, X, ArrowRight } from 'lucide-react'
-import { ProductSortBy, SortOrder } from '../types/ProductSorting'
-import type { Category } from '../types/Categories'
-import type { Brand } from '../types/Brands'
+import { ProductSortBy, SortOrder } from '../../types/ProductSorting'
+import type { Category } from '../../types/Categories'
+import type { Brand } from '../../types/Brands'
+import { getValidInt, getValidFloat } from '../../utils/urlHelpers'
 
 const PRICE_RANGES = [
     { label: 'Below ₹10,000', min: undefined, max: 10000 },
@@ -42,11 +43,11 @@ function FilterSidebar({
     const [searchParams, setSearchParams] = useSearchParams()
 
     // Parse URL parameters relevant for the UI
-    const selectedCategoryId = searchParams.has('categoryId') ? Number(searchParams.get('categoryId')) : undefined
-    const brandId = searchParams.has('brandId') ? Number(searchParams.get('brandId')) : undefined
-    const minPrice = searchParams.has('minPrice') ? Number(searchParams.get('minPrice')) : undefined
-    const maxPrice = searchParams.has('maxPrice') ? Number(searchParams.get('maxPrice')) : undefined
-    const minRating = searchParams.has('minRating') ? Number(searchParams.get('minRating')) : undefined
+    const selectedCategoryId = getValidInt(searchParams, 'categoryId', 1)
+    const brandId = getValidInt(searchParams, 'brandId', 1)
+    const minPrice = getValidFloat(searchParams, 'minPrice', 0)
+    const maxPrice = getValidFloat(searchParams, 'maxPrice', 0)
+    const minRating = getValidFloat(searchParams, 'minRating', 1, 5)
     const rawSortBy = searchParams.get('sortBy')
     const isValidSortBy = (val: string | null): val is ProductSortBy => Object.values(ProductSortBy).some(v => v === val)
     const sortBy = isValidSortBy(rawSortBy) ? rawSortBy : undefined

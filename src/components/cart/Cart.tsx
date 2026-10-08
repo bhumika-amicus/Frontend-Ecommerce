@@ -1,27 +1,32 @@
 import { useNavigate } from 'react-router-dom'
-import Header from './Header'
-import Breadcrumbs from './Breadcrumbs'
+import Header from '../layout/Header'
+import Breadcrumbs from '../ui/Breadcrumbs'
 import CartItem from './CartItem'
 import CartItemSkeleton from './CartItemSkeleton'
-import Button from './Button'
-import StateMessage from './StateMessage'
-import type { CartItemDto } from '../types/CartDto'
+import Button from '../ui/Button'
+import StateMessage from '../ui/StateMessage'
+import { useCart } from '../../contexts/CartContext'
 
-interface CartProps {
-  cartItems: CartItemDto[]
-  isLoading: boolean
-  error: string | null
-  onRetry: () => void
-  onUpdateQuantity: (productId: number, quantity: number) => void
-  onRemoveCartItem: (productId: number) => void
-  updatingProductId: number | null
-}
-
-function Cart({ cartItems, isLoading, error, onRetry, onUpdateQuantity, onRemoveCartItem, updatingProductId }: CartProps) {
+function Cart() {
+  const {
+    cartItems,
+    isCartLoading: isLoading,
+    cartError: error,
+    refetchCart: onRetry,
+    updateQuantity: onUpdateQuantity,
+    removeFromCart: onRemoveCartItem,
+    updatingProductId,
+  } = useCart()
   const navigate = useNavigate()
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.itemSubtotal, 0)
   const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0)
+
+  // Dynamic calculations for Shipping and Tax
+  const shipping = subtotal > 0 ? (subtotal > 10000 ? 0 : 150) : 0; // Free shipping over ₹10,000, else ₹150
+  const taxRate = 0.08; // 8% tax rate to match your design
+  const tax = subtotal * taxRate;
+  const finalTotal = subtotal + shipping + tax;
 
   const formatINR = (amount: number) => {
     return new Intl.NumberFormat('en-IN', {
@@ -109,26 +114,39 @@ function Cart({ cartItems, isLoading, error, onRetry, onUpdateQuantity, onRemove
             </div>
 
             <div className="p-6">
-              <div className="flex justify-between mb-4 text-gray-700">
-                <span>Subtotal ({totalQuantity} items):</span>
-                <span>{formatINR(subtotal)}</span>
+              <div className="flex flex-col gap-4 text-gray-700 text-sm mb-6">
+                <div className="flex justify-between">
+                  <span>Subtotal ({totalQuantity} items):</span>
+                  <span>{formatINR(subtotal)}</span>
+                </div>
+                
+                <div className="flex justify-between">
+                  <span>Shipping:</span>
+                  <span>{shipping === 0 ? 'Free' : formatINR(shipping)}</span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span>Tax (8%):</span>
+                  <span>{formatINR(tax)}</span>
+                </div>
               </div>
 
-              <hr className="border-gray-200 my-6" />
+              <hr className="border-[#ff6b00] my-6" />
 
               <div className="flex justify-between items-center mb-8">
                 <span className="font-bold text-xl text-gray-800">Total:</span>
                 <span className="font-bold text-2xl text-[#ff6b00]">
-                  {formatINR(subtotal)}
+                  {formatINR(finalTotal)}
                 </span>
               </div>
 
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-3">
                 <Button variant="primary" className="w-full" onClick={() => navigate('/checkout2')}>
                   PROCEED TO CHECKOUT
                 </Button>
                 <Button
                   variant="secondary"
+                  className="w-full bg-[#1a1a1a] text-white hover:bg-black"
                   onClick={() => navigate('/products')}
                 >
                   CONTINUE SHOPPING
@@ -143,7 +161,7 @@ function Cart({ cartItems, isLoading, error, onRetry, onUpdateQuantity, onRemove
 
   return (
     <>
-      <Header cartCount={totalQuantity} />
+      <Header />
 
       <main className="p-6 md:p-8 max-w-7xl mx-auto w-full min-h-[50vh]">
         <Breadcrumbs items={[{ label: 'Home', path: '/' }, { label: 'Shopping Cart' }]} />

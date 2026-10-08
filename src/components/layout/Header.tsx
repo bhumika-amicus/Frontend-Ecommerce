@@ -1,12 +1,10 @@
 import { ChevronsRight, Globe, Info, LogIn, Menu, ShoppingCart } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import ProductSearch from './ProductSearch'
+import ProductSearch from '../product/ProductSearch'
+import { useCart } from '../../contexts/CartContext'
 
-interface HeaderProps {
-  cartCount?: number
-}
-
-function Header({ cartCount = 0 }: HeaderProps) {
+function Header() {
+  const { cartCount } = useCart()
   return (
     <header className="w-full border-b border-[#e5e5e5] bg-white">
       <div className="mx-auto flex w-full max-w-360 flex-wrap justify-between items-center px-4.5 py-3 sm:px-6 md:h-17.5 md:flex-nowrap md:px-10 md:py-0">

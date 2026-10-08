@@ -2,7 +2,7 @@ import { Search } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import type { SubmitEvent } from 'react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
-import { useDebounce } from '../hooks/useDebounce'
+import { useDebounce } from '../../hooks/useDebounce'
 
 const styles = {
   header: {

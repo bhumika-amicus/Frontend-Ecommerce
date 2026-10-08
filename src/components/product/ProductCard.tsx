@@ -1,20 +1,22 @@
 import { useState } from 'react'
 import { Star, StarHalf } from 'lucide-react'
-import type { Product } from '../types/Products'
-import Button from './Button'
-import Card from './Card'
-import QuantitySelector from './QuantitySelector'
-import placeholderImg from '../assets/placeholder.jpg'
+import type { Product } from '../../types/Products'
+import Button from '../ui/Button'
+import Card from '../ui/Card'
+import QuantitySelector from '../cart/QuantitySelector'
+import placeholderImg from '../../assets/placeholder.jpg'
+
+import { useCart } from '../../contexts/CartContext'
 
 interface ProductCardProps {
   product: Product
-  onAddToCart: (product: Product, quantity: number) => void
 }
 
 function ProductCard({
   product,
-  onAddToCart,
 }: ProductCardProps) {
+  const { addToCart, addingProductId } = useCart()
+  const isAdding = addingProductId === product.id
   const [quantity, setQuantity] = useState(1)
 
   const formattedTotalPrice = new Intl.NumberFormat('en-IN', {
@@ -105,9 +107,10 @@ function ProductCard({
         <Button
           variant="primary"
           className="mt-auto w-full px-3! py-2! text-sm!"
-          onClick={() => onAddToCart(product, quantity)}
+          onClick={() => addToCart(product, quantity)}
+          disabled={isAdding}
         >
-          ADD TO CART
+          {isAdding ? 'ADDING...' : 'ADD TO CART'}
         </Button>
       </div>
     </Card>

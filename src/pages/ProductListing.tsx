@@ -1,132 +1,38 @@
-import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import type { ReactNode } from 'react'
+import { useFetch } from '../hooks/useFetch'
 
-import type { Product } from '../types/Products'
-import ProductGrid from '../components/ProductGrid'
-import ProductCardSkeleton from '../components/ProductCardSkeleton'
-import Header from '../components/Header'
-import Breadcrumbs from '../components/Breadcrumbs'
-import StateMessage from '../components/StateMessage'
-import Pagination from '../components/Pagination'
-import FilterSidebar from '../components/FilterSidebar'
+import ProductGrid from '../components/product/ProductGrid'
+import ProductCardSkeleton from '../components/product/ProductCardSkeleton'
+import Header from '../components/layout/Header'
+import Breadcrumbs from '../components/ui/Breadcrumbs'
+import StateMessage from '../components/ui/StateMessage'
+import Pagination from '../components/ui/Pagination'
+import FilterSidebar from '../components/product/FilterSidebar'
 import { getBrands, getCategories, searchProducts } from '../services/productApi'
 import { ProductSortBy, SortOrder } from '../types/ProductSorting'
-import type { Category } from '../types/Categories'
-import type { Brand } from '../types/Brands'
+import { getValidInt, getValidFloat } from '../utils/urlHelpers'
 
-interface ProductListingProps {
-    onAddToCart: (product: Product, quantity: number) => void;
-    cartCount: number;
-}
-
-function ProductListing({ onAddToCart, cartCount }: ProductListingProps) {
-    const [products, setProducts] = useState<Product[]>([])
-    const [totalRecords, setTotalRecords] = useState(0)
-    const [totalPages, setTotalPages] = useState(0)
-    const [error, setError] = useState<string | null>(null)
-    const [isLoading, setIsLoading] = useState(true)
-    const [refreshCount, setRefreshCount] = useState(0)
+function ProductListing() {
     const [searchParams, setSearchParams] = useSearchParams()
     const searchTerm = searchParams.get('search') || ''
-    const rawCategoryId = searchParams.get('categoryId')
-    const parsedCategoryId = rawCategoryId === null
-        ? undefined
-        : Number(rawCategoryId)
+    const categoryId = getValidInt(searchParams, 'categoryId', 1)
+    const brandId = getValidInt(searchParams, 'brandId', 1)
+    const minRating = getValidFloat(searchParams, 'minRating', 1, 5)
+    const page = getValidInt(searchParams, 'page', 1) ?? 1
+    
+    let minPrice = getValidFloat(searchParams, 'minPrice', 0)
+    let maxPrice = getValidFloat(searchParams, 'maxPrice', 0)
+    if (minPrice !== undefined && maxPrice !== undefined && minPrice > maxPrice) {
+        minPrice = undefined
+        maxPrice = undefined
+    }
 
-    const categoryId =
-        parsedCategoryId !== undefined &&
-            Number.isInteger(parsedCategoryId) &&
-            parsedCategoryId > 0
-            ? parsedCategoryId
-            : undefined
+    const rawSortBy = searchParams.get('sortBy') as ProductSortBy
+    const sortBy = Object.values(ProductSortBy).includes(rawSortBy) ? rawSortBy : undefined
 
-    const rawBrandId = searchParams.get('brandId')
-    const parsedBrandId = rawBrandId === null
-        ? undefined
-        : Number(rawBrandId)
-
-    const brandId =
-        parsedBrandId !== undefined &&
-            Number.isInteger(parsedBrandId) &&
-            parsedBrandId > 0
-            ? parsedBrandId
-            : undefined
-
-    const rawSortBy = searchParams.get('sortBy')
-
-    const rawMinPrice = searchParams.get('minPrice')
-    const rawMaxPrice = searchParams.get('maxPrice')
-    const rawMinRating = searchParams.get('minRating')
-
-    const parsedMinPrice =
-        rawMinPrice !== null && rawMinPrice.trim() !== ''
-            ? Number(rawMinPrice)
-            : undefined
-
-    const parsedMaxPrice =
-        rawMaxPrice !== null && rawMaxPrice.trim() !== ''
-            ? Number(rawMaxPrice)
-            : undefined
-
-    const parsedMinRating =
-        rawMinRating !== null && rawMinRating.trim() !== ''
-            ? Number(rawMinRating)
-            : undefined
-
-    const hasValidMinPrice =
-        parsedMinPrice !== undefined &&
-        Number.isFinite(parsedMinPrice) &&
-        parsedMinPrice >= 0
-
-    const hasValidMaxPrice =
-        parsedMaxPrice !== undefined &&
-        Number.isFinite(parsedMaxPrice) &&
-        parsedMaxPrice >= 0
-
-    const hasValidPriceRange =
-        (parsedMinPrice === undefined || hasValidMinPrice) &&
-        (parsedMaxPrice === undefined || hasValidMaxPrice) &&
-        !(
-            parsedMinPrice !== undefined &&
-            parsedMaxPrice !== undefined &&
-            parsedMinPrice > parsedMaxPrice
-        )
-
-    const minPrice = hasValidPriceRange ? parsedMinPrice : undefined
-    const maxPrice = hasValidPriceRange ? parsedMaxPrice : undefined
-
-    const minRating =
-        parsedMinRating !== undefined &&
-            Number.isFinite(parsedMinRating) &&
-            parsedMinRating >= 1 &&
-            parsedMinRating <= 5
-            ? parsedMinRating
-            : undefined
-
-    const sortBy =
-        rawSortBy === ProductSortBy.Name ||
-            rawSortBy === ProductSortBy.Price ||
-            rawSortBy === ProductSortBy.Rating
-            ? rawSortBy
-            : undefined
-
-
-    const rawSortOrder = searchParams.get('sortOrder')
-
-    const sortOrder =
-        rawSortOrder === SortOrder.Asc ||
-            rawSortOrder === SortOrder.Desc
-            ? rawSortOrder
-            : undefined
-
-    const rawPage = searchParams.get('page')
-    const parsedPage = rawPage === null ? 1 : Number(rawPage)
-
-    const page =
-        Number.isInteger(parsedPage) && parsedPage > 0
-            ? parsedPage
-            : 1
+    const rawSortOrder = searchParams.get('sortOrder') as SortOrder
+    const sortOrder = Object.values(SortOrder).includes(rawSortOrder) ? rawSortOrder : undefined
 
     const pageSize = 12
 
@@ -142,98 +48,60 @@ function ProductListing({ onAddToCart, cartCount }: ProductListingProps) {
         })
     }
 
-    const [categories, setCategories] = useState<Category[]>([])
-    const [isCategoriesLoading, setIsCategoriesLoading] = useState(true)
-    const [categoriesError, setCategoriesError] = useState<string | null>(null)
+    const {
+        data: productsData,
+        isLoading,
+        error,
+        refetch: refetchProducts,
+    } = useFetch(
+        (signal) =>
+            searchProducts(
+                {
+                    search: searchTerm,
+                    categoryId,
+                    brandId,
+                    minPrice,
+                    maxPrice,
+                    minRating,
+                    sortBy,
+                    sortOrder,
+                    page,
+                    pageSize,
+                },
+                signal
+            ),
+        [
+            searchTerm,
+            categoryId,
+            brandId,
+            minPrice,
+            maxPrice,
+            minRating,
+            sortBy,
+            sortOrder,
+            page,
+        ]
+    )
 
-    const [brands, setBrands] = useState<Brand[]>([])
-    const [isBrandsLoading, setIsBrandsLoading] = useState(true)
-    const [brandsError, setBrandsError] = useState<string | null>(null)
+    const products = productsData?.products || []
+    const totalRecords = productsData?.totalRecords || 0
+    const totalPages = productsData?.totalPages || 0
 
-    useEffect(() => {
-        const controller = new AbortController()
+    const {
+        data: categoriesData,
+        isLoading: isCategoriesLoading,
+        error: categoriesError,
+    } = useFetch(getCategories)
 
-        async function fetchProducts() {
-            setIsLoading(true)
-            setError(null)
+    const categories = categoriesData || []
 
-            try {
-                const result = await searchProducts(
-                    {
-                        search: searchTerm,
-                        categoryId,
-                        brandId,
-                        minPrice,
-                        maxPrice,
-                        minRating,
-                        sortBy,
-                        sortOrder,
-                        page,
-                        pageSize,
-                    },
-                    controller.signal
-                )
+    const {
+        data: brandsData,
+        isLoading: isBrandsLoading,
+        error: brandsError,
+    } = useFetch(getBrands)
 
-                setProducts(result.products)
-                setTotalRecords(result.totalRecords)
-                setTotalPages(result.totalPages)
-                setIsLoading(false)
-            } catch (error) {
-                if (error instanceof Error && error.name === 'AbortError') {
-                    return
-                }
-
-                console.error('API Error:', error)
-
-                setError(
-                    error instanceof Error
-                        ? error.message
-                        : 'An unexpected error occurred.'
-                )
-
-                setIsLoading(false)
-            }
-        }
-
-        fetchProducts()
-
-        return () => {
-            controller.abort()
-        }
-    }, [
-        refreshCount,
-        searchTerm,
-        categoryId,
-        brandId,
-        minPrice,
-        maxPrice,
-        minRating,
-        sortBy,
-        sortOrder,
-        page,
-    ])
-
-    useEffect(() => {
-        setCategoriesError(null)
-        getCategories()
-            .then(setCategories)
-            .catch((error) => {
-                console.error('Failed to load categories:', error)
-                setCategoriesError('Failed to load categories.')
-            })
-            .finally(() => setIsCategoriesLoading(false))
-    }, [refreshCount])
-
-    useEffect(() => {
-        setBrandsError(null)
-        getBrands()
-            .then(setBrands)
-            .catch((error) => {
-                console.error('Failed to load brands:', error)
-                setBrandsError('Failed to load brands.')
-            })
-            .finally(() => setIsBrandsLoading(false))
-    }, [refreshCount])
+    const brands = brandsData || []
 
 
 
@@ -252,7 +120,7 @@ function ProductListing({ onAddToCart, cartCount }: ProductListingProps) {
         })
     }
 
-    const hasActiveFilters = categoryId !== undefined || brandId !== undefined || minPrice !== undefined || maxPrice !== undefined || minRating !== undefined
+    const hasActiveFilters = searchTerm !== '' || categoryId !== undefined || brandId !== undefined || minPrice !== undefined || maxPrice !== undefined || minRating !== undefined
 
 
     let content: ReactNode
@@ -271,7 +139,7 @@ function ProductListing({ onAddToCart, cartCount }: ProductListingProps) {
                 title="Oops! Something went wrong."
                 message="We are having trouble connecting to our servers right now."
                 buttonText="Try Again"
-                onAction={() => { console.error(error); setRefreshCount(prev => prev + 1); }}
+                onAction={() => { console.error(error); refetchProducts(); }}
             >
                 <div className="inline-block text-left">
                     <p className="mb-2 font-medium">Troubleshooting Tips:</p>
@@ -295,7 +163,7 @@ function ProductListing({ onAddToCart, cartCount }: ProductListingProps) {
                 title="No products available."
                 message="The store is currently empty. We might be restocking!"
                 buttonText="Refresh"
-                onAction={() => setRefreshCount(prev => prev + 1)}
+                onAction={() => refetchProducts()}
             />
         )
     } else {
@@ -307,7 +175,6 @@ function ProductListing({ onAddToCart, cartCount }: ProductListingProps) {
                 </p>
                 <ProductGrid
                     products={products}
-                    onAddToCart={onAddToCart}
                 />
                 <Pagination
                     currentPage={page}
@@ -320,7 +187,7 @@ function ProductListing({ onAddToCart, cartCount }: ProductListingProps) {
 
     return (
         <>
-            <Header cartCount={cartCount} />
+            <Header />
             <main className="p-6">
                 <Breadcrumbs items={[{ label: 'Home', path: '/' }, { label: 'Products' }]} />
                 <div className="flex items-center justify-between mb-3">
@@ -330,7 +197,7 @@ function ProductListing({ onAddToCart, cartCount }: ProductListingProps) {
                             Refresh
                         </button>
                     ) : !error && products.length > 0 ? (
-                        <button className="button button-outline" onClick={() => setRefreshCount(prev => prev + 1)}>
+                        <button className="button button-outline" onClick={() => refetchProducts()}>
                             Refresh
                         </button>
                     ) : null}

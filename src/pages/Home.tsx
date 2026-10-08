@@ -1,111 +1,37 @@
-import { useEffect, useState } from 'react'
-import Header from '../components/Header'
-import Hero from '../components/Hero'
-import CategoryGrid from '../components/CategoryGrid'
-import Footer from '../components/Footer'
-import type { Product } from '../types/Products'
-import FeaturedProductCarousel from '../components/FeaturedProductCarousel'
-import ShopByCategory from '../components/ShopByCategory'
-import ServiceHighlights from '../components/ServiceHighlights'
-import ProductCardSkeleton from '../components/ProductCardSkeleton'
-import type { Category } from '../types/Categories'
+import Header from '../components/layout/Header'
+import Hero from '../components/layout/Hero'
+import CategoryGrid from '../components/product/CategoryGrid'
+import Footer from '../components/layout/Footer'
+import FeaturedProductCarousel from '../components/product/FeaturedProductCarousel'
+import ShopByCategory from '../components/product/ShopByCategory'
+import ServiceHighlights from '../components/layout/ServiceHighlights'
+import ProductCardSkeleton from '../components/product/ProductCardSkeleton'
 import { getCategories, getProducts } from '../services/productApi'
+import { useFetch } from '../hooks/useFetch'
 
-interface HomeProps {
-  onAddToCart: (product: Product, quantity: number) => void;
-  cartCount: number;
-}
 
-function Home({ onAddToCart, cartCount }: HomeProps) {
-  const [products, setProducts] = useState<Product[]>([])
-  const [categories, setCategories] = useState<Category[]>([])
+function Home() {
+  const {
+    data: productsData,
+    isLoading,
+    error,
+    refetch: refetchProducts,
+  } = useFetch(getProducts)
 
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const products = productsData || []
 
-  const [isCategoriesLoading, setIsCategoriesLoading] = useState(true)
-  const [categoriesError, setCategoriesError] = useState<string | null>(null)
+  const {
+    data: categoriesData,
+    isLoading: isCategoriesLoading,
+    error: categoriesError,
+    refetch: refetchCategories,
+  } = useFetch(getCategories)
 
-  const [productsRefreshCount, setProductsRefreshCount] = useState(0)
-  const [categoriesRefreshCount, setCategoriesRefreshCount] = useState(0)
-
-  useEffect(() => {
-    const controller = new AbortController()
-    const { signal } = controller
-
-    async function loadProducts() {
-      setIsLoading(true)
-      setError(null)
-
-      try {
-        const data = await getProducts(signal)
-
-        if (signal.aborted) return
-
-        setProducts(data)
-      } catch (error) {
-        if (signal.aborted) return
-
-        console.error('API Error:', error)
-        setError(
-          error instanceof Error
-            ? error.message
-            : 'Unable to load products. Please try again.'
-        )
-      } finally {
-        if (!signal.aborted) {
-          setIsLoading(false)
-        }
-      }
-    }
-
-    void loadProducts()
-
-    return () => {
-      controller.abort()
-    }
-  }, [productsRefreshCount])
-
-  useEffect(() => {
-    const controller = new AbortController()
-    const { signal } = controller
-
-    async function loadCategories() {
-      setIsCategoriesLoading(true)
-      setCategoriesError(null)
-
-      try {
-        const data = await getCategories(signal)
-
-        if (signal.aborted) return
-
-        setCategories(data)
-      } catch (error) {
-        if (signal.aborted) return
-
-        console.error('Category API Error:', error)
-        setCategoriesError(
-          error instanceof Error
-            ? error.message
-            : 'Unable to load categories. Please try again.'
-        )
-      } finally {
-        if (!signal.aborted) {
-          setIsCategoriesLoading(false)
-        }
-      }
-    }
-
-    void loadCategories()
-
-    return () => {
-      controller.abort()
-    }
-  }, [categoriesRefreshCount])
+  const categories = categoriesData || []
 
   return (
     <>
-      <Header cartCount={cartCount} />
+      <Header />
 
       <Hero />
 
@@ -133,7 +59,7 @@ function Home({ onAddToCart, cartCount }: HomeProps) {
             <button
               type="button"
               className="button button-outline"
-              onClick={() => setProductsRefreshCount(prev => prev + 1)}
+              onClick={() => refetchProducts()}
             >
               Try Again
             </button>
@@ -149,7 +75,6 @@ function Home({ onAddToCart, cartCount }: HomeProps) {
           <section id="products" className="py-16">
             <FeaturedProductCarousel
               products={products}
-              onAddToCart={onAddToCart}
             />
           </section>
         )}
@@ -158,7 +83,7 @@ function Home({ onAddToCart, cartCount }: HomeProps) {
           categories={categories}
           isLoading={isCategoriesLoading}
           error={categoriesError}
-          onRetry={() => setCategoriesRefreshCount(prev => prev + 1)}
+          onRetry={() => refetchCategories()}
         />
 
         <ServiceHighlights />
