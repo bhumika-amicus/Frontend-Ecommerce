@@ -9,7 +9,7 @@ import ShopByCategory from '../components/ShopByCategory'
 import ServiceHighlights from '../components/ServiceHighlights'
 import ProductCardSkeleton from '../components/ProductCardSkeleton'
 import type { Category } from '../types/Categories'
-import { getCategories, getProducts } from '../services/api'
+import { getCategories, getProducts } from '../services/productApi'
 
 interface HomeProps {
   onAddToCart: (product: Product, quantity: number) => void;

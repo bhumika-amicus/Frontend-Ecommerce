@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { getCountries, getStates, getCities } from '../services/locationApi'
 import './Checkout1.css'
 
 interface ShippingFormData {
@@ -183,21 +184,7 @@ function Checkout() {
 
         const fetchCountries = async () => {
             try {
-                const response = await fetch(
-                    'https://countriesnow.space/api/v0.1/countries',
-                    { signal: controller.signal }
-                )
-
-                if (!response.ok) {
-                    throw new Error('Failed to load countries')
-                }
-
-                const result = await response.json()
-
-                const countryNames = result.data.map(
-                    (country: { country: string }) => country.country
-                )
-
+                const countryNames = await getCountries(controller.signal)
                 setCountries(countryNames)
             } catch (error: unknown) {
                 if (error instanceof Error && error.name === 'AbortError') {
@@ -261,15 +248,8 @@ function Checkout() {
 
         setIsLoadingStates(true)
         try {
-            const response = await fetch('https://countriesnow.space/api/v0.1/countries/states', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `country=${encodeURIComponent(country)}`
-            })
-
-            if (!response.ok) throw new Error('Failed to load states')
-            const result = await response.json()
-            setStates(result.data?.states || [])
+            const statesData = await getStates(country)
+            setStates(statesData)
         } catch (error) {
             console.error('Failed to fetch states:', error)
         } finally {
@@ -307,15 +287,8 @@ function Checkout() {
 
         setIsLoadingCities(true)
         try {
-            const response = await fetch('https://countriesnow.space/api/v0.1/countries/state/cities', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `country=${encodeURIComponent(country)}&state=${encodeURIComponent(state)}`
-            })
-
-            if (!response.ok) throw new Error('Failed to load cities')
-            const result = await response.json()
-            setCities(result.data || [])
+            const citiesData = await getCities(country, state)
+            setCities(citiesData)
         } catch (error) {
             console.error('Failed to fetch cities:', error)
         } finally {

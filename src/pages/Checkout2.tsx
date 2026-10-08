@@ -3,6 +3,7 @@ import { useForm, useWatch } from 'react-hook-form'
 import Header from '../components/Header'
 import Breadcrumbs from '../components/Breadcrumbs'
 import CheckoutSteps from '../components/CheckoutSteps'
+import { getCountries, getStates, getCities, type StateOption } from '../services/locationApi'
 
 type ShippingMethod = '' | 'standard' | 'express' | 'overnight'
 
@@ -19,16 +20,7 @@ interface ShippingFormData {
     shippingMethod: ShippingMethod
 }
 
-interface StateOption {
-    name: string
-    state_code: string
-}
 
-interface ApiResponse<T> {
-    data: T
-    error?: boolean
-    msg?: string
-}
 
 const initialFormData: ShippingFormData = {
     fullName: '',
@@ -43,7 +35,7 @@ const initialFormData: ShippingFormData = {
     shippingMethod: '',
 }
 
-const apiBaseUrl = 'https://countriesnow.space/api/v0.1/countries'
+
 const subtotal = 404.94
 const tax = 32.4
 const shippingRates: Record<Exclude<ShippingMethod, ''>, number> = {
@@ -52,29 +44,7 @@ const shippingRates: Record<Exclude<ShippingMethod, ''>, number> = {
     overnight: 25,
 }
 
-async function postCountriesNow<T>(
-    endpoint: string,
-    values: Record<string, string>,
-    signal: AbortSignal,
-): Promise<T> {
-    const response = await fetch(`${apiBaseUrl}/${endpoint}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams(values),
-        signal,
-    })
 
-    if (!response.ok) {
-        throw new Error('Location data request failed')
-    }
-
-    const result = await response.json() as ApiResponse<T>
-    if (result.error) {
-        throw new Error(result.msg || 'Location data request failed')
-    }
-
-    return result.data
-}
 
 interface CheckoutRHFProps {
     cartCount?: number
@@ -112,15 +82,8 @@ function CheckoutRHF({ cartCount = 0 }: CheckoutRHFProps) {
 
         const loadCountries = async () => {
             try {
-                const response = await fetch(apiBaseUrl, { signal: controller.signal })
-                if (!response.ok) throw new Error('Could not load countries')
-
-                const result = await response.json() as ApiResponse<{ country: string }[]>
-                if (result.error || !Array.isArray(result.data)) {
-                    throw new Error(result.msg || 'Could not load countries')
-                }
-
-                setCountries(result.data.map(({ country }) => country))
+                const countryNames = await getCountries(controller.signal)
+                setCountries(countryNames)
             } catch {
                 if (!controller.signal.aborted) {
                     setLocationError('Countries could not be loaded. Please try again later.')
@@ -143,12 +106,8 @@ function CheckoutRHF({ cartCount = 0 }: CheckoutRHFProps) {
 
         const loadStates = async () => {
             try {
-                const result = await postCountriesNow<{ states?: StateOption[] }>(
-                    'states',
-                    { country: selectedCountry },
-                    controller.signal,
-                )
-                setStates(result.states || [])
+                const statesData = await getStates(selectedCountry, controller.signal)
+                setStates(statesData)
             } catch {
                 if (!controller.signal.aborted) {
                     setLocationError('States could not be loaded. Please select the country again.')
@@ -171,12 +130,8 @@ function CheckoutRHF({ cartCount = 0 }: CheckoutRHFProps) {
 
         const loadCities = async () => {
             try {
-                const result = await postCountriesNow<string[]>(
-                    'state/cities',
-                    { country: selectedCountry, state: selectedState },
-                    controller.signal,
-                )
-                setCities(result)
+                const citiesData = await getCities(selectedCountry, selectedState, controller.signal)
+                setCities(citiesData)
             } catch {
                 if (!controller.signal.aborted) {
                     setLocationError('Cities could not be loaded. Please select the state again.')
