@@ -140,7 +140,7 @@ function Cart() {
               </div>
 
               <div className="flex flex-col gap-3">
-                <Button variant="primary" className="w-full" onClick={() => navigate('/checkout2')}>
+                <Button variant="primary" className="w-full" onClick={() => navigate('/checkout')}>
                   PROCEED TO CHECKOUT
                 </Button>
                 <Button

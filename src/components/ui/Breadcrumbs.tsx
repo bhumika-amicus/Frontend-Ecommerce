@@ -10,8 +10,8 @@ const routeMapping: Record<string, BreadcrumbItem[]> = {
   '/': [{ label: 'Home' }],
   '/products': [{ label: 'Home', path: '/' }, { label: 'Products' }],
   '/cart': [{ label: 'Home', path: '/' }, { label: 'Shopping Cart' }],
-  '/checkout1': [{ label: 'Home', path: '/' }, { label: 'Shopping Cart', path: '/cart' }, { label: 'Checkout' }],
-  '/checkout2': [{ label: 'Home', path: '/' }, { label: 'Shopping Cart', path: '/cart' }, { label: 'Checkout' }],
+  '/assignment9': [{ label: 'Home', path: '/' }, { label: 'Shopping Cart', path: '/cart' }, { label: 'Checkout' }],
+  '/checkout': [{ label: 'Home', path: '/' }, { label: 'Shopping Cart', path: '/cart' }, { label: 'Checkout' }],
   '/orders': [{ label: 'Home', path: '/' }, { label: 'Orders' }]
 }
 
