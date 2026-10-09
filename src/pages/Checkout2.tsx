@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
-import Header from '../components/layout/Header'
 import Breadcrumbs from '../components/ui/Breadcrumbs'
 import CheckoutSteps from '../components/layout/CheckoutSteps'
 import { getCountries, getStates, getCities } from '../services/locationApi'
@@ -105,9 +104,7 @@ function CheckoutRHF() {
 
     return (
         <>
-            <Header />
-
-            <main className="p-6 md:p-8 max-w-7xl mx-auto w-full min-h-[50vh]">
+            <div className="p-6 md:p-8 max-w-7xl mx-auto w-full min-h-[50vh]">
                 <Breadcrumbs items={[{ label: 'Home', path: '/' }, { label: 'Cart', path: '/cart' }, { label: 'Checkout' }]} />
 
                 <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-8">
@@ -379,7 +376,7 @@ function CheckoutRHF() {
                         </div>
                     </aside>
                 </form>
-            </main>
+            </div>
         </>
     )
 }

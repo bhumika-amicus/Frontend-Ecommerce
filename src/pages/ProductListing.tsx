@@ -4,7 +4,6 @@ import { useFetch } from '../hooks/useFetch'
 
 import ProductGrid from '../components/product/ProductGrid'
 import ProductCardSkeleton from '../components/product/ProductCardSkeleton'
-import Header from '../components/layout/Header'
 import Breadcrumbs from '../components/ui/Breadcrumbs'
 import StateMessage from '../components/ui/StateMessage'
 import Pagination from '../components/ui/Pagination'
@@ -187,8 +186,7 @@ function ProductListing() {
 
     return (
         <>
-            <Header />
-            <main className="p-6">
+            <div className="p-6">
                 <Breadcrumbs items={[{ label: 'Home', path: '/' }, { label: 'Products' }]} />
                 <div className="flex items-center justify-between mb-3">
                     <h1 className="text-lg md:text-xl lg:text-2xl font-bold m-0">Product Listing</h1>
@@ -217,7 +215,7 @@ function ProductListing() {
                         {content}
                     </section>
                 </div>
-            </main>
+            </div>
         </>
     )
 }

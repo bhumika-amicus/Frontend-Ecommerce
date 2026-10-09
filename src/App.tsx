@@ -6,6 +6,7 @@ import ProductListing from './pages/ProductListing'
 import Cart from './components/cart/Cart'
 import Checkout from './pages/Checkout1'
 import Checkout2 from './pages/Checkout2'
+import SharedLayout from './components/layout/SharedLayout'
 import { CartProvider } from './contexts/CartContext'
 
 function App() {
@@ -14,12 +15,15 @@ function App() {
       <CustomToaster />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route element={<SharedLayout />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/products" element={<ProductListing />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/checkout2" element={<Checkout2 />} />
+          </Route>
           <Route path="/assignment3" element={<Assignment3 />} />
-          <Route path="/products" element={<ProductListing />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/checkout1" element={<Checkout/> }/>
-          <Route path="/checkout2" element={<Checkout2 /> }/>
+          <Route path="/checkout1" element={<Checkout />} />
+          
         </Routes>
       </BrowserRouter>
     </CartProvider>

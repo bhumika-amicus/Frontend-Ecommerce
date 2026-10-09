@@ -13,7 +13,6 @@ function CheckoutSteps({ currentStep }: CheckoutStepsProps) {
     <div className="flex items-center justify-center gap-4 mb-8 text-sm md:text-base font-semibold w-full max-w-2xl mx-auto">
       {steps.map((step, index) => {
         const isActive = step.number === currentStep
-        const isPast = step.number < currentStep
 
         return (
           <div key={step.number} className="flex items-center gap-4 flex-1">

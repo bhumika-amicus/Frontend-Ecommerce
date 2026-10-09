@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom'
-import Header from '../layout/Header'
 import Breadcrumbs from '../ui/Breadcrumbs'
 import CartItem from './CartItem'
 import CartItemSkeleton from './CartItemSkeleton'
@@ -161,9 +160,7 @@ function Cart() {
 
   return (
     <>
-      <Header />
-
-      <main className="p-6 md:p-8 max-w-7xl mx-auto w-full min-h-[50vh]">
+      <div className="p-6 md:p-8 max-w-7xl mx-auto w-full min-h-[50vh]">
         <Breadcrumbs items={[{ label: 'Home', path: '/' }, { label: 'Shopping Cart' }]} />
 
         <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-8">
@@ -171,7 +168,7 @@ function Cart() {
         </h1>
 
         {content}
-      </main>
+      </div>
     </>
   )
 }

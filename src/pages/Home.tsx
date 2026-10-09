@@ -1,7 +1,5 @@
-import Header from '../components/layout/Header'
 import Hero from '../components/layout/Hero'
 import CategoryGrid from '../components/product/CategoryGrid'
-import Footer from '../components/layout/Footer'
 import FeaturedProductCarousel from '../components/product/FeaturedProductCarousel'
 import ShopByCategory from '../components/product/ShopByCategory'
 import ServiceHighlights from '../components/layout/ServiceHighlights'
@@ -31,11 +29,9 @@ function Home() {
 
   return (
     <>
-      <Header />
-
       <Hero />
 
-      <main>
+      <div>
         <CategoryGrid />
 
         {isLoading ? (
@@ -87,9 +83,7 @@ function Home() {
         />
 
         <ServiceHighlights />
-      </main>
-
-      <Footer />
+      </div>
     </>
   )
 }
