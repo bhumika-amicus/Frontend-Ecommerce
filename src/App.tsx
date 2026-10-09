@@ -6,6 +6,7 @@ import ProductListing from './pages/ProductListing'
 import Cart from './components/cart/Cart'
 import Checkout from './pages/Checkout1'
 import Checkout2 from './pages/Checkout2'
+import Orders from './pages/Orders'
 import SharedLayout from './components/layout/SharedLayout'
 import { CartProvider } from './contexts/CartContext'
 
@@ -19,6 +20,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/products" element={<ProductListing />} />
             <Route path="/cart" element={<Cart />} />
+            <Route path="/orders" element={<Orders />} />
             <Route path="/checkout2" element={<Checkout2 />} />
           </Route>
           <Route path="/assignment3" element={<Assignment3 />} />
