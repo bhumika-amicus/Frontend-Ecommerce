@@ -33,7 +33,9 @@ function ProductSearch({ variant = 'header', placeholder = 'Search' }: ProductSe
   const [prevCommittedSearch, setPrevCommittedSearch] = useState(committedSearch)
   if (committedSearch !== prevCommittedSearch) {
     setPrevCommittedSearch(committedSearch)
-    setSearchInput(committedSearch)
+    if (committedSearch !== searchInput.trim()) {
+      setSearchInput(committedSearch)
+    }
   }
 
   const debouncedSearchTerm = useDebounce(searchInput, 350)
@@ -71,11 +73,17 @@ function ProductSearch({ variant = 'header', placeholder = 'Search' }: ProductSe
     // Only search on type if we are already on the products page
     if (location.pathname !== '/products') return
 
-    // Prevent searching if it matches the current URL (e.g. on mount)
-    if (debouncedSearchTerm === (searchParams.get('search') ?? '')) return
+    // Prevent searching if the user is still typing (debounce hasn't caught up)
+    if (searchInput !== debouncedSearchTerm) return
 
-    performSearch(debouncedSearchTerm.trim())
-  }, [debouncedSearchTerm, location.pathname, searchParams])
+    const trimmedDebounced = debouncedSearchTerm.trim()
+    const currentSearch = searchParams.get('search') ?? ''
+
+    // Prevent searching if it matches the current URL
+    if (trimmedDebounced === currentSearch) return
+
+    performSearch(trimmedDebounced)
+  }, [debouncedSearchTerm, searchInput, location.pathname, searchParams])
 
   function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
