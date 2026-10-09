@@ -93,7 +93,7 @@ function ProductDetail() {
             <img
               src={placeholderImg}
               alt={product.name}
-              className="max-h-[400px] w-full object-contain mix-blend-multiply"
+              className="max-h-100 w-full object-contain mix-blend-multiply"
             />
           </div>
 
