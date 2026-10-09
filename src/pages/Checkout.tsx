@@ -5,7 +5,7 @@ import Breadcrumbs from '../components/ui/Breadcrumbs'
 import CheckoutSteps from '../components/layout/CheckoutSteps'
 import { getCountries, getStates, getCities } from '../services/locationApi'
 import { useFetch } from '../hooks/useFetch'
-import { useCart } from '../contexts/CartContext'
+import { useCart } from '../hooks/useCart'
 
 type ShippingMethod = '' | 'standard' | 'express' | 'overnight'
 

@@ -2,8 +2,8 @@ import { useState } from 'react'
 import { LogIn, Menu, ShoppingCart, X, Package, Store } from 'lucide-react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import ProductSearch from '../product/ProductSearch'
-import { useCart } from '../../contexts/CartContext'
-import { useAuth } from '../../contexts/AuthContext'
+import { useCart } from '../../hooks/useCart'
+import { useAuth } from '../../hooks/useAuth'
 import { LogOut } from 'lucide-react'
 
 const getDesktopNavClass = ({ isActive }: { isActive: boolean }) =>
@@ -152,4 +152,3 @@ export default function Header() {
     </header>
   )
 }
-

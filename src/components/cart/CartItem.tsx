@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import type { CartItemDto } from '../../types/CartDto'
 import placeholderImg from '../../assets/placeholder.jpg'
 import QuantitySelector from './QuantitySelector'
@@ -14,11 +14,13 @@ function CartItem({ item, onQuantityChange, onRemove, isUpdating }: CartItemProp
 
   const [localQuantity, setLocalQuantity] = useState(item.quantity)
   const debounceTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [prevQuantityProp, setPrevQuantityProp] = useState(item.quantity)
 
   // 1. Keep local UI in sync if the server data updates from somewhere else
-  useEffect(() => {
-    setLocalQuantity(item.quantity)
-  }, [item.quantity])
+  if (item.quantity !== prevQuantityProp) {
+    setPrevQuantityProp(item.quantity);
+    setLocalQuantity(item.quantity);
+  }
 
   // 2. A single, clean function to handle typing
   const handleQuantityChange = React.useCallback((newQuantity: number) => {

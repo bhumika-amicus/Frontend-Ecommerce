@@ -1,24 +1,11 @@
-import { createContext, useContext, useReducer, useEffect, useState, useCallback } from 'react';
+import { useReducer, useEffect, useState, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import toast from 'react-hot-toast';
 import { getCart, addCartItem, updateCartItem, removeCartItem } from '../services/cartApi';
-import { useAuth } from './AuthContext';
+import { useAuth } from '../hooks/useAuth';
+import { CartContext } from '../hooks/useCart';
 import type { CartItemDto } from '../types/CartDto';
 import type { Product } from '../types/Products';
-
-interface CartContextType {
-  cartItems: CartItemDto[];
-  cartCount: number;
-  isCartLoading: boolean;
-  cartError: string | null;
-  updatingProductId: number | null;
-  addingProductId: number | null;
-  addToCart: (product: Product, quantity: number) => Promise<void>;
-  updateQuantity: (productId: number, quantity: number) => Promise<boolean>;
-  removeFromCart: (productId: number) => Promise<void>;
-  clearCart: () => void;
-  refetchCart: () => void;
-}
 
 // 1. Define Reducer Actions
 type CartAction =
@@ -94,22 +81,25 @@ const initCart = (): CartItemDto[] => {
   }
 };
 
-const CartContext = createContext<CartContextType | undefined>(undefined);
-
 export function CartProvider({ children }: { children: ReactNode }) {
   const { isLoggedIn } = useAuth();
-  
+
   // Initialize useReducer with the initCart function
   const [cartItems, dispatch] = useReducer(cartReducer, [], initCart);
-
-  const [isCartLoading, setIsCartLoading] = useState(false);
-  const [cartError, setCartError] = useState<string | null>(null);
 
   const [updatingProductId, setUpdatingProductId] = useState<number | null>(null);
   const [addingProductId, setAddingProductId] = useState<number | null>(null);
 
   const [refreshCount, setRefreshCount] = useState(0);
   const refetchCart = useCallback(() => setRefreshCount((prev) => prev + 1), []);
+  const requestId = `${isLoggedIn}:${refreshCount}`;
+  const [cartSyncResult, setCartSyncResult] = useState<{
+    requestId: string;
+    error: string | null;
+  } | null>(null);
+  const isCartLoading = isLoggedIn && cartSyncResult?.requestId !== requestId;
+  const cartError =
+    cartSyncResult?.requestId === requestId ? cartSyncResult.error : null;
 
   // 4. Persistence Watcher: Save to localStorage on every change
   useEffect(() => {
@@ -125,26 +115,26 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
 
     const controller = new AbortController();
-    setIsCartLoading(true);
-    setCartError(null);
 
     getCart(controller.signal)
       .then((apiCart) => {
+        if (controller.signal.aborted) return;
         dispatch({ type: 'SET_CART', payload: apiCart }); // Sync background cart to reducer
+        setCartSyncResult({ requestId, error: null });
       })
       .catch((error) => {
         if (error instanceof Error && error.name === 'AbortError') return;
         console.error('Failed to load cart:', error);
-        setCartError(error instanceof Error ? error.message : 'Unable to sync cart.');
-      })
-      .finally(() => {
         if (!controller.signal.aborted) {
-          setIsCartLoading(false);
+          setCartSyncResult({
+            requestId,
+            error: error instanceof Error ? error.message : 'Unable to sync cart.',
+          });
         }
       });
 
     return () => controller.abort();
-  }, [refreshCount, isLoggedIn]);
+  }, [requestId, isLoggedIn]);
 
   const addToCart = async (product: Product, quantity: number) => {
     if (addingProductId === product.id) return;
@@ -231,12 +221,4 @@ export function CartProvider({ children }: { children: ReactNode }) {
       {children}
     </CartContext.Provider>
   );
-}
-
-export function useCart() {
-  const context = useContext(CartContext);
-  if (context === undefined) {
-    throw new Error('useCart must be used within a CartProvider');
-  }
-  return context;
 }

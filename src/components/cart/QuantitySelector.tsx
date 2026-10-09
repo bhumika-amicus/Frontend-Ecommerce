@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 
 interface QuantitySelectorProps {
   quantity: number
@@ -14,10 +14,12 @@ function QuantitySelector({
   minQuantity = 1,
 }: QuantitySelectorProps) {
   const [inputValue, setInputValue] = useState(String(quantity))
+  const [prevQuantity, setPrevQuantity] = useState(quantity)
 
-  useEffect(() => {
+  if (quantity !== prevQuantity) {
+    setPrevQuantity(quantity)
     setInputValue(String(quantity))
-  }, [quantity])
+  }
 
   const handleInputChange = (value: string) => {
     if (disabled) return
@@ -50,7 +52,7 @@ function QuantitySelector({
       onQuantityChange(fallback)
     } else {
       // Just in case they typed something invalid like '1.5' or '-'
-      let finalQuantity = Number(inputValue)
+      const finalQuantity = Number(inputValue)
       if (!Number.isInteger(finalQuantity) || finalQuantity < minQuantity) {
         setInputValue(String(minQuantity))
         onQuantityChange(minQuantity)

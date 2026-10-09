@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import { Eye, EyeOff } from 'lucide-react';
 import Button from '../components/ui/Button';
 import { DEV_LOGIN_EMAIL, DEV_LOGIN_PASSWORD } from '../config';
@@ -30,7 +30,7 @@ export default function Login() {
       await login();
       navigate(from, { replace: true });
     } catch (error) {
-      console.error('Login failed');
+      console.error('Login failed:', error);
     } finally {
       setIsLoading(false);
     }

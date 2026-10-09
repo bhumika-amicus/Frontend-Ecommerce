@@ -6,8 +6,8 @@ import Card from '../ui/Card'
 import QuantitySelector from '../cart/QuantitySelector'
 import placeholderImg from '../../assets/placeholder.jpg'
 
-import { useCart } from '../../contexts/CartContext'
-import { useAuth } from '../../contexts/AuthContext'
+import { useCart } from '../../hooks/useCart'
+import { useAuth } from '../../hooks/useAuth'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 

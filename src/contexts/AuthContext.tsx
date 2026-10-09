@@ -1,21 +1,10 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import type { ReactNode } from 'react';
 import { getAccessToken, clearTokens } from '../utils/token';
 import { devLogin } from '../services/auth';
 import toast from 'react-hot-toast';
-
-interface UserInfo {
-  email: string;
-}
-
-interface AuthContextType {
-  isLoggedIn: boolean;
-  user: UserInfo | null;
-  login: () => Promise<void>;
-  logout: () => void;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+import { AuthContext } from '../hooks/useAuth';
+import type { UserInfo } from '../hooks/useAuth';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(!!getAccessToken());
@@ -33,43 +22,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener('auth:logout', handleForcedLogout);
   }, []);
 
-  const login = async () => {
+  const login = useCallback(async () => {
     const toastId = toast.loading('Authenticating...');
     try {
       // For this assignment, we use the devLogin which automatically 
       // fetches the real token using .env credentials
       await devLogin();
-      
+
       setIsLoggedIn(true);
       // Mock setting user info based on successful login
       setUser({ email: 'shivamssrivastavaa@gmail.com' });
-      
+
       toast.success('Successfully logged in!', { id: toastId });
     } catch (error) {
       console.error('Login failed:', error);
       toast.error('Login failed. Please try again.', { id: toastId });
       throw error;
     }
-  };
+  }, []);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     clearTokens();
     setIsLoggedIn(false);
     setUser(null);
     toast.success('Successfully logged out.');
-  };
+  }, []);
+
+  const contextValue = useMemo(() => ({
+    isLoggedIn,
+    user,
+    login,
+    logout
+  }), [isLoggedIn, user, login, logout]);
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, user, login, logout }}>
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
 }

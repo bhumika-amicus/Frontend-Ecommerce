@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { Star, StarHalf } from 'lucide-react'
 import { getProductById } from '../services/productApi'
-import { useCart } from '../contexts/CartContext'
-import { useAuth } from '../contexts/AuthContext'
+import { useCart } from '../hooks/useCart'
+import { useAuth } from '../hooks/useAuth'
 import type { Product } from '../types/Products'
 import Button from '../components/ui/Button'
 import Card from '../components/ui/Card'
@@ -35,6 +35,7 @@ function ProductDetail() {
           setError('Product not found')
         }
       } catch (err) {
+        console.error('Failed to fetch product details:', err)
         setError('Failed to fetch product details')
       } finally {
         setIsLoading(false)

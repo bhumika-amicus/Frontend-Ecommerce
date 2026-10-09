@@ -4,7 +4,7 @@ import CartItem from '../components/cart/CartItem'
 import CartItemSkeleton from '../components/cart/CartItemSkeleton'
 import Button from '../components/ui/Button'
 import StateMessage from '../components/ui/StateMessage'
-import { useCart } from '../contexts/CartContext'
+import { useCart } from '../hooks/useCart'
 
 function Cart() {
   const {
