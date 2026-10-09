@@ -2,7 +2,7 @@ import { createContext, useContext, useReducer, useEffect, useState, useCallback
 import type { ReactNode } from 'react';
 import toast from 'react-hot-toast';
 import { getCart, addCartItem, updateCartItem, removeCartItem } from '../services/cartApi';
-import { initializeAuth } from '../services/auth';
+import { useAuth } from './AuthContext';
 import type { CartItemDto } from '../types/CartDto';
 import type { Product } from '../types/Products';
 
@@ -97,6 +97,8 @@ const initCart = (): CartItemDto[] => {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
+  const { isLoggedIn } = useAuth();
+  
   // Initialize useReducer with the initCart function
   const [cartItems, dispatch] = useReducer(cartReducer, [], initCart);
 
@@ -116,12 +118,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   // 5. Background Sync: Keep local storage updated with the real database
   useEffect(() => {
+    // If not logged in, absolutely ensure the cart is empty!
+    if (!isLoggedIn) {
+      dispatch({ type: 'CLEAR_CART' });
+      return;
+    }
+
     const controller = new AbortController();
     setIsCartLoading(true);
     setCartError(null);
 
-    initializeAuth()
-      .then(() => getCart(controller.signal))
+    getCart(controller.signal)
       .then((apiCart) => {
         dispatch({ type: 'SET_CART', payload: apiCart }); // Sync background cart to reducer
       })
@@ -137,7 +144,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       });
 
     return () => controller.abort();
-  }, [refreshCount]);
+  }, [refreshCount, isLoggedIn]);
 
   const addToCart = async (product: Product, quantity: number) => {
     if (addingProductId === product.id) return;

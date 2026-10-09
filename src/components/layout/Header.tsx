@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { LogIn, Menu, ShoppingCart, X, Package, Store } from 'lucide-react'
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 import ProductSearch from '../product/ProductSearch'
 import { useCart } from '../../contexts/CartContext'
+import { useAuth } from '../../contexts/AuthContext'
+import { LogOut } from 'lucide-react'
 
 const getDesktopNavClass = ({ isActive }: { isActive: boolean }) =>
   `flex items-center gap-2 text-sm font-medium transition-colors hover:text-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange ${isActive
@@ -27,9 +29,19 @@ const getMobileCartClass = ({ isActive }: { isActive: boolean }) =>
 
 export default function Header() {
   const { cartCount } = useCart()
+  const { isLoggedIn, logout } = useAuth()
+  const navigate = useNavigate()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const closeMenu = () => setIsMobileMenuOpen(false)
+
+  const handleAuthAction = () => {
+    if (isLoggedIn) {
+      logout()
+    } else {
+      navigate('/login')
+    }
+  }
 
   return (
     <header className="relative w-full border-b border-[#e5e5e5] bg-white">
@@ -77,10 +89,11 @@ export default function Header() {
 
           <button
             type="button"
+            onClick={handleAuthAction}
             className="flex cursor-pointer items-center gap-1.75 border-0 bg-transparent text-sm font-medium text-gray-600 transition-colors hover:text-brand-orange focus-visible:outline-none"
           >
-            <span>Sign In</span>
-            <LogIn size={18} />
+            <span>{isLoggedIn ? 'Logout' : 'Sign In'}</span>
+            {isLoggedIn ? <LogOut size={18} /> : <LogIn size={18} />}
           </button>
 
           <NavLink to="/cart" className={getDesktopCartClass} aria-label="Shopping cart">
@@ -93,10 +106,11 @@ export default function Header() {
         <div className="flex items-center gap-4 md:hidden">
           <button
             type="button"
+            onClick={handleAuthAction}
             className="flex items-center text-gray-700 hover:text-brand-orange transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange"
-            aria-label="Sign In"
+            aria-label={isLoggedIn ? 'Logout' : 'Sign In'}
           >
-            <LogIn size={24} />
+            {isLoggedIn ? <LogOut size={24} /> : <LogIn size={24} />}
           </button>
 
           <NavLink

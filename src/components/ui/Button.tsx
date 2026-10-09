@@ -12,12 +12,13 @@ interface ButtonProps {
   disabled?: boolean
   onClick?: () => void
   className?: string
+  type?: 'button' | 'submit' | 'reset'
 }
 
-function Button({  variant = 'primary',  children,  disabled = false, onClick, className = '' }: ButtonProps) {
+function Button({  variant = 'primary',  children,  disabled = false, onClick, className = '', type = 'button' }: ButtonProps) {
   return (
     <button
-      type="button"
+      type={type}
       className={`button button-${variant} ${className}`.trim()}
       disabled={disabled}
       onClick={onClick}

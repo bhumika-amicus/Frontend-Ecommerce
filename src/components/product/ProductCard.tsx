@@ -7,6 +7,9 @@ import QuantitySelector from '../cart/QuantitySelector'
 import placeholderImg from '../../assets/placeholder.jpg'
 
 import { useCart } from '../../contexts/CartContext'
+import { useAuth } from '../../contexts/AuthContext'
+import { useNavigate } from 'react-router-dom'
+import toast from 'react-hot-toast'
 
 interface ProductCardProps {
   product: Product
@@ -16,8 +19,19 @@ function ProductCard({
   product,
 }: ProductCardProps) {
   const { addToCart, addingProductId } = useCart()
+  const { isLoggedIn } = useAuth()
+  const navigate = useNavigate()
   const isAdding = addingProductId === product.id
   const [quantity, setQuantity] = useState(1)
+
+  const handleAddToCart = () => {
+    if (!isLoggedIn) {
+      toast.error('Please log in to add items to your cart.');
+      navigate('/login');
+      return;
+    }
+    addToCart(product, quantity);
+  }
 
   const formattedTotalPrice = new Intl.NumberFormat('en-IN', {
     style: 'currency',
@@ -107,7 +121,7 @@ function ProductCard({
         <Button
           variant="primary"
           className="mt-auto w-full px-3! py-2! text-sm!"
-          onClick={() => addToCart(product, quantity)}
+          onClick={handleAddToCart}
           disabled={isAdding}
         >
           {isAdding ? 'ADDING...' : 'ADD TO CART'}

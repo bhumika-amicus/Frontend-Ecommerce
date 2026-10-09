@@ -29,7 +29,7 @@ export async function devLogin(): Promise<LoginResponseDto> {
   setAccessToken(data.token);
   setRefreshToken(data.refreshToken);
 
-  console.log('✅ Temporary Development Login Successful');
+  console.log('Temporary Development Login Successful');
 
   return data;
 }
