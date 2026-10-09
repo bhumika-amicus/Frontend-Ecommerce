@@ -5,6 +5,7 @@ import Breadcrumbs from '../components/ui/Breadcrumbs'
 import CheckoutSteps from '../components/layout/CheckoutSteps'
 import { getCountries, getStates, getCities } from '../services/locationApi'
 import { useFetch } from '../hooks/useFetch'
+import { useCart } from '../contexts/CartContext'
 
 type ShippingMethod = '' | 'standard' | 'express' | 'overnight'
 
@@ -37,18 +38,17 @@ const initialFormData: ShippingFormData = {
 }
 
 
-const subtotal = 404.94
-const tax = 32.4
 const shippingRates: Record<Exclude<ShippingMethod, ''>, number> = {
-    standard: 5,
-    express: 15,
-    overnight: 25,
+    standard: 50,
+    express: 150,
+    overnight: 250,
 }
 
 
 
 function Checkout() {
     const navigate = useNavigate()
+    const { cartItems, clearCart } = useCart()
     const {
         control,
         register,
@@ -101,8 +101,17 @@ function Checkout() {
     // Combine errors for the UI
     const locationError = countriesError || statesError || citiesError
 
+    const subtotal = cartItems.reduce((sum, item) => sum + item.itemSubtotal, 0)
+    const tax = subtotal * 0.08
     const shippingFee = selectedShippingMethod ? shippingRates[selectedShippingMethod] : 0
     const total = subtotal + tax + shippingFee
+
+    const formatINR = (amount: number) => {
+        return new Intl.NumberFormat('en-IN', {
+            style: 'currency',
+            currency: 'INR',
+        }).format(amount)
+    }
 
     return (
         <>
@@ -129,6 +138,7 @@ function Checkout() {
                         console.log('Form Submitted', formData)
                         setIsSubmitted(true)
                         reset(initialFormData)
+                        clearCart()
                         navigate('/orders', { replace: true })
                     })}
                 >
@@ -203,6 +213,82 @@ function Checkout() {
                                     </div>
 
                                     <div className="flex flex-col gap-1.5">
+                                        <label htmlFor="country" className="text-sm font-medium text-gray-700">Country *</label>
+                                        <select
+                                            id="country"
+                                            className={`h-10 w-full min-w-0 rounded border bg-white px-3 text-sm focus:border-brand-orange focus:outline-none focus:ring-1 focus:ring-brand-orange disabled:bg-gray-100 ${errors.country ? 'border-red-500' : 'border-gray-300'}`}
+                                            disabled={isLoadingCountries}
+                                            {...register('country', {
+                                                required: 'Country is required',
+                                                onChange: () => {
+                                                    resetField('state')
+                                                    resetField('city')
+                                                },
+                                            })}
+                                        >
+                                            <option value="">
+                                                {isLoadingCountries ? 'Loading countries...' : 'Select country'}
+                                            </option>
+                                            {countries.map((country) => <option key={country} value={country}>{country}</option>)}
+                                        </select>
+                                        {errors.country?.message && <p className="text-red-500 text-xs mt-1">{errors.country.message}</p>}
+                                    </div>
+
+                                    <div className="flex flex-col gap-1.5">
+                                        <label htmlFor="state" className="text-sm font-medium text-gray-700">State / Province *</label>
+                                        <select
+                                            id="state"
+                                            className={`h-10 w-full min-w-0 rounded border bg-white px-3 text-sm focus:border-brand-orange focus:outline-none focus:ring-1 focus:ring-brand-orange disabled:bg-gray-100 ${errors.state ? 'border-red-500' : 'border-gray-300'}`}
+                                            disabled={!selectedCountry || isLoadingStates}
+                                            {...register('state', {
+                                                required: 'State is required',
+                                                onChange: () => {
+                                                    resetField('city')
+                                                },
+                                            })}
+                                        >
+                                            <option value="">
+                                                {isLoadingStates ? 'Loading states...' : states.length ? 'Select state' : 'Select a country first'}
+                                            </option>
+                                            {states.map(({ name, state_code }) => (
+                                                <option key={`${name}-${state_code}`} value={name}>{name}</option>
+                                            ))}
+                                        </select>
+                                        {errors.state?.message && <p className="text-red-500 text-xs mt-1">{errors.state.message}</p>}
+                                    </div>
+
+                                    <div className="flex flex-col gap-1.5">
+                                        <label htmlFor="city" className="text-sm font-medium text-gray-700">City *</label>
+                                        <select
+                                            id="city"
+                                            className={`h-10 w-full min-w-0 rounded border bg-white px-3 text-sm focus:border-brand-orange focus:outline-none focus:ring-1 focus:ring-brand-orange disabled:bg-gray-100 ${errors.city ? 'border-red-500' : 'border-gray-300'}`}
+                                            disabled={!selectedState || isLoadingCities}
+                                            {...register('city', { required: 'City is required' })}
+                                        >
+                                            <option value="">
+                                                {isLoadingCities ? 'Loading cities...' : cities.length ? 'Select city' : 'Select a state first'}
+                                            </option>
+                                            {cities.map((city) => <option key={city} value={city}>{city}</option>)}
+                                        </select>
+                                        {errors.city?.message && <p className="text-red-500 text-xs mt-1">{errors.city.message}</p>}
+                                    </div>
+
+                                    <div className="flex flex-col gap-1.5">
+                                        <label htmlFor="postalCode" className="text-sm font-medium text-gray-700">ZIP / Postal Code *</label>
+                                        <input
+                                            id="postalCode"
+                                            type="text"
+                                            inputMode="numeric"
+                                            className={`h-10 w-full min-w-0 rounded border px-3 text-sm focus:border-brand-orange focus:outline-none focus:ring-1 focus:ring-brand-orange ${errors.postalCode ? 'border-red-500' : 'border-gray-300'}`}
+                                            {...register('postalCode', {
+                                                required: 'ZIP code is required',
+                                                validate: (value) => /^\d{5,6}$/.test(value) || 'ZIP code must contain 5–6 digits',
+                                            })}
+                                        />
+                                        {errors.postalCode?.message && <p className="text-red-500 text-xs mt-1">{errors.postalCode.message}</p>}
+                                    </div>
+
+                                    <div className="flex flex-col gap-1.5">
                                         <label htmlFor="address" className="text-sm font-medium text-gray-700">Street Address *</label>
                                         <input
                                             id="address"
@@ -232,82 +318,6 @@ function Checkout() {
                                             {...register('apartment')}
                                         />
                                     </div>
-
-                                    <div className="flex flex-col gap-1.5">
-                                        <label htmlFor="city" className="text-sm font-medium text-gray-700">City *</label>
-                                        <select
-                                            id="city"
-                                            className={`h-10 w-full min-w-0 rounded border bg-white px-3 text-sm focus:border-brand-orange focus:outline-none focus:ring-1 focus:ring-brand-orange disabled:bg-gray-100 ${errors.city ? 'border-red-500' : 'border-gray-300'}`}
-                                            disabled={!selectedState || isLoadingCities}
-                                            {...register('city', { required: 'City is required' })}
-                                        >
-                                            <option value="">
-                                                {isLoadingCities ? 'Loading cities...' : cities.length ? 'Select city' : 'Select a state first'}
-                                            </option>
-                                            {cities.map((city) => <option key={city} value={city}>{city}</option>)}
-                                        </select>
-                                        {errors.city?.message && <p className="text-red-500 text-xs mt-1">{errors.city.message}</p>}
-                                    </div>
-
-                                    <div className="flex flex-col gap-1.5">
-                                        <label htmlFor="state" className="text-sm font-medium text-gray-700">State / Province *</label>
-                                        <select
-                                            id="state"
-                                            className={`h-10 w-full min-w-0 rounded border bg-white px-3 text-sm focus:border-brand-orange focus:outline-none focus:ring-1 focus:ring-brand-orange disabled:bg-gray-100 ${errors.state ? 'border-red-500' : 'border-gray-300'}`}
-                                            disabled={!selectedCountry || isLoadingStates}
-                                            {...register('state', {
-                                                required: 'State is required',
-                                                onChange: () => {
-                                                    resetField('city')
-                                                },
-                                            })}
-                                        >
-                                            <option value="">
-                                                {isLoadingStates ? 'Loading states...' : states.length ? 'Select state' : 'Select a country first'}
-                                            </option>
-                                            {states.map(({ name, state_code }) => (
-                                                <option key={`${name}-${state_code}`} value={name}>{name}</option>
-                                            ))}
-                                        </select>
-                                        {errors.state?.message && <p className="text-red-500 text-xs mt-1">{errors.state.message}</p>}
-                                    </div>
-
-                                    <div className="flex flex-col gap-1.5">
-                                        <label htmlFor="postalCode" className="text-sm font-medium text-gray-700">ZIP / Postal Code *</label>
-                                        <input
-                                            id="postalCode"
-                                            type="text"
-                                            inputMode="numeric"
-                                            className={`h-10 w-full min-w-0 rounded border px-3 text-sm focus:border-brand-orange focus:outline-none focus:ring-1 focus:ring-brand-orange ${errors.postalCode ? 'border-red-500' : 'border-gray-300'}`}
-                                            {...register('postalCode', {
-                                                required: 'ZIP code is required',
-                                                validate: (value) => /^\d{5,6}$/.test(value) || 'ZIP code must contain 5–6 digits',
-                                            })}
-                                        />
-                                        {errors.postalCode?.message && <p className="text-red-500 text-xs mt-1">{errors.postalCode.message}</p>}
-                                    </div>
-
-                                    <div className="flex flex-col gap-1.5">
-                                        <label htmlFor="country" className="text-sm font-medium text-gray-700">Country *</label>
-                                        <select
-                                            id="country"
-                                            className={`h-10 w-full min-w-0 rounded border bg-white px-3 text-sm focus:border-brand-orange focus:outline-none focus:ring-1 focus:ring-brand-orange disabled:bg-gray-100 ${errors.country ? 'border-red-500' : 'border-gray-300'}`}
-                                            disabled={isLoadingCountries}
-                                            {...register('country', {
-                                                required: 'Country is required',
-                                                onChange: () => {
-                                                    resetField('state')
-                                                    resetField('city')
-                                                },
-                                            })}
-                                        >
-                                            <option value="">
-                                                {isLoadingCountries ? 'Loading countries...' : 'Select country'}
-                                            </option>
-                                            {countries.map((country) => <option key={country} value={country}>{country}</option>)}
-                                        </select>
-                                        {errors.country?.message && <p className="text-red-500 text-xs mt-1">{errors.country.message}</p>}
-                                    </div>
                                 </div>
 
                                 <div className="mt-10">
@@ -318,21 +328,21 @@ function Checkout() {
                                                 <input type="radio" value="standard" className="text-brand-orange focus:ring-brand-orange" {...register('shippingMethod', { required: 'Shipping method is required' })} />
                                                 Standard Shipping (5-7 days)
                                             </span>
-                                            <span className="shrink-0 text-sm text-gray-500">$5.00</span>
+                                            <span className="shrink-0 text-sm text-gray-500">{formatINR(shippingRates.standard)}</span>
                                         </label>
                                         <label className="flex items-start justify-between gap-3 rounded border border-gray-200 p-3 hover:bg-gray-50 sm:items-center">
                                             <span className="flex min-w-0 items-start gap-3 text-sm text-gray-700 sm:items-center">
                                                 <input type="radio" value="express" className="text-brand-orange focus:ring-brand-orange" {...register('shippingMethod', { required: 'Shipping method is required' })} />
                                                 Express Shipping (2-3 days)
                                             </span>
-                                            <span className="shrink-0 text-sm text-gray-500">$15.00</span>
+                                            <span className="shrink-0 text-sm text-gray-500">{formatINR(shippingRates.express)}</span>
                                         </label>
                                         <label className="flex items-start justify-between gap-3 rounded border border-gray-200 p-3 hover:bg-gray-50 sm:items-center">
                                             <span className="flex min-w-0 items-start gap-3 text-sm text-gray-700 sm:items-center">
                                                 <input type="radio" value="overnight" className="text-brand-orange focus:ring-brand-orange" {...register('shippingMethod', { required: 'Shipping method is required' })} />
                                                 Overnight Shipping (1 day)
                                             </span>
-                                            <span className="shrink-0 text-sm text-gray-500">$25.00</span>
+                                            <span className="shrink-0 text-sm text-gray-500">{formatINR(shippingRates.overnight)}</span>
                                         </label>
                                     </div>
                                     {errors.shippingMethod?.message && <p className="text-red-500 text-xs mt-2">{errors.shippingMethod.message}</p>}
@@ -347,25 +357,28 @@ function Checkout() {
                                 ORDER SUMMARY
                             </div>
                             <div className="p-4 sm:p-6">
-                                <div className="flex flex-col gap-4 mb-6">
-                                    <div className="flex justify-between text-sm text-gray-600"><span>Wireless Headphones x2</span><span>$99.98</span></div>
-                                    <div className="flex justify-between text-sm text-gray-600"><span>Smart Watch Pro x1</span><span>$199.99</span></div>
-                                    <div className="flex justify-between text-sm text-gray-600"><span>USB-C Hub Adapter x3</span><span>$104.97</span></div>
+                                <div className="flex flex-col gap-4 mb-6 max-h-60 overflow-y-auto pr-2">
+                                    {cartItems.map(item => (
+                                        <div key={item.cartItemId} className="flex justify-between text-sm text-gray-600">
+                                            <span className="truncate mr-4">{item.productName} x{item.quantity}</span>
+                                            <span>{formatINR(item.itemSubtotal)}</span>
+                                        </div>
+                                    ))}
                                 </div>
                                 
                                 <hr className="border-gray-200 mb-6" />
 
                                 <div className="flex flex-col gap-3 mb-6">
-                                    <div className="flex justify-between text-sm text-gray-600"><span>Subtotal:</span><span>${subtotal.toFixed(2)}</span></div>
-                                    <div className="flex justify-between text-sm text-gray-600"><span>Shipping:</span><span>${shippingFee.toFixed(2)}</span></div>
-                                    <div className="flex justify-between text-sm text-gray-600"><span>Tax:</span><span>${tax.toFixed(2)}</span></div>
+                                    <div className="flex justify-between text-sm text-gray-600"><span>Subtotal:</span><span>{formatINR(subtotal)}</span></div>
+                                    <div className="flex justify-between text-sm text-gray-600"><span>Shipping:</span><span>{formatINR(shippingFee)}</span></div>
+                                    <div className="flex justify-between text-sm text-gray-600"><span>Tax (8%):</span><span>{formatINR(tax)}</span></div>
                                 </div>
 
                                 <hr className="border-gray-200 mb-6" />
 
                                 <div className="flex justify-between items-center mb-8">
                                     <span className="font-bold text-xl text-gray-800">Total:</span>
-                                    <span className="font-bold text-2xl text-[#ff6b00]">${total.toFixed(2)}</span>
+                                    <span className="font-bold text-2xl text-[#ff6b00]">{formatINR(total)}</span>
                                 </div>
 
                                 <button 
