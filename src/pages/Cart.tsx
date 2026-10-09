@@ -1,10 +1,10 @@
 import { useNavigate } from 'react-router-dom'
-import Breadcrumbs from '../ui/Breadcrumbs'
-import CartItem from './CartItem'
-import CartItemSkeleton from './CartItemSkeleton'
-import Button from '../ui/Button'
-import StateMessage from '../ui/StateMessage'
-import { useCart } from '../../contexts/CartContext'
+import Breadcrumbs from '../components/ui/Breadcrumbs'
+import CartItem from '../components/cart/CartItem'
+import CartItemSkeleton from '../components/cart/CartItemSkeleton'
+import Button from '../components/ui/Button'
+import StateMessage from '../components/ui/StateMessage'
+import { useCart } from '../contexts/CartContext'
 
 function Cart() {
   const {

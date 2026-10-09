@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useReducer, useEffect, useState, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import toast from 'react-hot-toast';
 import { getCart, addCartItem, updateCartItem, removeCartItem } from '../services/cartApi';
@@ -16,38 +16,119 @@ interface CartContextType {
   addToCart: (product: Product, quantity: number) => Promise<void>;
   updateQuantity: (productId: number, quantity: number) => Promise<boolean>;
   removeFromCart: (productId: number) => Promise<void>;
+  clearCart: () => void;
   refetchCart: () => void;
 }
+
+// 1. Define Reducer Actions
+type CartAction =
+  | { type: 'ADD_ITEM'; payload: { product: Product; quantity: number } }
+  | { type: 'REMOVE_ITEM'; payload: { productId: number } }
+  | { type: 'UPDATE_QTY'; payload: { productId: number; quantity: number } }
+  | { type: 'CLEAR_CART' }
+  | { type: 'SET_CART'; payload: CartItemDto[] };
+
+// 2. Define the Reducer Function
+function cartReducer(state: CartItemDto[], action: CartAction): CartItemDto[] {
+  switch (action.type) {
+    case 'ADD_ITEM': {
+      const { product, quantity } = action.payload;
+      const existingItemIndex = state.findIndex(item => item.productId === product.id);
+
+      if (existingItemIndex >= 0) {
+        const newState = [...state];
+        const item = newState[existingItemIndex];
+        const newQuantity = item.quantity + quantity;
+        newState[existingItemIndex] = {
+          ...item,
+          quantity: newQuantity,
+          itemSubtotal: item.price * newQuantity
+        };
+        return newState;
+      } else {
+        return [...state, {
+          cartItemId: Date.now(), // Fallback local ID
+          productId: product.id,
+          productName: product.name,
+          quantity: quantity,
+          price: product.price,
+          itemSubtotal: product.price * quantity
+        }];
+      }
+    }
+    case 'UPDATE_QTY': {
+      const { productId, quantity } = action.payload;
+      return state.map(item => {
+        if (item.productId === productId) {
+          return {
+            ...item,
+            quantity,
+            itemSubtotal: item.price * quantity
+          };
+        }
+        return item;
+      });
+    }
+    case 'REMOVE_ITEM': {
+      return state.filter(item => item.productId !== action.payload.productId);
+    }
+    case 'CLEAR_CART': {
+      return [];
+    }
+    case 'SET_CART': {
+      return action.payload; // Used for syncing with the backend
+    }
+    default:
+      return state;
+  }
+}
+
+// 3. Define the Rehydration (Initializer) Function
+const initCart = (): CartItemDto[] => {
+  try {
+    const savedCart = localStorage.getItem('cart');
+    return savedCart ? JSON.parse(savedCart) : [];
+  } catch (error) {
+    console.error('Failed to parse cart from localStorage:', error);
+    return [];
+  }
+};
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [cartItems, setCartItems] = useState<CartItemDto[]>([]);
-  const [isCartLoading, setIsCartLoading] = useState(true);
+  // Initialize useReducer with the initCart function
+  const [cartItems, dispatch] = useReducer(cartReducer, [], initCart);
+
+  const [isCartLoading, setIsCartLoading] = useState(false);
   const [cartError, setCartError] = useState<string | null>(null);
-  
-  // Spam-click protection states
+
   const [updatingProductId, setUpdatingProductId] = useState<number | null>(null);
   const [addingProductId, setAddingProductId] = useState<number | null>(null);
-  
-  const [refreshCount, setRefreshCount] = useState(0);
 
+  const [refreshCount, setRefreshCount] = useState(0);
   const refetchCart = useCallback(() => setRefreshCount((prev) => prev + 1), []);
 
+  // 4. Persistence Watcher: Save to localStorage on every change
+  useEffect(() => {
+    localStorage.setItem('cart', JSON.stringify(cartItems));
+  }, [cartItems]);
+
+  // 5. Background Sync: Keep local storage updated with the real database
   useEffect(() => {
     const controller = new AbortController();
-
     setIsCartLoading(true);
     setCartError(null);
 
-    // Ensure auth is initialized before fetching the cart
     initializeAuth()
       .then(() => getCart(controller.signal))
-      .then(setCartItems)
+      .then((apiCart) => {
+        dispatch({ type: 'SET_CART', payload: apiCart }); // Sync background cart to reducer
+      })
       .catch((error) => {
         if (error instanceof Error && error.name === 'AbortError') return;
         console.error('Failed to load cart:', error);
-        setCartError(error instanceof Error ? error.message : 'Unable to load cart.');
+        setCartError(error instanceof Error ? error.message : 'Unable to sync cart.');
       })
       .finally(() => {
         if (!controller.signal.aborted) {
@@ -59,16 +140,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [refreshCount]);
 
   const addToCart = async (product: Product, quantity: number) => {
-    // Prevent spam clicking
     if (addingProductId === product.id) return;
-    
+
     setAddingProductId(product.id);
     const toastId = toast.loading(`Adding ${product.name} to cart...`);
 
     try {
+      // 1. Update Backend
       await addCartItem(product.id, quantity);
-      const updatedCart = await getCart();
-      setCartItems(updatedCart);
+      // 2. Dispatch Local Reducer Update (No getCart call!)
+      dispatch({ type: 'ADD_ITEM', payload: { product, quantity } });
       toast.success(`${product.name} added to cart!`, { id: toastId });
     } catch (error) {
       console.error('Failed to add item to cart:', error);
@@ -83,9 +164,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
     if (updatingProductId === productId) return false;
     setUpdatingProductId(productId);
     try {
+      // 1. Update Backend
       await updateCartItem(productId, quantity);
-      const updatedCart = await getCart();
-      setCartItems(updatedCart);
+      // 2. Dispatch Local Reducer Update
+      dispatch({ type: 'UPDATE_QTY', payload: { productId, quantity } });
       toast.success('Cart updated');
       return true;
     } catch (error) {
@@ -103,9 +185,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setUpdatingProductId(productId);
     const toastId = toast.loading('Removing item...');
     try {
+      // 1. Update Backend
       await removeCartItem(productId);
-      const updatedCart = await getCart();
-      setCartItems(updatedCart);
+      // 2. Dispatch Local Reducer Update
+      dispatch({ type: 'REMOVE_ITEM', payload: { productId } });
       toast.success('Item removed from cart', { id: toastId });
     } catch (error) {
       console.error('Failed to remove cart item:', error);
@@ -114,6 +197,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
     } finally {
       setUpdatingProductId(null);
     }
+  };
+
+  const clearCart = () => {
+    dispatch({ type: 'CLEAR_CART' });
   };
 
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
@@ -130,6 +217,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         addToCart,
         updateQuantity,
         removeFromCart,
+        clearCart,
         refetchCart,
       }}
     >
