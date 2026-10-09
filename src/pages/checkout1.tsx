@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { getCountries, getStates, getCities } from '../services/locationApi'
 import { useFetch } from '../hooks/useFetch'
+import Breadcrumbs from '../components/ui/Breadcrumbs'
 import './Checkout1.css'
 
 interface ShippingFormData {
@@ -305,6 +306,7 @@ function Checkout() {
 
     return (
         <main className="checkout-container">
+            <Breadcrumbs />
             <h1>Checkout</h1>
 
             {isSubmitted && (

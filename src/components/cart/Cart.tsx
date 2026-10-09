@@ -161,7 +161,7 @@ function Cart() {
   return (
     <>
       <div className="p-6 md:p-8 max-w-7xl mx-auto w-full min-h-[50vh]">
-        <Breadcrumbs items={[{ label: 'Home', path: '/' }, { label: 'Shopping Cart' }]} />
+        <Breadcrumbs />
 
         <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-8">
           Shopping Cart {(!isLoading && !error && cartItems.length > 0) ? `(${totalQuantity} Items)` : ''}

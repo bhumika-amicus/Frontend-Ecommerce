@@ -105,7 +105,7 @@ function CheckoutRHF() {
     return (
         <>
             <div className="p-6 md:p-8 max-w-7xl mx-auto w-full min-h-[50vh]">
-                <Breadcrumbs items={[{ label: 'Home', path: '/' }, { label: 'Cart', path: '/cart' }, { label: 'Checkout' }]} />
+                <Breadcrumbs />
 
                 <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-8">
                     Checkout

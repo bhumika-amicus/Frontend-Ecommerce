@@ -187,7 +187,7 @@ function ProductListing() {
     return (
         <>
             <div className="p-6">
-                <Breadcrumbs items={[{ label: 'Home', path: '/' }, { label: 'Products' }]} />
+                <Breadcrumbs />
                 <div className="flex items-center justify-between mb-3">
                     <h1 className="text-lg md:text-xl lg:text-2xl font-bold m-0">Product Listing</h1>
                     {isLoading ? (
