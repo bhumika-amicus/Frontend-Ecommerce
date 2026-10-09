@@ -21,7 +21,18 @@ function Breadcrumbs() {
     ? location.pathname.slice(0, -1)
     : location.pathname
 
-  const items = routeMapping[pathname]
+  let items = routeMapping[pathname]
+
+  if (!items && pathname.startsWith('/products/')) {
+    const productId = pathname.split('/')[2]
+    if (productId) {
+      items = [
+        { label: 'Home', path: '/' },
+        { label: 'Products', path: '/products' },
+        { label: `Product ${productId}` }
+      ]
+    }
+  }
 
   if (!items) {
     return null

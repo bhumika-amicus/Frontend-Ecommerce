@@ -8,7 +8,7 @@ import placeholderImg from '../../assets/placeholder.jpg'
 
 import { useCart } from '../../contexts/CartContext'
 import { useAuth } from '../../contexts/AuthContext'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation, Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 
 interface ProductCardProps {
@@ -65,22 +65,20 @@ function ProductCard({
 
   return (
     <Card variant="elevated" className="transition-transform duration-200 ease-out hover:z-10 hover:scale-[1.02] motion-reduce:transition-none">
-      <div className="relative flex h-40 w-full items-center justify-center border-b border-[#f1f1f1] bg-white max-[650px]:h-48">
-        {/* <div className="absolute left-3 top-3 z-10 flex flex-col gap-1.5">
-          {isSale && <span className="w-max rounded-full border border-red-200 bg-red-50 px-2.5 py-0.5 text-[10px] font-bold tracking-wider text-red-600 uppercase">SALE</span>}
-          {isNew && <span className="w-max rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold tracking-wider text-emerald-600 uppercase">NEW</span>}
-        </div> */}
+      <Link to={`/products/${product.id}`} className="relative flex h-40 w-full items-center justify-center border-b border-[#f1f1f1] bg-white max-[650px]:h-48 group">
         <img
           src={placeholderImg}
           alt={product.name}
-          className="block h-full w-full object-contain"
+          className="block h-full w-full object-contain transition-transform duration-300 group-hover:scale-105"
         />
-      </div>
+      </Link>
 
       <div className="flex flex-1 flex-col px-4 py-3 text-center">
-        <h2 className="m-0 mb-1.5 line-clamp-2 min-h-10 overflow-hidden text-base leading-[1.3] font-bold uppercase text-brand-orange">
-          {product.name}
-        </h2>
+        <Link to={`/products/${product.id}`} className="hover:underline">
+          <h2 className="m-0 mb-1.5 line-clamp-2 min-h-10 overflow-hidden text-base leading-[1.3] font-bold uppercase text-brand-orange">
+            {product.name}
+          </h2>
+        </Link>
 
         {rating !== undefined && (
           <div className="mb-3 grid grid-cols-[auto_auto] grid-rows-[auto_auto] items-center justify-center gap-x-2 gap-y-2">
