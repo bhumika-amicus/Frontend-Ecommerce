@@ -8,7 +8,7 @@ import placeholderImg from '../../assets/placeholder.jpg'
 
 import { useCart } from '../../contexts/CartContext'
 import { useAuth } from '../../contexts/AuthContext'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import toast from 'react-hot-toast'
 
 interface ProductCardProps {
@@ -21,13 +21,14 @@ function ProductCard({
   const { addToCart, addingProductId } = useCart()
   const { isLoggedIn } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const isAdding = addingProductId === product.id
   const [quantity, setQuantity] = useState(1)
 
   const handleAddToCart = () => {
     if (!isLoggedIn) {
       toast.error('Please log in to add items to your cart.');
-      navigate('/login');
+      navigate('/login', { state: { from: location.pathname } });
       return;
     }
     addToCart(product, quantity);

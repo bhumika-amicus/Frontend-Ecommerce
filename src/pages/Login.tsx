@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Eye, EyeOff } from 'lucide-react';
 import Button from '../components/ui/Button';
@@ -7,16 +7,19 @@ import { DEV_LOGIN_EMAIL, DEV_LOGIN_PASSWORD } from '../config';
 
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login, isLoggedIn } = useAuth();
+  
+  const from = location.state?.from || '/';
   
   const [email, setEmail] = useState(DEV_LOGIN_EMAIL || '');
   const [password, setPassword] = useState(DEV_LOGIN_PASSWORD || '');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // If already logged in, redirect to home
+  // If already logged in, redirect to where they came from
   if (isLoggedIn) {
-    navigate('/', { replace: true });
+    navigate(from, { replace: true });
     return null;
   }
 
@@ -25,7 +28,7 @@ export default function Login() {
     setIsLoading(true);
     try {
       await login();
-      navigate('/', { replace: true });
+      navigate(from, { replace: true });
     } catch (error) {
       console.error('Login failed');
     } finally {

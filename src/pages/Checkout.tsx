@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useForm, useWatch } from 'react-hook-form'
 import Breadcrumbs from '../components/ui/Breadcrumbs'
 import CheckoutSteps from '../components/layout/CheckoutSteps'
@@ -47,6 +48,7 @@ const shippingRates: Record<Exclude<ShippingMethod, ''>, number> = {
 
 
 function Checkout() {
+    const navigate = useNavigate()
     const {
         control,
         register,
@@ -127,6 +129,7 @@ function Checkout() {
                         console.log('Form Submitted', formData)
                         setIsSubmitted(true)
                         reset(initialFormData)
+                        navigate('/orders', { replace: true })
                     })}
                 >
                     <div className="min-w-0">
