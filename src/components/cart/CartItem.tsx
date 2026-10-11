@@ -10,10 +10,16 @@ interface CartItemProps {
   isUpdating: boolean
 }
 
+const inrFormatter = new Intl.NumberFormat('en-IN', {
+  style: 'currency',
+  currency: 'INR',
+})
+
+const formatINR = (amount: number) => inrFormatter.format(amount)
+
 function CartItem({ item, onQuantityChange, onRemove, isUpdating }: CartItemProps) {
 
   const [localQuantity, setLocalQuantity] = useState(item.quantity)
-  const debounceTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null)
   const [prevQuantityProp, setPrevQuantityProp] = useState(item.quantity)
 
   // 1. Keep local UI in sync if the server data updates from somewhere else
@@ -22,34 +28,21 @@ function CartItem({ item, onQuantityChange, onRemove, isUpdating }: CartItemProp
     setLocalQuantity(item.quantity);
   }
 
-  // 2. A single, clean function to handle typing
-  const handleQuantityChange = React.useCallback((newQuantity: number) => {
-    setLocalQuantity(newQuantity) // Update text box instantly
+  // 2. Direct, responsive quantity change handler
+  const handleQuantityChange = React.useCallback(async (newQuantity: number) => {
+    if (newQuantity === item.quantity) return
 
-    if (debounceTimer.current) {
-      clearTimeout(debounceTimer.current)
+    if (newQuantity === 0) {
+      onRemove(item.productId)
+      return
     }
 
-    // Wait 600ms of silence before doing anything
-    debounceTimer.current = setTimeout(async () => {
-      if (newQuantity === 0) {
-        onRemove(item.productId)
-      } else if (newQuantity !== item.quantity) {
-        // Await the API call. If it returns false (failed), revert the text box!
-        const success = await onQuantityChange(item.productId, newQuantity)
-        if (success === false) {
-          setLocalQuantity(item.quantity)
-        }
-      }
-    }, 600)
+    setLocalQuantity(newQuantity)
+    const success = await onQuantityChange(item.productId, newQuantity)
+    if (success === false) {
+      setLocalQuantity(item.quantity)
+    }
   }, [item.productId, item.quantity, onQuantityChange, onRemove])
-
-  const formatINR = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-    }).format(amount)
-  }
 
   return (
     <div className="flex flex-col md:flex-row items-center border-b border-gray-200 py-6 gap-4">
@@ -101,4 +94,4 @@ function CartItem({ item, onQuantityChange, onRemove, isUpdating }: CartItemProp
   )
 }
 
-export default CartItem
+export default React.memo(CartItem)

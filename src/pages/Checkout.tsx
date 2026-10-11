@@ -44,6 +44,13 @@ const shippingRates: Record<Exclude<ShippingMethod, ''>, number> = {
     overnight: 250,
 }
 
+const inrFormatter = new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+})
+
+const formatINR = (amount: number) => inrFormatter.format(amount)
+
 
 
 function Checkout() {
@@ -105,13 +112,6 @@ function Checkout() {
     const tax = subtotal * 0.08
     const shippingFee = selectedShippingMethod ? shippingRates[selectedShippingMethod] : 0
     const total = subtotal + tax + shippingFee
-
-    const formatINR = (amount: number) => {
-        return new Intl.NumberFormat('en-IN', {
-            style: 'currency',
-            currency: 'INR',
-        }).format(amount)
-    }
 
     return (
         <>

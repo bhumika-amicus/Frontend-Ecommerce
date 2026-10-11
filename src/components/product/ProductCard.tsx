@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, memo } from 'react'
 import { Star, StarHalf } from 'lucide-react'
 import type { Product } from '../../types/Products'
 import Button from '../ui/Button'
@@ -10,6 +10,11 @@ import { useCart } from '../../hooks/useCart'
 import { useAuth } from '../../hooks/useAuth'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
+
+const inrFormatter = new Intl.NumberFormat('en-IN', {
+  style: 'currency',
+  currency: 'INR',
+})
 
 interface ProductCardProps {
   product: Product
@@ -25,19 +30,17 @@ function ProductCard({
   const isAdding = addingProductId === product.id
   const [quantity, setQuantity] = useState(1)
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!isLoggedIn) {
       toast.error('Please log in to add items to your cart.');
       navigate('/login', { state: { from: location.pathname } });
       return;
     }
-    addToCart(product, quantity);
+    await addToCart(product, quantity);
+    setQuantity(1);
   }
 
-  const formattedTotalPrice = new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-  }).format(product.price * quantity)
+  const formattedTotalPrice = inrFormatter.format(product.price * quantity)
 
   // const isSale = product.discountPercentage ? product.discountPercentage > 10 : false;
 
@@ -130,4 +133,4 @@ function ProductCard({
   )
 }
 
-export default ProductCard
+export default memo(ProductCard)

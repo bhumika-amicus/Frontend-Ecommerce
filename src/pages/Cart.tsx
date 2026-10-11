@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Breadcrumbs from '../components/ui/Breadcrumbs'
 import CartItem from '../components/cart/CartItem'
@@ -5,6 +6,13 @@ import CartItemSkeleton from '../components/cart/CartItemSkeleton'
 import Button from '../components/ui/Button'
 import StateMessage from '../components/ui/StateMessage'
 import { useCart } from '../hooks/useCart'
+
+const inrFormatter = new Intl.NumberFormat('en-IN', {
+  style: 'currency',
+  currency: 'INR',
+})
+
+const formatINR = (amount: number) => inrFormatter.format(amount)
 
 function Cart() {
   const {
@@ -18,21 +26,14 @@ function Cart() {
   } = useCart()
   const navigate = useNavigate()
 
-  const subtotal = cartItems.reduce((sum, item) => sum + item.itemSubtotal, 0)
-  const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0)
-
-  // Dynamic calculations for Shipping and Tax
-  const shipping = subtotal > 0 ? (subtotal > 10000 ? 0 : 150) : 0; // Free shipping over ₹10,000, else ₹150
-  const taxRate = 0.08; // 8% tax rate to match your design
-  const tax = subtotal * taxRate;
-  const finalTotal = subtotal + shipping + tax;
-
-  const formatINR = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-    }).format(amount)
-  }
+  const { subtotal, totalQuantity, shipping, tax, finalTotal } = useMemo(() => {
+    const subtotal = cartItems.reduce((sum, item) => sum + item.itemSubtotal, 0)
+    const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0)
+    const shipping = subtotal > 0 ? (subtotal > 10000 ? 0 : 150) : 0
+    const tax = subtotal * 0.08
+    const finalTotal = subtotal + shipping + tax
+    return { subtotal, totalQuantity, shipping, tax, finalTotal }
+  }, [cartItems])
 
   let content;
 

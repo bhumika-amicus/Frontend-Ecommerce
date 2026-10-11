@@ -1,4 +1,4 @@
-import { useReducer, useEffect, useState, useCallback } from 'react';
+import { useReducer, useEffect, useState, useCallback, useMemo } from 'react';
 import type { ReactNode } from 'react';
 import toast from 'react-hot-toast';
 import { getCart, addCartItem, updateCartItem, removeCartItem } from '../services/cartApi';
@@ -136,9 +136,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     return () => controller.abort();
   }, [requestId, isLoggedIn]);
 
-  const addToCart = async (product: Product, quantity: number) => {
-    if (addingProductId === product.id) return;
-
+  const addToCart = useCallback(async (product: Product, quantity: number) => {
     setAddingProductId(product.id);
     const toastId = toast.loading(`Adding ${product.name} to cart...`);
 
@@ -155,10 +153,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
     } finally {
       setAddingProductId(null);
     }
-  };
+  }, []);
 
-  const updateQuantity = async (productId: number, quantity: number): Promise<boolean> => {
-    if (updatingProductId === productId) return false;
+  const updateQuantity = useCallback(async (productId: number, quantity: number): Promise<boolean> => {
     setUpdatingProductId(productId);
     try {
       // 1. Update Backend
@@ -175,10 +172,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
     } finally {
       setUpdatingProductId(null);
     }
-  };
+  }, []);
 
-  const removeFromCart = async (productId: number) => {
-    if (updatingProductId === productId) return;
+  const removeFromCart = useCallback(async (productId: number) => {
     setUpdatingProductId(productId);
     const toastId = toast.loading('Removing item...');
     try {
@@ -194,30 +190,44 @@ export function CartProvider({ children }: { children: ReactNode }) {
     } finally {
       setUpdatingProductId(null);
     }
-  };
+  }, []);
 
-  const clearCart = () => {
+  const clearCart = useCallback(() => {
     dispatch({ type: 'CLEAR_CART' });
-  };
+  }, []);
 
-  const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const cartCount = useMemo(() => {
+    return cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  }, [cartItems]);
+
+  const contextValue = useMemo(() => ({
+    cartItems,
+    cartCount,
+    isCartLoading,
+    cartError,
+    updatingProductId,
+    addingProductId,
+    addToCart,
+    updateQuantity,
+    removeFromCart,
+    clearCart,
+    refetchCart,
+  }), [
+    cartItems,
+    cartCount,
+    isCartLoading,
+    cartError,
+    updatingProductId,
+    addingProductId,
+    addToCart,
+    updateQuantity,
+    removeFromCart,
+    clearCart,
+    refetchCart,
+  ]);
 
   return (
-    <CartContext.Provider
-      value={{
-        cartItems,
-        cartCount,
-        isCartLoading,
-        cartError,
-        updatingProductId,
-        addingProductId,
-        addToCart,
-        updateQuantity,
-        removeFromCart,
-        clearCart,
-        refetchCart,
-      }}
-    >
+    <CartContext.Provider value={contextValue}>
       {children}
     </CartContext.Provider>
   );

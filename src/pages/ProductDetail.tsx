@@ -11,6 +11,13 @@ import Breadcrumbs from '../components/ui/Breadcrumbs'
 import placeholderImg from '../assets/placeholder.jpg'
 import toast from 'react-hot-toast'
 
+const inrFormatter = new Intl.NumberFormat('en-IN', {
+  style: 'currency',
+  currency: 'INR',
+})
+
+const formatINR = (amount: number) => inrFormatter.format(amount)
+
 function ProductDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
@@ -57,13 +64,6 @@ function ProductDetail() {
     }
 
     addToCart(product, 1)
-  }
-
-  const formatINR = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-    }).format(amount)
   }
 
   if (isLoading) {

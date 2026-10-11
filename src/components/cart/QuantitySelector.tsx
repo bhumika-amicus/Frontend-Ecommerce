@@ -23,49 +23,48 @@ function QuantitySelector({
 
   const handleInputChange = (value: string) => {
     if (disabled) return
-
-    if (value === '') {
-      setInputValue('')
-      return
-    }
-
-    const nextQuantity = Number(value)
-
-    if (!Number.isInteger(nextQuantity) || nextQuantity < minQuantity) {
-      setInputValue(String(minQuantity))
-      onQuantityChange(minQuantity)
-      return
-    }
-
     setInputValue(value)
-    onQuantityChange(nextQuantity)
   }
 
   const handleInputBlur = () => {
     if (disabled) return
 
-    // If  left blank, safely bounce back to 1.
-  
-    if (inputValue === '') {
-      const fallback = Math.max(1, minQuantity)
-      setInputValue(String(fallback))
-      onQuantityChange(fallback)
-    } else {
-      // Just in case they typed something invalid like '1.5' or '-'
-      const finalQuantity = Number(inputValue)
-      if (!Number.isInteger(finalQuantity) || finalQuantity < minQuantity) {
-        setInputValue(String(minQuantity))
-        onQuantityChange(minQuantity)
-      }
+    if (inputValue.trim() === '') {
+      setInputValue(String(quantity))
+      return
+    }
+
+    const nextQuantity = Math.floor(Number(inputValue))
+    if (isNaN(nextQuantity) || nextQuantity < minQuantity) {
+      setInputValue(String(quantity))
+      return
+    }
+
+    setInputValue(String(nextQuantity))
+    if (nextQuantity !== quantity) {
+      onQuantityChange(nextQuantity)
+    }
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.currentTarget.blur()
     }
   }
 
   const handleQuantityStep = (step: number) => {
     if (disabled) return
 
-    const nextQuantity = Math.max(minQuantity, quantity + step)
-    setInputValue(String(nextQuantity))
-    onQuantityChange(nextQuantity)
+    const parsedInput = Math.floor(Number(inputValue))
+    const baseQuantity = (!isNaN(parsedInput) && parsedInput >= minQuantity)
+      ? parsedInput
+      : quantity
+
+    const nextQuantity = Math.max(minQuantity, baseQuantity + step)
+    if (nextQuantity !== quantity) {
+      setInputValue(String(nextQuantity))
+      onQuantityChange(nextQuantity)
+    }
   }
 
   return (
@@ -87,11 +86,12 @@ function QuantitySelector({
 
         <input
           type="number"
-          min="1"
+          min={minQuantity}
           step="1"
           value={inputValue}
           onChange={(event) => handleInputChange(event.target.value)}
           onBlur={handleInputBlur}
+          onKeyDown={handleKeyDown}
           aria-label="Quantity"
           disabled={disabled}
           className="h-7 w-10.5 border-0 border-x border-[#f1f1f1] bg-white px-1 text-center text-sm font-bold leading-7 text-[#333333] focus-visible:outline-2 focus-visible:outline-brand-orange focus-visible:-outline-offset-2 disabled:bg-gray-50 disabled:text-gray-400 [appearance:textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
