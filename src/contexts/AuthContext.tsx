@@ -15,17 +15,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return getAccessToken() && DEV_LOGIN_EMAIL ? { email: DEV_LOGIN_EMAIL } : null;
   });
 
+  const logout = useCallback((message = 'Successfully logged out.', isError = false) => {
+    clearTokens();
+    setIsLoggedIn(false);
+    setUser(null);
+    if (isError) {
+      toast.error(message);
+    } else {
+      toast.success(message);
+    }
+  }, []);
+
   useEffect(() => {
     // Listen for the emergency logout event from our API interceptor
     const handleForcedLogout = () => {
-      setIsLoggedIn(false);
-      setUser(null);
-      toast.error('Session expired. Please log in again.');
+      logout('Session expired. Please log in again.', true);
     };
 
     window.addEventListener('auth:logout', handleForcedLogout);
     return () => window.removeEventListener('auth:logout', handleForcedLogout);
-  }, []);
+  }, [logout]);
 
   const login = useCallback(async (email?: string, password?: string) => {
     const toastId = toast.loading('Authenticating...');
@@ -52,13 +61,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       toast.error('Login failed. Please check credentials and try again.', { id: toastId });
       throw error;
     }
-  }, []);
-
-  const logout = useCallback(() => {
-    clearTokens();
-    setIsLoggedIn(false);
-    setUser(null);
-    toast.success('Successfully logged out.');
   }, []);
 
   const contextValue = useMemo(() => ({
