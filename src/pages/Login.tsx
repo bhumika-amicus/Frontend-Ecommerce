@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import type { SubmitEvent } from 'react';
+import { useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { Eye, EyeOff } from 'lucide-react';
 import Button from '../components/ui/Button';
@@ -19,15 +20,14 @@ export default function Login() {
 
   // If already logged in, redirect to where they came from
   if (isLoggedIn) {
-    navigate(from, { replace: true });
-    return null;
+    return <Navigate to={from} replace />;
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await login();
+      await login(email, password);
       navigate(from, { replace: true });
     } catch (error) {
       console.error('Login failed:', error);

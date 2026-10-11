@@ -2,12 +2,12 @@ import type { LoginRequestDto, LoginResponseDto } from '../types/AuthDto';
 import { BASE_URL, DEV_LOGIN_EMAIL, DEV_LOGIN_PASSWORD } from '../config';
 import { setAccessToken, setRefreshToken, getRefreshToken, clearTokens } from '../utils/token';
 
-export async function devLogin(): Promise<LoginResponseDto> {
-  const email = DEV_LOGIN_EMAIL;
-  const password = DEV_LOGIN_PASSWORD;
+export async function loginApi(credentials?: Partial<LoginRequestDto>): Promise<LoginResponseDto> {
+  const email = credentials?.email || DEV_LOGIN_EMAIL;
+  const password = credentials?.password || DEV_LOGIN_PASSWORD;
 
   if (!email || !password) {
-    throw new Error('Development login credentials are not set in environment variables.');
+    throw new Error('Login credentials are not provided and development environment variables are missing.');
   }
 
   const payload: LoginRequestDto = { email, password };
@@ -29,21 +29,7 @@ export async function devLogin(): Promise<LoginResponseDto> {
   setAccessToken(data.token);
   setRefreshToken(data.refreshToken);
 
-  console.log('Temporary Development Login Successful');
-
   return data;
-}
-
-let authPromise: Promise<LoginResponseDto> | null = null;
-
-export function initializeAuth() {
-  if (!authPromise) {
-    authPromise = devLogin().catch((err) => {
-      authPromise = null; // reset on failure so it can be retried if needed
-      throw err;
-    });
-  }
-  return authPromise;
 }
 
 let refreshPromise: Promise<void> | null = null;
@@ -74,6 +60,9 @@ export function refreshAuthToken(): Promise<void> {
         setRefreshToken(data.refreshToken);
       } catch (error) {
         clearTokens();
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new Event('auth:logout'));
+        }
         throw error;
       } finally {
         refreshPromise = null;
