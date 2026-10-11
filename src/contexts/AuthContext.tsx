@@ -3,12 +3,15 @@ import type { ReactNode } from 'react';
 import { getAccessToken, clearTokens } from '../utils/token';
 import { devLogin } from '../services/auth';
 import toast from 'react-hot-toast';
+import { DEV_LOGIN_EMAIL } from '../config';
 import { AuthContext } from '../hooks/useAuth';
 import type { UserInfo } from '../hooks/useAuth';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(!!getAccessToken());
-  const [user, setUser] = useState<UserInfo | null>(null);
+  const [user, setUser] = useState<UserInfo | null>(
+    getAccessToken() && DEV_LOGIN_EMAIL ? { email: DEV_LOGIN_EMAIL } : null
+  );
 
   useEffect(() => {
     // Listen for the emergency logout event from our API interceptor
@@ -30,8 +33,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await devLogin();
 
       setIsLoggedIn(true);
-      // Mock setting user info based on successful login
-      setUser({ email: 'shivamssrivastavaa@gmail.com' });
+      setUser(DEV_LOGIN_EMAIL ? { email: DEV_LOGIN_EMAIL } : null);
 
       toast.success('Successfully logged in!', { id: toastId });
     } catch (error) {
