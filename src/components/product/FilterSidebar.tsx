@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, memo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Star, ChevronUp, ChevronDown, X, ArrowRight } from 'lucide-react'
 import { ProductSortBy, SortOrder } from '../../types/ProductSorting'
@@ -445,4 +445,4 @@ function FilterSidebar({
     )
 }
 
-export default FilterSidebar
+export default memo(FilterSidebar)

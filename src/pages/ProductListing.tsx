@@ -1,5 +1,5 @@
 import { useSearchParams } from 'react-router-dom'
-import type { ReactNode } from 'react'
+import { useCallback, type ReactNode } from 'react'
 import { useFetch } from '../hooks/useFetch'
 
 import ProductGrid from '../components/product/ProductGrid'
@@ -11,6 +11,12 @@ import FilterSidebar from '../components/product/FilterSidebar'
 import { getBrands, getCategories, searchProducts } from '../services/productApi'
 import { ProductSortBy, SortOrder } from '../types/ProductSorting'
 import { getValidInt, getValidFloat } from '../utils/urlHelpers'
+import type { Category } from '../types/Categories'
+import type { Brand } from '../types/Brands'
+
+const PAGE_SIZE = 12
+const EMPTY_CATEGORIES: Category[] = []
+const EMPTY_BRANDS: Brand[] = []
 
 function ProductListing() {
     const [searchParams, setSearchParams] = useSearchParams()
@@ -33,10 +39,8 @@ function ProductListing() {
     const rawSortOrder = searchParams.get('sortOrder') as SortOrder
     const sortOrder = Object.values(SortOrder).includes(rawSortOrder) ? rawSortOrder : undefined
 
-    const pageSize = 12
-
-    function updatePage(nextPage: number) {
-        if (nextPage < 1 || nextPage > totalPages) {
+    const updatePage = useCallback((nextPage: number) => {
+        if (nextPage < 1) {
             return
         }
 
@@ -45,7 +49,7 @@ function ProductListing() {
             nextParams.set('page', String(nextPage))
             return nextParams
         })
-    }
+    }, [setSearchParams])
 
     const {
         data: productsData,
@@ -65,7 +69,7 @@ function ProductListing() {
                     sortBy,
                     sortOrder,
                     page,
-                    pageSize,
+                    pageSize: PAGE_SIZE,
                 },
                 signal
             ),
@@ -92,7 +96,7 @@ function ProductListing() {
         error: categoriesError,
     } = useFetch(getCategories)
 
-    const categories = categoriesData || []
+    const categories = categoriesData || EMPTY_CATEGORIES
 
     const {
         data: brandsData,
@@ -100,11 +104,9 @@ function ProductListing() {
         error: brandsError,
     } = useFetch(getBrands)
 
-    const brands = brandsData || []
+    const brands = brandsData || EMPTY_BRANDS
 
-
-
-    function clearAllFilters() {
+    const clearAllFilters = useCallback(() => {
         setSearchParams((currentParams) => {
             const nextParams = new URLSearchParams(currentParams)
             nextParams.delete('categoryId')
@@ -117,17 +119,16 @@ function ProductListing() {
             nextParams.delete('page')
             return nextParams
         })
-    }
+    }, [setSearchParams])
 
     const hasActiveFilters = searchTerm !== '' || categoryId !== undefined || brandId !== undefined || minPrice !== undefined || maxPrice !== undefined || minRating !== undefined
-
 
     let content: ReactNode
 
     if (isLoading) {
         content = (
             <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-                {Array.from({ length: 8 }).map((_, index) => (
+                {Array.from({ length: PAGE_SIZE }).map((_, index) => (
                     <ProductCardSkeleton key={index} />
                 ))}
             </div>
@@ -195,7 +196,7 @@ function ProductListing() {
                             Refresh
                         </button>
                     ) : !error && products.length > 0 ? (
-                        <button className="button button-outline" onClick={() => refetchProducts()}>
+                        <button className="button button-outline" onClick={refetchProducts}>
                             Refresh
                         </button>
                     ) : null}
