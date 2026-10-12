@@ -1,399 +1,290 @@
-import { useState } from 'react'
+import { useState, useMemo, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm, useWatch } from 'react-hook-form'
+import toast from 'react-hot-toast'
 import Breadcrumbs from '../components/ui/Breadcrumbs'
 import CheckoutSteps from '../components/layout/CheckoutSteps'
-import { getCountries, getStates, getCities } from '../services/locationApi'
-import { useFetch } from '../hooks/useFetch'
+import ShippingStep from '../components/checkout/ShippingStep'
+import PaymentStep from '../components/checkout/PaymentStep'
+import ReviewStep from '../components/checkout/ReviewStep'
+import OrderSummary from '../components/checkout/OrderSummary'
 import { useCart } from '../hooks/useCart'
-
-type ShippingMethod = '' | 'standard' | 'express' | 'overnight'
-
-interface ShippingFormData {
-    fullName: string
-    email: string
-    phone: string
-    address: string
-    apartment: string
-    country: string
-    state: string
-    city: string
-    postalCode: string
-    shippingMethod: ShippingMethod
-}
-
-
-
-const initialFormData: ShippingFormData = {
-    fullName: '',
-    email: '',
-    phone: '',
-    address: '',
-    apartment: '',
-    country: '',
-    state: '',
-    city: '',
-    postalCode: '',
-    shippingMethod: '',
-}
-
-
-const shippingRates: Record<Exclude<ShippingMethod, ''>, number> = {
-    standard: 50,
-    express: 150,
-    overnight: 250,
-}
-
-const inrFormatter = new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-})
-
-const formatINR = (amount: number) => inrFormatter.format(amount)
-
-
+import { createAddress, createCheckout, processMockPayment } from '../services/orderApi'
+import {
+    initialShippingFormData,
+    shippingRates,
+    type ShippingFormData,
+    type ShippingMethod as ShippingMethodType,
+    type AddressDto,
+    type CheckoutResponse,
+} from '../types/OrderDto'
 
 function Checkout() {
     const navigate = useNavigate()
     const { cartItems, clearCart } = useCart()
+    const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1)
+    const [createdOrder, setCreatedOrder] = useState<CheckoutResponse | null>(null)
+    const [pendingOrderId, setPendingOrderId] = useState<number | null>(null)
+
+    useEffect(() => {
+        // Empty cart guard: redirect to /products with message if cart is empty on entry
+        if (cartItems.length === 0 && !createdOrder) {
+            toast.error('Your cart is empty. Please add items before checking out.', { id: 'empty-cart-toast' })
+            navigate('/products', { replace: true })
+        }
+    }, [cartItems.length, createdOrder, navigate])
+
+    const [selectedAddress, setSelectedAddress] = useState<AddressDto | null>(null)
+    const selectedAddressId = selectedAddress?.addressId ?? null
+
     const {
         control,
         register,
         handleSubmit,
         reset,
         resetField,
-        formState: { errors, isSubmitting, isValid },
+        setValue,
+        trigger,
+        getValues,
+        formState: { errors, isSubmitting },
     } = useForm<ShippingFormData>({
-        defaultValues: initialFormData,
+        defaultValues: initialShippingFormData,
         mode: 'onTouched',
-        reValidateMode: 'onChange'
+        reValidateMode: 'onChange',
     })
 
-    const selectedCountry = useWatch({ control, name: 'country' })
-    const selectedState = useWatch({ control, name: 'state' })
     const selectedShippingMethod = useWatch({ control, name: 'shippingMethod' })
 
-    const [isSubmitted, setIsSubmitted] = useState(false)
+    const { subtotal, tax, shippingFee, total } = useMemo(() => {
+        const sub = cartItems.reduce((sum, item) => sum + item.itemSubtotal, 0)
+        const fee = selectedShippingMethod && selectedShippingMethod in shippingRates
+            ? shippingRates[selectedShippingMethod as ShippingMethodType]
+            : 0
+        const calculatedTax = sub * 0.18 // 18% Tax matching backend
+        return {
+            subtotal: sub,
+            shippingFee: fee,
+            tax: calculatedTax,
+            total: sub + calculatedTax + fee,
+        }
+    }, [cartItems, selectedShippingMethod])
 
-    const { 
-        data: countriesData, 
-        isLoading: isLoadingCountries, 
-        error: countriesError 
-    } = useFetch(getCountries)
+    const handleContinueToPayment = useCallback(async () => {
+        // Validate contact info & shipping method
+        const isContactValid = await trigger([
+            'fullName',
+            'email',
+            'phone',
+            'shippingMethod',
+        ])
+        if (!isContactValid) return
 
-    const { 
-        data: statesData, 
-        isLoading: isLoadingStates, 
-        error: statesError 
-    } = useFetch(
-        (signal) => getStates(selectedCountry, signal), 
-        [selectedCountry], 
-        { skip: !selectedCountry }
-    )
+        // If no address selected yet, check if form has valid address and auto-save
+        if (!selectedAddressId) {
+            const isAddressValid = await trigger([
+                'country',
+                'state',
+                'city',
+                'postalCode',
+                'address',
+            ])
+            if (!isAddressValid) {
+                toast.error('Please enter and save a shipping address.', { id: 'address-required' })
+                return
+            }
 
-    const { 
-        data: citiesData, 
-        isLoading: isLoadingCities, 
-        error: citiesError 
-    } = useFetch(
-        (signal) => getCities(selectedCountry, selectedState, signal), 
-        [selectedCountry, selectedState], 
-        { skip: !selectedCountry || !selectedState }
-    )
+            try {
+                const formData = getValues()
+                const addressRes = await createAddress({
+                    addressLine1: formData.address.trim(),
+                    addressLine2: formData.apartment?.trim() || null,
+                    city: formData.city.trim(),
+                    state: formData.state.trim(),
+                    postalCode: formData.postalCode.trim(),
+                    country: formData.country.trim(),
+                    isDefault: Boolean(formData.isDefault),
+                })
 
-    const countries = countriesData || []
-    const states = statesData || []
-    const cities = citiesData || []
-    
-    // Combine errors for the UI
-    const locationError = countriesError || statesError || citiesError
+                if (addressRes?.addressId) {
+                    setSelectedAddress({
+                        addressId: addressRes.addressId,
+                        addressLine1: formData.address.trim(),
+                        addressLine2: formData.apartment?.trim() || null,
+                        city: formData.city.trim(),
+                        state: formData.state.trim(),
+                        postalCode: formData.postalCode.trim(),
+                        country: formData.country.trim(),
+                        isDefault: Boolean(formData.isDefault),
+                    })
+                    toast.success('Address saved successfully!', { id: 'address-auto-save' })
+                    setCurrentStep(2)
+                    return
+                }
+            } catch (err) {
+                const msg = err instanceof Error ? err.message : 'Failed to save address'
+                toast.error(msg, { id: 'address-save-error' })
+                return
+            }
+        }
 
-    const subtotal = cartItems.reduce((sum, item) => sum + item.itemSubtotal, 0)
-    const tax = subtotal * 0.08
-    const shippingFee = selectedShippingMethod ? shippingRates[selectedShippingMethod] : 0
-    const total = subtotal + tax + shippingFee
+        setCurrentStep(2)
+    }, [trigger, selectedAddressId, getValues])
+
+    const handleBackToShipping = useCallback(() => {
+        setCurrentStep(1)
+    }, [])
+
+    const handleContinueToReview = useCallback(() => {
+        setCurrentStep(3)
+    }, [])
+
+    const handleEditShipping = useCallback(() => {
+        setPendingOrderId(null)
+        setCurrentStep(1)
+    }, [])
+
+    const handleEditPayment = useCallback(() => {
+        setCurrentStep(2)
+    }, [])
+
+    const handleBackToPayment = useCallback(() => {
+        setCurrentStep(2)
+    }, [])
+
+    const onSubmit = async (formData: ShippingFormData) => {
+        try {
+            if (!selectedAddressId) {
+                toast.error('Please select or save a shipping address.', { id: 'address-missing' })
+                setCurrentStep(1)
+                return
+            }
+
+            let orderId = pendingOrderId
+            let checkoutResult = createdOrder
+
+            // Step 1: Create checkout order if not already created (prevents duplicate orders on payment retries)
+            if (!orderId) {
+                const checkoutRes = await createCheckout({
+                    addressId: selectedAddressId,
+                    shippingMethod: formData.shippingMethod as ShippingMethodType,
+                    paymentMethod: formData.paymentMethod,
+                })
+
+                // Handle potential stock or pricing issues
+                if (!checkoutRes.orderId) {
+                    if (checkoutRes.stockIssues && checkoutRes.stockIssues.length > 0) {
+                        toast.error('Some items in your cart are currently out of stock.', { id: 'checkout-stock-issue' })
+                    } else if (checkoutRes.priceChanges && checkoutRes.priceChanges.length > 0) {
+                        toast.error('Some product prices have changed. Please review your cart.', { id: 'checkout-price-issue' })
+                    } else {
+                        toast.error('Unable to create checkout order. Please check your cart.', { id: 'checkout-failed' })
+                    }
+                    return
+                }
+
+                orderId = checkoutRes.orderId
+                checkoutResult = checkoutRes
+                setPendingOrderId(orderId)
+            }
+
+            // Step 2: Call Payment API: POST /api/payments/mock with { orderId, paymentMethod }
+            const paymentRes = await processMockPayment(orderId, formData.paymentMethod)
+
+            // Step 3: Verify payment success
+            if (paymentRes.paymentStatus !== 'Success') {
+                toast.error('Payment was not successful. Please retry or choose another payment method.', { id: 'payment-failed' })
+                return
+            }
+
+            // Step 4: Success! Finalize order, clear cart, reset form, and navigate to /orders
+            setCreatedOrder(checkoutResult)
+            setPendingOrderId(null)
+            clearCart()
+            reset(initialShippingFormData)
+
+            toast.success('Order placed successfully!', { id: 'order-success-toast' })
+            navigate('/orders', { replace: true, state: { orderId, order: checkoutResult } })
+        } catch (error) {
+            console.error('Order placement or payment failed:', error)
+            const message = error instanceof Error ? error.message : 'Failed to complete order. Please try again.'
+            toast.error(message, { id: 'order-error-toast' })
+        }
+    }
+
+
 
     return (
-        <>
-            <div className="mx-auto min-h-[50vh] w-full max-w-7xl px-3 py-4 sm:px-5 md:px-8">
-                <Breadcrumbs />
+        <div className="mx-auto min-h-[50vh] w-full max-w-7xl px-3 py-4 sm:px-5 md:px-8">
+            <Breadcrumbs />
 
-                <h1 className="mb-6 text-2xl font-bold text-gray-800 sm:mb-8 md:text-3xl">
-                    Checkout
-                </h1>
+            <h1 className="mb-6 text-2xl font-bold text-gray-800 sm:mb-8 md:text-3xl">
+                Checkout
+            </h1>
 
-                <CheckoutSteps currentStep={1} />
+            <CheckoutSteps currentStep={currentStep} />
 
-                {isSubmitted && (
-                    <div className="mb-5 rounded border border-green-200 bg-green-50 p-4 text-green-700 sm:mb-6">
-                        Order placed successfully!
-                    </div>
-                )}
+            <form
+                className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)] xl:gap-8"
+                noValidate
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter' && currentStep !== 3) {
+                        e.preventDefault()
+                        if (currentStep === 1) {
+                            void handleContinueToPayment()
+                        } else if (currentStep === 2) {
+                            handleContinueToReview()
+                        }
+                    }
+                }}
+                onSubmit={handleSubmit(onSubmit)}
+            >
+                <div className="min-w-0">
+                    {currentStep === 1 && (
+                        <ShippingStep
+                            register={register}
+                            errors={errors}
+                            control={control}
+                            resetField={resetField}
+                            setValue={setValue}
+                            getValues={getValues}
+                            trigger={trigger}
+                            selectedAddressId={selectedAddressId}
+                            onSelectAddress={(addr) => setSelectedAddress(addr)}
+                        />
+                    )}
 
-                <form
-                    className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)] xl:gap-8"
-                    noValidate
-                    onChange={() => setIsSubmitted(false)}
-                    onSubmit={handleSubmit((formData) => {
-                        console.log('Form Submitted', formData)
-                        setIsSubmitted(true)
-                        reset(initialFormData)
-                        clearCart()
-                        navigate('/orders', { replace: true })
-                    })}
-                >
-                    <div className="min-w-0">
-                        <section className="mb-6 min-w-0 overflow-hidden rounded border border-gray-200 bg-white shadow-sm">
-                            <div className="bg-[#1a1a1a] px-4 py-3 font-bold tracking-wider text-white sm:px-6">
-                                SHIPPING INFORMATION
-                            </div>
-                            <div className="p-4 sm:p-6">
-                                {locationError && <p className="text-red-500 mb-4">{locationError}</p>}
-                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
-                                    <div className="flex flex-col gap-1.5">
-                                        <label htmlFor="fullName" className="text-sm font-medium text-gray-700">Full Name *</label>
-                                        <input
-                                            id="fullName"
-                                            type="text"
-                                            className={`h-10 w-full min-w-0 rounded border px-3 text-sm focus:border-brand-orange focus:outline-none focus:ring-1 focus:ring-brand-orange ${errors.fullName ? 'border-red-500' : 'border-gray-300'}`}
-                                            {...register('fullName', {
-                                                required: 'Full name is required',
-                                                validate: (value) => {
-                                                    const trimmedValue = value.trim()
-                                                    if (!trimmedValue) return 'Full name is required'
-                                                    if (trimmedValue.length < 3) {
-                                                        return 'Full name must be at least 3 characters'
-                                                    }
-                                                    if (trimmedValue.length > 50) {
-                                                        return 'Full name must be 50 characters or less'
-                                                    }
-                                                    return true
-                                                },
-                                            })}
-                                        />
-                                        {errors.fullName?.message && <p className="text-red-500 text-xs mt-1">{errors.fullName.message}</p>}
-                                    </div>
+                    {currentStep === 2 && (
+                        <PaymentStep
+                            register={register}
+                            onBack={handleBackToShipping}
+                        />
+                    )}
 
-                                    <div className="flex flex-col gap-1.5">
-                                        <label htmlFor="email" className="text-sm font-medium text-gray-700">Email Address *</label>
-                                        <input
-                                            id="email"
-                                            type="email"
-                                            className={`h-10 w-full min-w-0 rounded border px-3 text-sm focus:border-brand-orange focus:outline-none focus:ring-1 focus:ring-brand-orange ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
-                                            {...register('email', {
-                                                required: 'Email is required',
-                                                validate: (value) => {
-                                                    const trimmedValue = value.trim()
-                                                    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedValue)) {
-                                                        return 'Enter a valid email address'
-                                                    }
-                                                    return true
-                                                },
-                                            })}
-                                        />
-                                        {errors.email?.message && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
-                                    </div>
+                    {currentStep === 3 && (
+                        <ReviewStep
+                            getValues={getValues}
+                            cartItems={cartItems}
+                            shippingFee={shippingFee}
+                            onEditShipping={handleEditShipping}
+                            onEditPayment={handleEditPayment}
+                            onBack={handleBackToPayment}
+                        />
+                    )}
+                </div>
 
-                                    <div className="flex flex-col gap-1.5">
-                                        <label htmlFor="phone" className="text-sm font-medium text-gray-700">Phone Number *</label>
-                                        <input
-                                            id="phone"
-                                            type="tel"
-                                            inputMode="numeric"
-                                            className={`h-10 w-full min-w-0 rounded border px-3 text-sm focus:border-brand-orange focus:outline-none focus:ring-1 focus:ring-brand-orange ${errors.phone ? 'border-red-500' : 'border-gray-300'}`}
-                                            {...register('phone', {
-                                                required: 'Phone number is required',
-                                                validate: (value) => {
-                                                    if (!value.trim()) return 'Phone number is required'
-                                                    return /^\d{10}$/.test(value) || 'Phone number must contain exactly 10 digits'
-                                                },
-                                            })}
-                                        />
-                                        {errors.phone?.message && <p className="text-red-500 text-xs mt-1">{errors.phone.message}</p>}
-                                    </div>
-
-                                    <div className="flex flex-col gap-1.5">
-                                        <label htmlFor="country" className="text-sm font-medium text-gray-700">Country *</label>
-                                        <select
-                                            id="country"
-                                            className={`h-10 w-full min-w-0 rounded border bg-white px-3 text-sm focus:border-brand-orange focus:outline-none focus:ring-1 focus:ring-brand-orange disabled:bg-gray-100 ${errors.country ? 'border-red-500' : 'border-gray-300'}`}
-                                            disabled={isLoadingCountries}
-                                            {...register('country', {
-                                                required: 'Country is required',
-                                                onChange: () => {
-                                                    resetField('state')
-                                                    resetField('city')
-                                                },
-                                            })}
-                                        >
-                                            <option value="">
-                                                {isLoadingCountries ? 'Loading countries...' : 'Select country'}
-                                            </option>
-                                            {countries.map((country) => <option key={country} value={country}>{country}</option>)}
-                                        </select>
-                                        {errors.country?.message && <p className="text-red-500 text-xs mt-1">{errors.country.message}</p>}
-                                    </div>
-
-                                    <div className="flex flex-col gap-1.5">
-                                        <label htmlFor="state" className="text-sm font-medium text-gray-700">State / Province *</label>
-                                        <select
-                                            id="state"
-                                            className={`h-10 w-full min-w-0 rounded border bg-white px-3 text-sm focus:border-brand-orange focus:outline-none focus:ring-1 focus:ring-brand-orange disabled:bg-gray-100 ${errors.state ? 'border-red-500' : 'border-gray-300'}`}
-                                            disabled={!selectedCountry || isLoadingStates}
-                                            {...register('state', {
-                                                required: 'State is required',
-                                                onChange: () => {
-                                                    resetField('city')
-                                                },
-                                            })}
-                                        >
-                                            <option value="">
-                                                {isLoadingStates ? 'Loading states...' : states.length ? 'Select state' : 'Select a country first'}
-                                            </option>
-                                            {states.map(({ name, state_code }) => (
-                                                <option key={`${name}-${state_code}`} value={name}>{name}</option>
-                                            ))}
-                                        </select>
-                                        {errors.state?.message && <p className="text-red-500 text-xs mt-1">{errors.state.message}</p>}
-                                    </div>
-
-                                    <div className="flex flex-col gap-1.5">
-                                        <label htmlFor="city" className="text-sm font-medium text-gray-700">City *</label>
-                                        <select
-                                            id="city"
-                                            className={`h-10 w-full min-w-0 rounded border bg-white px-3 text-sm focus:border-brand-orange focus:outline-none focus:ring-1 focus:ring-brand-orange disabled:bg-gray-100 ${errors.city ? 'border-red-500' : 'border-gray-300'}`}
-                                            disabled={!selectedState || isLoadingCities}
-                                            {...register('city', { required: 'City is required' })}
-                                        >
-                                            <option value="">
-                                                {isLoadingCities ? 'Loading cities...' : cities.length ? 'Select city' : 'Select a state first'}
-                                            </option>
-                                            {cities.map((city) => <option key={city} value={city}>{city}</option>)}
-                                        </select>
-                                        {errors.city?.message && <p className="text-red-500 text-xs mt-1">{errors.city.message}</p>}
-                                    </div>
-
-                                    <div className="flex flex-col gap-1.5">
-                                        <label htmlFor="postalCode" className="text-sm font-medium text-gray-700">ZIP / Postal Code *</label>
-                                        <input
-                                            id="postalCode"
-                                            type="text"
-                                            inputMode="numeric"
-                                            className={`h-10 w-full min-w-0 rounded border px-3 text-sm focus:border-brand-orange focus:outline-none focus:ring-1 focus:ring-brand-orange ${errors.postalCode ? 'border-red-500' : 'border-gray-300'}`}
-                                            {...register('postalCode', {
-                                                required: 'ZIP code is required',
-                                                validate: (value) => /^\d{5,6}$/.test(value) || 'ZIP code must contain 5–6 digits',
-                                            })}
-                                        />
-                                        {errors.postalCode?.message && <p className="text-red-500 text-xs mt-1">{errors.postalCode.message}</p>}
-                                    </div>
-
-                                    <div className="flex flex-col gap-1.5">
-                                        <label htmlFor="address" className="text-sm font-medium text-gray-700">Street Address *</label>
-                                        <input
-                                            id="address"
-                                            type="text"
-                                            className={`h-10 w-full min-w-0 rounded border px-3 text-sm focus:border-brand-orange focus:outline-none focus:ring-1 focus:ring-brand-orange ${errors.address ? 'border-red-500' : 'border-gray-300'}`}
-                                            {...register('address', {
-                                                required: 'Street address is required',
-                                                validate: (value) => {
-                                                    const trimmedValue = value.trim()
-                                                    if (!trimmedValue) return 'Street address is required'
-                                                    if (trimmedValue.length < 10) {
-                                                        return 'Street address must be at least 10 characters'
-                                                    }
-                                                    return true
-                                                },
-                                            })}
-                                        />
-                                        {errors.address?.message && <p className="text-red-500 text-xs mt-1">{errors.address.message}</p>}
-                                    </div>
-
-                                    <div className="flex flex-col gap-1.5">
-                                        <label htmlFor="apartment" className="text-sm font-medium text-gray-700">Apartment / Suite (Optional)</label>
-                                        <input
-                                            id="apartment"
-                                            type="text"
-                                            className="h-10 w-full min-w-0 rounded border border-gray-300 px-3 text-sm focus:border-brand-orange focus:outline-none focus:ring-1 focus:ring-brand-orange"
-                                            {...register('apartment')}
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="mt-10">
-                                    <h2 className="text-lg font-bold text-gray-800 mb-4">Shipping Method</h2>
-                                    <div className="flex flex-col gap-3">
-                                        <label className="flex items-start justify-between gap-3 rounded border border-gray-200 p-3 hover:bg-gray-50 sm:items-center">
-                                            <span className="flex min-w-0 items-start gap-3 text-sm text-gray-700 sm:items-center">
-                                                <input type="radio" value="standard" className="text-brand-orange focus:ring-brand-orange" {...register('shippingMethod', { required: 'Shipping method is required' })} />
-                                                Standard Shipping (5-7 days)
-                                            </span>
-                                            <span className="shrink-0 text-sm text-gray-500">{formatINR(shippingRates.standard)}</span>
-                                        </label>
-                                        <label className="flex items-start justify-between gap-3 rounded border border-gray-200 p-3 hover:bg-gray-50 sm:items-center">
-                                            <span className="flex min-w-0 items-start gap-3 text-sm text-gray-700 sm:items-center">
-                                                <input type="radio" value="express" className="text-brand-orange focus:ring-brand-orange" {...register('shippingMethod', { required: 'Shipping method is required' })} />
-                                                Express Shipping (2-3 days)
-                                            </span>
-                                            <span className="shrink-0 text-sm text-gray-500">{formatINR(shippingRates.express)}</span>
-                                        </label>
-                                        <label className="flex items-start justify-between gap-3 rounded border border-gray-200 p-3 hover:bg-gray-50 sm:items-center">
-                                            <span className="flex min-w-0 items-start gap-3 text-sm text-gray-700 sm:items-center">
-                                                <input type="radio" value="overnight" className="text-brand-orange focus:ring-brand-orange" {...register('shippingMethod', { required: 'Shipping method is required' })} />
-                                                Overnight Shipping (1 day)
-                                            </span>
-                                            <span className="shrink-0 text-sm text-gray-500">{formatINR(shippingRates.overnight)}</span>
-                                        </label>
-                                    </div>
-                                    {errors.shippingMethod?.message && <p className="text-red-500 text-xs mt-2">{errors.shippingMethod.message}</p>}
-                                </div>
-                            </div>
-                        </section>
-                    </div>
-
-                    <aside className="w-full min-w-0 lg:sticky lg:top-5">
-                        <div className="overflow-hidden rounded border border-gray-200 bg-white shadow-sm">
-                            <div className="bg-[#1a1a1a] px-4 py-3 font-bold tracking-wider text-white sm:px-6">
-                                ORDER SUMMARY
-                            </div>
-                            <div className="p-4 sm:p-6">
-                                <div className="flex flex-col gap-4 mb-6 max-h-60 overflow-y-auto pr-2">
-                                    {cartItems.map(item => (
-                                        <div key={item.cartItemId} className="flex justify-between text-sm text-gray-600">
-                                            <span className="truncate mr-4">{item.productName} x{item.quantity}</span>
-                                            <span>{formatINR(item.itemSubtotal)}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                                
-                                <hr className="border-gray-200 mb-6" />
-
-                                <div className="flex flex-col gap-3 mb-6">
-                                    <div className="flex justify-between text-sm text-gray-600"><span>Subtotal:</span><span>{formatINR(subtotal)}</span></div>
-                                    <div className="flex justify-between text-sm text-gray-600"><span>Shipping:</span><span>{formatINR(shippingFee)}</span></div>
-                                    <div className="flex justify-between text-sm text-gray-600"><span>Tax (8%):</span><span>{formatINR(tax)}</span></div>
-                                </div>
-
-                                <hr className="border-gray-200 mb-6" />
-
-                                <div className="flex justify-between items-center mb-8">
-                                    <span className="font-bold text-xl text-gray-800">Total:</span>
-                                    <span className="font-bold text-2xl text-[#ff6b00]">{formatINR(total)}</span>
-                                </div>
-
-                                <button 
-                                    type="submit" 
-                                    className="w-full bg-[#ff5a00] hover:bg-[#e65c00] text-white font-bold py-3 px-4 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider" 
-                                    disabled={!isValid || isSubmitting}
-                                >
-                                    {isSubmitting ? 'Submitting...' : 'PLACE ORDER'}
-                                </button>
-                            </div>
-                        </div>
-                    </aside>
-                </form>
-            </div>
-        </>
+                <OrderSummary
+                    cartItems={cartItems}
+                    subtotal={subtotal}
+                    shippingFee={shippingFee}
+                    tax={tax}
+                    total={total}
+                    currentStep={currentStep}
+                    isSubmitting={isSubmitting}
+                    onContinueToPayment={handleContinueToPayment}
+                    onContinueToReview={handleContinueToReview}
+                />
+            </form>
+        </div>
     )
 }
 
