@@ -12,7 +12,7 @@ const routeMapping: Record<string, BreadcrumbItem[]> = {
   '/cart': [{ label: 'Home', path: '/' }, { label: 'Shopping Cart' }],
   '/assignment9': [{ label: 'Home', path: '/' }, { label: 'Shopping Cart', path: '/cart' }, { label: 'Checkout' }],
   '/checkout': [{ label: 'Home', path: '/' }, { label: 'Shopping Cart', path: '/cart' }, { label: 'Checkout' }],
-  '/orders': [{ label: 'Home', path: '/' }, { label: 'Orders' }]
+  '/orders': [{ label: 'Home', path: '/' }, { label: 'My Orders' }]
 }
 
 function Breadcrumbs() {

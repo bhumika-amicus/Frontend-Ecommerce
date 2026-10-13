@@ -9,6 +9,7 @@ import NotFound from './pages/NotFound'
 import SharedLayout from './components/layout/SharedLayout'
 import { CartProvider } from './contexts/CartContext'
 import { AuthProvider } from './contexts/AuthContext'
+import { OrderProvider } from './contexts/OrderContext'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import Login from './pages/Login'
 
@@ -21,8 +22,9 @@ function App() {
   return (
     <AuthProvider>
       <CartProvider>
-        <CustomToaster />
-        <BrowserRouter>
+        <OrderProvider>
+          <CustomToaster />
+          <BrowserRouter>
           <Routes>
             <Route element={<SharedLayout />}>
               <Route path="/" element={<Home />} />
@@ -45,6 +47,7 @@ function App() {
             </Route>
           </Routes>
         </BrowserRouter>
+        </OrderProvider>
       </CartProvider>
     </AuthProvider>
   )

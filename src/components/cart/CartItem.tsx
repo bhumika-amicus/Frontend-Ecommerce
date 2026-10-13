@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { Trash2 } from 'lucide-react'
 import type { CartItemDto } from '../../types/CartDto'
 import placeholderImg from '../../assets/placeholder.jpg'
 import QuantitySelector from './QuantitySelector'
@@ -57,11 +58,12 @@ function CartItem({ item, onQuantityChange, onRemove, isUpdating }: CartItemProp
           <span className="font-bold text-gray-800 text-lg mb-2">{item.productName}</span>
           <button
             type="button"
-            className={`text-sm self-start hover:underline ${isUpdating ? 'text-gray-400 cursor-not-allowed' : 'text-red-500'}`}
+            className={`text-sm self-start hover:underline inline-flex items-center gap-1.5 transition-colors ${isUpdating ? 'text-gray-400 cursor-not-allowed' : 'text-red-500 hover:text-red-700'}`}
             onClick={() => onRemove(item.productId)}
             disabled={isUpdating}
           >
-            Remove
+            <Trash2 size={14} />
+            <span>Remove</span>
           </button>
         </div>
       </div>

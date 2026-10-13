@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Minus, Plus } from 'lucide-react'
 
 interface QuantitySelectorProps {
   quantity: number
@@ -79,9 +80,9 @@ function QuantitySelector({
           disabled={quantity <= minQuantity || disabled}
           onClick={() => handleQuantityStep(-1)}
           aria-label="Decrease quantity"
-          className="h-7 w-7 border-0 bg-[#fff4ef] p-0 text-lg font-bold leading-none text-brand-orange transition-colors duration-200 hover:bg-brand-orange hover:text-white focus-visible:outline-2 focus-visible:outline-brand-orange focus-visible:-outline-offset-2 disabled:cursor-not-allowed disabled:text-[#b8b8b8]"
+          className="flex h-7 w-7 items-center justify-center border-0 bg-[#fff4ef] p-0 text-brand-orange transition-colors duration-200 hover:bg-brand-orange hover:text-white focus-visible:outline-2 focus-visible:outline-brand-orange focus-visible:-outline-offset-2 disabled:cursor-not-allowed disabled:text-[#b8b8b8]"
         >
-          -
+          <Minus size={13} className="stroke-[2.5]" />
         </button>
 
         <input
@@ -102,9 +103,9 @@ function QuantitySelector({
           disabled={disabled}
           onClick={() => handleQuantityStep(1)}
           aria-label="Increase quantity"
-          className="h-7 w-7 border-0 bg-[#fff4ef] p-0 text-lg font-bold leading-none text-brand-orange transition-colors duration-200 hover:bg-brand-orange hover:text-white focus-visible:outline-2 focus-visible:outline-brand-orange focus-visible:-outline-offset-2 disabled:cursor-not-allowed disabled:text-[#b8b8b8]"
+          className="flex h-7 w-7 items-center justify-center border-0 bg-[#fff4ef] p-0 text-brand-orange transition-colors duration-200 hover:bg-brand-orange hover:text-white focus-visible:outline-2 focus-visible:outline-brand-orange focus-visible:-outline-offset-2 disabled:cursor-not-allowed disabled:text-[#b8b8b8]"
         >
-          +
+          <Plus size={13} className="stroke-[2.5]" />
         </button>
       </div>
     </div>

@@ -1,4 +1,5 @@
 import { memo } from 'react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface PaginationProps {
     currentPage: number
@@ -19,9 +20,10 @@ function Pagination({ currentPage, totalPages, onPageChange }: PaginationProps) 
                         type="button"
                         disabled={currentPage <= 1}
                         onClick={() => onPageChange(currentPage - 1)}
-                        className="inline-flex h-8 items-center justify-center rounded-sm px-2 text-xs font-medium text-brand-orange transition-colors hover:bg-brand-orange-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:text-gray-400 disabled:hover:bg-transparent"
+                        className="inline-flex h-8 items-center justify-center gap-1 rounded-sm px-2.5 text-xs font-medium text-brand-orange transition-colors hover:bg-brand-orange-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:text-gray-400 disabled:hover:bg-transparent"
                     >
-                        Previous
+                        <ChevronLeft size={14} />
+                        <span>Previous</span>
                     </button>
                 </li>
                 {Array.from({ length: totalPages }, (_, index) => index + 1).map((pageNumber) => (
@@ -45,9 +47,10 @@ function Pagination({ currentPage, totalPages, onPageChange }: PaginationProps) 
                         type="button"
                         disabled={currentPage >= totalPages}
                         onClick={() => onPageChange(currentPage + 1)}
-                        className="inline-flex h-8 items-center justify-center rounded-sm px-2 text-xs font-medium text-brand-orange transition-colors hover:bg-brand-orange-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:text-gray-400 disabled:hover:bg-transparent"
+                        className="inline-flex h-8 items-center justify-center gap-1 rounded-sm px-2.5 text-xs font-medium text-brand-orange transition-colors hover:bg-brand-orange-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:text-gray-400 disabled:hover:bg-transparent"
                     >
-                        Next
+                        <span>Next</span>
+                        <ChevronRight size={14} />
                     </button>
                 </li>
             </ul>

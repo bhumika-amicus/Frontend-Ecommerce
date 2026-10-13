@@ -203,7 +203,7 @@ function Checkout() {
             reset(initialShippingFormData)
 
             toast.success('Order placed successfully!', { id: 'order-success-toast' })
-            navigate('/orders', { replace: true, state: { orderId, order: checkoutResult } })
+            navigate('/orders', { replace: true, state: { orderId } })
         } catch (error) {
             console.error('Order placement or payment failed:', error)
             const message = error instanceof Error ? error.message : 'Failed to complete order. Please try again.'

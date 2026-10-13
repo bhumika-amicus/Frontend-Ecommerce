@@ -173,9 +173,42 @@ export interface OrderDetailDto {
   shippingCharge: number;
   tax: number;
   totalAmount: number;
-  orderStatus: OrderStatus;
+  orderStatus: OrderStatus | string;
   createdAt: string;
   items: OrderItemDetail[];
   shipping: OrderShippingDetail;
   payment: OrderPaymentDetail | null;
 }
+
+export const OrderFilterTab = {
+  All: 'All Orders',
+  Processing: 'Processing',
+  Shipped: 'Shipped',
+  Delivered: 'Delivered',
+  Cancelled: 'Cancelled',
+} as const;
+
+export type OrderFilterTab = (typeof OrderFilterTab)[keyof typeof OrderFilterTab];
+
+export interface OrderSummaryItemDto {
+  orderId: number;
+  customerId: number;
+  subtotal: number;
+  shippingCharge: number;
+  tax: number;
+  totalAmount: number;
+  orderStatus: string;
+  createdAt: string;
+  createdBy?: number;
+  updatedAt?: string | null;
+  updatedBy?: number | null;
+}
+
+export interface OrderHistoryResponse {
+  orders: OrderSummaryItemDto[];
+  page: number;
+  pageSize: number;
+  totalRecords: number;
+  totalPages: number;
+}
+

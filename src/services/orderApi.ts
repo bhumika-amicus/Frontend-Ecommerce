@@ -9,6 +9,7 @@ import type {
   MockPaymentRequest,
   MockPaymentResponse,
   OrderDetailDto,
+  OrderHistoryResponse,
   PaymentMethod,
 } from '../types/OrderDto';
 
@@ -104,4 +105,22 @@ export async function getOrderById(
   });
   if (!data) throw new Error(`Order #${orderId} not found`);
   return data;
+}
+
+export async function getOrderHistory(
+  params?: { status?: string; page?: number; pageSize?: number },
+  signal?: AbortSignal
+): Promise<OrderHistoryResponse> {
+  const query = new URLSearchParams();
+  if (params?.status) query.append('status', params.status);
+  if (params?.page) query.append('page', params.page.toString());
+  if (params?.pageSize) query.append('pageSize', params.pageSize.toString());
+
+  const queryString = query.toString();
+  const endpoint = `/api/v1/orders/history${queryString ? `?${queryString}` : ''}`;
+  const data = await apiFetch<OrderHistoryResponse>(endpoint, {
+    auth: true,
+    signal,
+  });
+  return data || { orders: [], page: 1, pageSize: 10, totalRecords: 0, totalPages: 0 };
 }
