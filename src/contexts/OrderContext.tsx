@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, type ReactNode } from 'react';
 import toast from 'react-hot-toast';
-import { getOrderHistory, getOrderById } from '../services/orderApi';
+import { getOrderHistory, getOrderById, reorderOrder } from '../services/orderApi';
 import { useCart } from '../hooks/useCart';
 import { useAuth } from '../hooks/useAuth';
 import { OrderContext } from '../hooks/useOrders';
@@ -15,7 +15,7 @@ const EMPTY_ORDERS: OrderSummaryItemDto[] = [];
 
 export function OrderProvider({ children }: { children: ReactNode }) {
   const { isLoggedIn, user } = useAuth();
-  const { addToCart } = useCart();
+  const { refetchCart } = useCart();
 
   const [orderDetailsCache, setOrderDetailsCache] = useState<Record<number, OrderDetailDto>>({});
   const [activeTab, setActiveTab] = useState<OrderFilterTab>(FilterTabs.All);
@@ -143,39 +143,15 @@ export function OrderProvider({ children }: { children: ReactNode }) {
   // Reorder functionality: adds all items of a delivered order back to cart
   const reorder = useCallback(
     async (orderId: number): Promise<boolean> => {
+      if (reorderingId !== null) return false;
+
       setReorderingId(orderId);
       const toastId = toast.loading(`Adding items from order #${orderId} to cart...`);
 
       try {
-        let orderDetail: OrderDetailDto | null = orderDetailsCache[orderId] || null;
-        if (!orderDetail) {
-          orderDetail = await getOrderDetail(orderId);
-        }
-
-        if (!orderDetail || !orderDetail.items || orderDetail.items.length === 0) {
-          toast.error('Could not retrieve items for this order.', { id: toastId });
-          return false;
-        }
-
-        for (const item of orderDetail.items) {
-          await addToCart(
-            {
-              id: item.productId,
-              name: item.productName,
-              description: '',
-              price: item.price,
-              imageUrl: '',
-              categoryId: 0,
-              category: '',
-              brandId: 0,
-              brand: '',
-              rating: 0,
-            },
-            item.quantity
-          );
-        }
-
-        toast.success(`Added ${orderDetail.items.length} item(s) to your cart!`, { id: toastId });
+        const result = await reorderOrder(orderId);
+        refetchCart();
+        toast.success(result.message, { id: toastId });
         return true;
       } catch (err) {
         console.error('Reorder failed:', err);
@@ -186,7 +162,7 @@ export function OrderProvider({ children }: { children: ReactNode }) {
         setReorderingId(null);
       }
     },
-    [orderDetailsCache, getOrderDetail, addToCart]
+    [reorderingId, refetchCart]
   );
 
   const value = useMemo(

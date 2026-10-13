@@ -107,6 +107,22 @@ export async function getOrderById(
   return data;
 }
 
+export async function reorderOrder(
+  orderId: number,
+  signal?: AbortSignal
+): Promise<{ message: string }> {
+  const data = await apiFetch<{ message: string }>(
+    `/api/v1/orders/${orderId}/reorder`,
+    {
+      method: 'POST',
+      auth: true,
+      signal,
+    }
+  );
+  if (!data) throw new Error('Failed to reorder items');
+  return data;
+}
+
 export async function getOrderHistory(
   params?: { status?: string; page?: number; pageSize?: number },
   signal?: AbortSignal
