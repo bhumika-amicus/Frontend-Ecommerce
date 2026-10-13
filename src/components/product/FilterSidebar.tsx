@@ -1,10 +1,9 @@
 import { useState, memo } from 'react'
-import { useSearchParams } from 'react-router-dom'
 import { Star, ChevronUp, ChevronDown, X, ArrowRight } from 'lucide-react'
-import { ProductSortBy, SortOrder } from '../../types/ProductSorting'
 import type { Category } from '../../types/Categories'
 import type { Brand } from '../../types/Brands'
-import { getValidInt, getValidFloat } from '../../utils/urlHelpers'
+import { ProductSortBy, SortOrder } from '../../types/ProductSorting'
+import { useProductFilters } from '../../hooks/useProductFilters'
 
 const PRICE_RANGES = [
     { label: 'Below ₹10,000', min: undefined, max: 10000 },
@@ -26,8 +25,6 @@ interface FilterSidebarProps {
     brands: Brand[]
     isBrandsLoading: boolean
     brandsError?: string | null
-    hasActiveFilters: boolean
-    onClearAllFilters: () => void
 }
 
 function FilterSidebar({
@@ -37,24 +34,24 @@ function FilterSidebar({
     brands,
     isBrandsLoading,
     brandsError,
-    hasActiveFilters,
-    onClearAllFilters,
 }: FilterSidebarProps) {
-    const [searchParams, setSearchParams] = useSearchParams()
-
-    // Parse URL parameters relevant for the UI
-    const selectedCategoryId = getValidInt(searchParams, 'categoryId', 1)
-    const brandId = getValidInt(searchParams, 'brandId', 1)
-    const minPrice = getValidFloat(searchParams, 'minPrice', 0)
-    const maxPrice = getValidFloat(searchParams, 'maxPrice', 0)
-    const minRating = getValidFloat(searchParams, 'minRating', 1, 5)
-    const rawSortBy = searchParams.get('sortBy')
-    const isValidSortBy = (val: string | null): val is ProductSortBy => Object.values(ProductSortBy).some(v => v === val)
-    const sortBy = isValidSortBy(rawSortBy) ? rawSortBy : undefined
-
-    const rawSortOrder = searchParams.get('sortOrder')
-    const isValidSortOrder = (val: string | null): val is SortOrder => Object.values(SortOrder).some(v => v === val)
-    const sortOrder = isValidSortOrder(rawSortOrder) ? rawSortOrder : undefined
+    const {
+        categoryId: selectedCategoryId,
+        brandId,
+        minPrice,
+        maxPrice,
+        minRating,
+        sortBy,
+        sortOrder,
+        hasFacetFilters,
+        clearAllFilters,
+        toggleCategory,
+        toggleBrand,
+        togglePriceRange,
+        toggleMinRating,
+        setSort,
+        clearSort,
+    } = useProductFilters()
 
     // Mobile toggle states
     const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false)
@@ -74,29 +71,6 @@ function FilterSidebar({
         }))
     }
 
-    // Updater functions
-    function updateFilters(updates: Record<string, string | number | null | undefined>) {
-        setSearchParams((currentParams) => {
-            const nextParams = new URLSearchParams(currentParams)
-            Object.entries(updates).forEach(([key, value]) => {
-                if (value === undefined || value === null) {
-                    nextParams.delete(key)
-                } else {
-                    nextParams.set(key, String(value))
-                }
-            })
-            nextParams.set('page', '1')
-            return nextParams
-        })
-    }
-
-    const updateCategory = (id: number) => updateFilters({ categoryId: selectedCategoryId === id ? null : id })
-    const updateBrand = (id: number) => updateFilters({ brandId: brandId === id ? null : id })
-    const updatePriceRange = (minPrice?: number, maxPrice?: number) => updateFilters({ minPrice, maxPrice })
-    const updateMinRating = (minRating?: number) => updateFilters({ minRating })
-    const updateSort = (sortBy: ProductSortBy, sortOrder: SortOrder) => updateFilters({ sortBy, sortOrder })
-    const clearSort = () => updateFilters({ sortBy: null, sortOrder: null })
-
     return (
         <aside className="sticky top-0 z-10 border border-gray-300 bg-white p-3 lg:top-6 overflow-y-auto max-h-screen lg:max-h-[calc(100vh-3rem)]">
             <button
@@ -112,10 +86,10 @@ function FilterSidebar({
             <h2 className="hidden lg:block m-0 pb-2 mb-4 border-b-2 border-brand-orange-500 font-bold uppercase tracking-wide text-gray-800">
                 FILTERS
             </h2>
-            {hasActiveFilters && (
+            {hasFacetFilters && (
                 <button
                     type="button"
-                    onClick={onClearAllFilters}
+                    onClick={clearAllFilters}
                     className="mb-4 w-full rounded border border-brand-orange-500 px-3 py-2 text-sm font-semibold text-brand-orange-600 transition-colors hover:bg-brand-orange-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2"
                 >
                     Clear all filters
@@ -159,7 +133,7 @@ function FilterSidebar({
                                         type="checkbox"
                                         className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2"
                                         checked={selectedCategoryId === category.id}
-                                        onChange={() => updateCategory(category.id)}
+                                        onChange={() => toggleCategory(category.id)}
                                     />
                                     {category.name}
                                 </label>
@@ -200,7 +174,7 @@ function FilterSidebar({
                                     type="checkbox"
                                     className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2"
                                     checked={brandId === brand.id}
-                                    onChange={() => updateBrand(brand.id)}
+                                    onChange={() => toggleBrand(brand.id)}
                                 />
                                 {brand.name}
                             </label>
@@ -230,13 +204,7 @@ function FilterSidebar({
                                     type="checkbox"
                                     className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2"
                                     checked={isChecked}
-                                    onChange={() => {
-                                        if (isChecked) {
-                                            updatePriceRange(undefined, undefined)
-                                        } else {
-                                            updatePriceRange(range.min, range.max)
-                                        }
-                                    }}
+                                    onChange={() => togglePriceRange(range.min, range.max)}
                                 />
                                 {range.label}
                             </label>
@@ -266,13 +234,7 @@ function FilterSidebar({
                                     type="checkbox"
                                     className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2"
                                     checked={isChecked}
-                                    onChange={() => {
-                                        if (isChecked) {
-                                            updateMinRating(undefined)
-                                        } else {
-                                            updateMinRating(rating.value)
-                                        }
-                                    }}
+                                    onChange={() => toggleMinRating(rating.value)}
                                 />
                                 <div className="flex flex-col gap-1 mt-0.5">
                                     <span>{rating.label}</span>
@@ -314,7 +276,7 @@ function FilterSidebar({
                                     name="sort-category"
                                     className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2"
                                     checked={sortBy === ProductSortBy.Name}
-                                    onChange={() => updateSort(ProductSortBy.Name, SortOrder.Asc)}
+                                    onChange={() => setSort(ProductSortBy.Name, SortOrder.Asc)}
                                 />
                                 Name
                             </label>
@@ -336,11 +298,11 @@ function FilterSidebar({
                             <div>
                                 <div className="ml-5 mt-2 flex flex-col gap-2 border-l-2 border-brand-orange-500 pl-3">
                                     <label className="flex cursor-pointer items-center gap-1.5 rounded text-sm text-gray-600" >
-                                        <input type="radio" name="sort-direction-name" className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2" checked={sortBy === ProductSortBy.Name && sortOrder === SortOrder.Asc} onChange={() => updateSort(ProductSortBy.Name, SortOrder.Asc)} />
+                                        <input type="radio" name="sort-direction-name" className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2" checked={sortBy === ProductSortBy.Name && sortOrder === SortOrder.Asc} onChange={() => setSort(ProductSortBy.Name, SortOrder.Asc)} />
                                         A <ArrowRight size={14} className="inline mx-0.5" /> Z
                                     </label>
                                     <label className="flex cursor-pointer items-center gap-1.5 rounded text-sm text-gray-600" >
-                                        <input type="radio" name="sort-direction-name" className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2" checked={sortBy === ProductSortBy.Name && sortOrder === SortOrder.Desc} onChange={() => updateSort(ProductSortBy.Name, SortOrder.Desc)} />
+                                        <input type="radio" name="sort-direction-name" className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2" checked={sortBy === ProductSortBy.Name && sortOrder === SortOrder.Desc} onChange={() => setSort(ProductSortBy.Name, SortOrder.Desc)} />
                                         Z <ArrowRight size={14} className="inline mx-0.5" /> A
                                     </label>
                                 </div>
@@ -360,7 +322,7 @@ function FilterSidebar({
                                     name="sort-category"
                                     className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2"
                                     checked={sortBy === ProductSortBy.Price}
-                                    onChange={() => updateSort(ProductSortBy.Price, SortOrder.Asc)}
+                                    onChange={() => setSort(ProductSortBy.Price, SortOrder.Asc)}
                                 />
                                 Price
                             </label>
@@ -382,11 +344,11 @@ function FilterSidebar({
                             <div>
                                 <div className="ml-5 mt-2 flex flex-col gap-2 border-l-2 border-brand-orange-500 pl-3">
                                     <label className="flex cursor-pointer items-center gap-1.5 rounded text-sm text-gray-600">
-                                        <input type="radio" name="sort-direction-price" className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2" checked={sortBy === ProductSortBy.Price && sortOrder === SortOrder.Asc} onChange={() => updateSort(ProductSortBy.Price, SortOrder.Asc)} />
+                                        <input type="radio" name="sort-direction-price" className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2" checked={sortBy === ProductSortBy.Price && sortOrder === SortOrder.Asc} onChange={() => setSort(ProductSortBy.Price, SortOrder.Asc)} />
                                         Low <ArrowRight size={14} className="inline mx-0.5" /> High
                                     </label>
                                     <label className="flex cursor-pointer items-center gap-1.5 rounded text-sm text-gray-600">
-                                        <input type="radio" name="sort-direction-price" className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2" checked={sortBy === ProductSortBy.Price && sortOrder === SortOrder.Desc} onChange={() => updateSort(ProductSortBy.Price, SortOrder.Desc)} />
+                                        <input type="radio" name="sort-direction-price" className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2" checked={sortBy === ProductSortBy.Price && sortOrder === SortOrder.Desc} onChange={() => setSort(ProductSortBy.Price, SortOrder.Desc)} />
                                         High <ArrowRight size={14} className="inline mx-0.5" /> Low
                                     </label>
                                 </div>
@@ -406,7 +368,7 @@ function FilterSidebar({
                                     name="sort-category"
                                     className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2"
                                     checked={sortBy === ProductSortBy.Rating}
-                                    onChange={() => updateSort(ProductSortBy.Rating, SortOrder.Desc)}
+                                    onChange={() => setSort(ProductSortBy.Rating, SortOrder.Desc)}
                                 />
                                 Ratings
                             </label>
@@ -428,11 +390,11 @@ function FilterSidebar({
                             <div>
                                 <div className="ml-5 mt-2 flex flex-col gap-2 border-l-2 border-brand-orange-500 pl-3">
                                     <label className="flex cursor-pointer items-center gap-1.5 rounded text-sm text-gray-600">
-                                        <input type="radio" name="sort-direction-rating" className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2" checked={sortBy === ProductSortBy.Rating && sortOrder === SortOrder.Desc} onChange={() => updateSort(ProductSortBy.Rating, SortOrder.Desc)} />
+                                        <input type="radio" name="sort-direction-rating" className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2" checked={sortBy === ProductSortBy.Rating && sortOrder === SortOrder.Desc} onChange={() => setSort(ProductSortBy.Rating, SortOrder.Desc)} />
                                         High <ArrowRight size={14} className="inline mx-0.5" /> Low
                                     </label>
                                     <label className="flex cursor-pointer items-center gap-1.5 rounded text-sm text-gray-600">
-                                        <input type="radio" name="sort-direction-rating" className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2" checked={sortBy === ProductSortBy.Rating && sortOrder === SortOrder.Asc} onChange={() => updateSort(ProductSortBy.Rating, SortOrder.Asc)} />
+                                        <input type="radio" name="sort-direction-rating" className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2" checked={sortBy === ProductSortBy.Rating && sortOrder === SortOrder.Asc} onChange={() => setSort(ProductSortBy.Rating, SortOrder.Asc)} />
                                         Low <ArrowRight size={14} className="inline mx-0.5" /> High
                                     </label>
                                 </div>

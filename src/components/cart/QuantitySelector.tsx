@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, memo } from 'react'
 import { Minus, Plus } from 'lucide-react'
 
 interface QuantitySelectorProps {
@@ -14,34 +14,29 @@ function QuantitySelector({
   disabled = false,
   minQuantity = 1,
 }: QuantitySelectorProps) {
-  const [inputValue, setInputValue] = useState(String(quantity))
-  const [prevQuantity, setPrevQuantity] = useState(quantity)
 
-  if (quantity !== prevQuantity) {
-    setPrevQuantity(quantity)
-    setInputValue(String(quantity))
-  }
+  const [draftValue, setDraftValue] = useState<string | null>(null)
 
   const handleInputChange = (value: string) => {
     if (disabled) return
-    setInputValue(value)
+    setDraftValue(value)
   }
 
   const handleInputBlur = () => {
-    if (disabled) return
+    if (disabled || draftValue === null) return
 
-    if (inputValue.trim() === '') {
-      setInputValue(String(quantity))
+    if (draftValue.trim() === '') {
+      setDraftValue(null)
       return
     }
 
-    const nextQuantity = Math.floor(Number(inputValue))
+    const nextQuantity = Math.floor(Number(draftValue))
     if (isNaN(nextQuantity) || nextQuantity < minQuantity) {
-      setInputValue(String(quantity))
+      setDraftValue(null)
       return
     }
 
-    setInputValue(String(nextQuantity))
+    setDraftValue(null)
     if (nextQuantity !== quantity) {
       onQuantityChange(nextQuantity)
     }
@@ -56,17 +51,19 @@ function QuantitySelector({
   const handleQuantityStep = (step: number) => {
     if (disabled) return
 
-    const parsedInput = Math.floor(Number(inputValue))
-    const baseQuantity = (!isNaN(parsedInput) && parsedInput >= minQuantity)
-      ? parsedInput
+    const parsedDraft = draftValue !== null ? Math.floor(Number(draftValue)) : NaN
+    const baseQuantity = !isNaN(parsedDraft) && parsedDraft >= minQuantity
+      ? parsedDraft
       : quantity
 
     const nextQuantity = Math.max(minQuantity, baseQuantity + step)
     if (nextQuantity !== quantity) {
-      setInputValue(String(nextQuantity))
+      setDraftValue(null)
       onQuantityChange(nextQuantity)
     }
   }
+
+  const displayValue = draftValue !== null ? draftValue : String(quantity)
 
   return (
     <div className="col-span-full row-start-2 mx-auto inline-flex w-full max-w-47.5 items-center justify-center gap-4.5">
@@ -89,7 +86,7 @@ function QuantitySelector({
           type="number"
           min={minQuantity}
           step="1"
-          value={inputValue}
+          value={displayValue}
           onChange={(event) => handleInputChange(event.target.value)}
           onBlur={handleInputBlur}
           onKeyDown={handleKeyDown}
@@ -112,4 +109,4 @@ function QuantitySelector({
   )
 }
 
-export default QuantitySelector
+export default memo(QuantitySelector)

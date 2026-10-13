@@ -63,12 +63,7 @@ export const shippingRates: Record<ShippingMethod, number> = {
   [ShippingMethod.SameDay]: 400,
 };
 
-const inrFormatter = new Intl.NumberFormat('en-IN', {
-  style: 'currency',
-  currency: 'INR',
-});
-
-export const formatINR = (amount: number): string => inrFormatter.format(amount);
+export { formatINR } from '../utils/formatters';
 
 export interface AddressDto {
   addressId: number;

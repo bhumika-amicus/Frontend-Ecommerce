@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { Star, StarHalf } from 'lucide-react'
 import { getProductById } from '../services/productApi'
-import { useCart } from '../hooks/useCart'
+import { useCartActions } from '../hooks/useCart'
 import { useAuth } from '../hooks/useAuth'
 import type { Product } from '../types/Products'
 import Button from '../components/ui/Button'
@@ -10,13 +10,7 @@ import Card from '../components/ui/Card'
 import Breadcrumbs from '../components/ui/Breadcrumbs'
 import placeholderImg from '../assets/placeholder.jpg'
 import toast from 'react-hot-toast'
-
-const inrFormatter = new Intl.NumberFormat('en-IN', {
-  style: 'currency',
-  currency: 'INR',
-})
-
-const formatINR = (amount: number) => inrFormatter.format(amount)
+import { formatINR } from '../utils/formatters'
 
 function ProductDetail() {
   const { id } = useParams<{ id: string }>()
@@ -27,9 +21,9 @@ function ProductDetail() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const { addToCart, addingProductId } = useCart()
+  const { addToCart } = useCartActions()
   const { isLoggedIn } = useAuth()
-  const isAdding = addingProductId === product?.id
+  const [isAdding, setIsAdding] = useState(false)
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -54,8 +48,8 @@ function ProductDetail() {
     }
   }, [id])
 
-  const handleAddToCart = () => {
-    if (!product) return
+  const handleAddToCart = async () => {
+    if (!product || isAdding) return
 
     if (!isLoggedIn) {
       toast.error('Please log in to add items to your cart.')
@@ -63,7 +57,12 @@ function ProductDetail() {
       return
     }
 
-    addToCart(product, 1)
+    setIsAdding(true)
+    try {
+      await addToCart(product, 1)
+    } finally {
+      setIsAdding(false)
+    }
   }
 
   if (isLoading) {

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, type ReactNode } from 'react';
 import toast from 'react-hot-toast';
 import { getOrderHistory, getOrderById, reorderOrder } from '../services/orderApi';
-import { useCart } from '../hooks/useCart';
+import { useCartActions } from '../hooks/useCart';
 import { useAuth } from '../hooks/useAuth';
 import { OrderContext } from '../hooks/useOrders';
 import {
@@ -15,26 +15,15 @@ const EMPTY_ORDERS: OrderSummaryItemDto[] = [];
 
 export function OrderProvider({ children }: { children: ReactNode }) {
   const { isLoggedIn, user } = useAuth();
-  const { refetchCart } = useCart();
+  const { refetchCart } = useCartActions();
 
   const [orderDetailsCache, setOrderDetailsCache] = useState<Record<number, OrderDetailDto>>({});
   const [activeTab, setActiveTab] = useState<OrderFilterTab>(FilterTabs.All);
   const [reorderingId, setReorderingId] = useState<number | null>(null);
+  const [orders, setOrders] = useState<OrderSummaryItemDto[]>(EMPTY_ORDERS);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [refreshCount, setRefreshCount] = useState(0);
-  const requestKey = `${user?.email ?? 'anonymous'}:${activeTab}:${refreshCount}`;
-  const [orderResult, setOrderResult] = useState<{
-    requestKey: string;
-    orders: OrderSummaryItemDto[];
-    error: string | null;
-  } | null>(null);
-
-  const orders = isLoggedIn && orderResult?.requestKey === requestKey
-    ? orderResult.orders
-    : EMPTY_ORDERS;
-  const error = isLoggedIn && orderResult?.requestKey === requestKey
-    ? orderResult.error
-    : null;
-  const isLoading = isLoggedIn && orderResult?.requestKey !== requestKey;
 
   // Fetch full details of a specific order by ID (with caching)
   const getOrderDetail = useCallback(
@@ -59,27 +48,42 @@ export function OrderProvider({ children }: { children: ReactNode }) {
     setRefreshCount((previous) => previous + 1);
   }, []);
 
+  // Auth logout listener: clear orders state when user logs out
   useEffect(() => {
-    if (!isLoggedIn) {
-      return;
-    }
+    const handleLogout = () => {
+      setOrders(EMPTY_ORDERS);
+      setIsLoading(false);
+      setError(null);
+    };
+    window.addEventListener('auth:logout', handleLogout);
+    return () => window.removeEventListener('auth:logout', handleLogout);
+  }, []);
+
+  useEffect(() => {
+    if (!isLoggedIn) return;
 
     const controller = new AbortController();
-    const statuses = activeTab === FilterTabs.All
-      ? [undefined]
-      : activeTab === FilterTabs.Processing
-        ? ['Processing', 'Placed']
-        : [activeTab.replace(/\s+/g, '')];
 
-    Promise.all(
-      statuses.map((status) =>
-        getOrderHistory(
-          { status, page: 1, pageSize: 50 },
-          controller.signal
-        )
-      )
-    )
-      .then((responses) => {
+    const fetchOrdersData = async () => {
+      setIsLoading(true);
+      setError(null);
+
+      const statuses = activeTab === FilterTabs.All
+        ? [undefined]
+        : activeTab === FilterTabs.Processing
+          ? ['Processing', 'Placed']
+          : [activeTab.replace(/\s+/g, '')];
+
+      try {
+        const responses = await Promise.all(
+          statuses.map((status) =>
+            getOrderHistory(
+              { status, page: 1, pageSize: 50 },
+              controller.signal
+            )
+          )
+        );
+
         if (controller.signal.aborted) return;
         const uniqueOrders = new Map<number, OrderSummaryItemDto>();
         responses.forEach(({ orders: responseOrders }) => {
@@ -89,54 +93,25 @@ export function OrderProvider({ children }: { children: ReactNode }) {
           (first, second) =>
             new Date(second.createdAt).getTime() - new Date(first.createdAt).getTime()
         );
-        setOrderResult({ requestKey, orders: resultOrders, error: null });
-      })
-      .catch((err) => {
+        setOrders(resultOrders);
+        setError(null);
+      } catch (err) {
+        if (err instanceof Error && err.name === 'AbortError') return;
         if (controller.signal.aborted) return;
         console.error('Failed to load order history:', err);
-        setOrderResult({
-          requestKey,
-          orders: [],
-          error: err instanceof Error ? err.message : 'Unable to load orders.',
-        });
-      });
+        setError(err instanceof Error ? err.message : 'Unable to load orders.');
+        setOrders(EMPTY_ORDERS);
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    void fetchOrdersData();
 
     return () => controller.abort();
-  }, [activeTab, isLoggedIn, requestKey]);
-
-  // Add freshly placed order from checkout immediately to state
-  const addPlacedOrder = useCallback((order: OrderDetailDto) => {
-    const summaryItem: OrderSummaryItemDto = {
-      orderId: order.orderId,
-      customerId: order.customerId,
-      subtotal: order.subtotal,
-      shippingCharge: order.shippingCharge,
-      tax: order.tax,
-      totalAmount: order.totalAmount,
-      orderStatus: order.orderStatus,
-      createdAt: order.createdAt,
-    };
-    const normalizedStatus = order.orderStatus.toLowerCase();
-    const matchesActiveTab =
-      activeTab === FilterTabs.All ||
-      (activeTab === FilterTabs.Processing &&
-        (normalizedStatus === 'placed' || normalizedStatus === 'processing')) ||
-      normalizedStatus === activeTab.toLowerCase();
-
-    if (matchesActiveTab) {
-      setOrderResult((previous) => {
-        if (previous?.requestKey !== requestKey) return previous;
-        const updatedOrders = [
-          summaryItem,
-          ...previous.orders.filter((item) => item.orderId !== order.orderId),
-        ];
-        return { ...previous, orders: updatedOrders };
-      });
-    }
-
-    // Cache the full details right away
-    setOrderDetailsCache((prev) => ({ ...prev, [order.orderId]: order }));
-  }, [activeTab, requestKey]);
+  }, [activeTab, isLoggedIn, refreshCount, user?.email]);
 
   const filteredOrders = orders;
 
@@ -177,7 +152,6 @@ export function OrderProvider({ children }: { children: ReactNode }) {
       fetchOrders,
       getOrderDetail,
       reorder,
-      addPlacedOrder,
       reorderingId,
     }),
     [
@@ -191,7 +165,6 @@ export function OrderProvider({ children }: { children: ReactNode }) {
       fetchOrders,
       getOrderDetail,
       reorder,
-      addPlacedOrder,
       reorderingId,
     ]
   );

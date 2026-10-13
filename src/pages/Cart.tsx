@@ -6,13 +6,7 @@ import CartItemSkeleton from '../components/cart/CartItemSkeleton'
 import Button from '../components/ui/Button'
 import StateMessage from '../components/ui/StateMessage'
 import { useCart } from '../hooks/useCart'
-
-const inrFormatter = new Intl.NumberFormat('en-IN', {
-  style: 'currency',
-  currency: 'INR',
-})
-
-const formatINR = (amount: number) => inrFormatter.format(amount)
+import { formatINR } from '../utils/formatters'
 
 function Cart() {
   const {
@@ -22,7 +16,6 @@ function Cart() {
     refetchCart: onRetry,
     updateQuantity: onUpdateQuantity,
     removeFromCart: onRemoveCartItem,
-    updatingProductId,
   } = useCart()
   const navigate = useNavigate()
 
@@ -30,7 +23,7 @@ function Cart() {
     const subtotal = cartItems.reduce((sum, item) => sum + item.itemSubtotal, 0)
     const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0)
     const shipping = subtotal > 0 ? (subtotal > 10000 ? 0 : 150) : 0
-    const tax = subtotal * 0.08
+    const tax = subtotal * 0.18
     const finalTotal = subtotal + shipping + tax
     return { subtotal, totalQuantity, shipping, tax, finalTotal }
   }, [cartItems])
@@ -100,7 +93,6 @@ function Cart() {
                 item={item} 
                 onQuantityChange={onUpdateQuantity} 
                 onRemove={onRemoveCartItem} 
-                isUpdating={updatingProductId === item.productId}
               />
             ))}
           </div>
@@ -126,7 +118,7 @@ function Cart() {
                 </div>
 
                 <div className="flex justify-between">
-                  <span>Tax (8%):</span>
+                  <span>Tax (18%):</span>
                   <span>{formatINR(tax)}</span>
                 </div>
               </div>

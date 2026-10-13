@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import toast from 'react-hot-toast';
 import { getCart, addCartItem, updateCartItem, removeCartItem } from '../services/cartApi';
 import { useAuth } from '../hooks/useAuth';
-import { CartContext } from '../hooks/useCart';
+import { CartStateContext, CartActionsContext } from '../hooks/useCart';
 import type { CartItemDto } from '../types/CartDto';
 import type { Product } from '../types/Products';
 
@@ -87,57 +87,61 @@ export function CartProvider({ children }: { children: ReactNode }) {
   // Initialize useReducer with the initCart function
   const [cartItems, dispatch] = useReducer(cartReducer, [], initCart);
 
-  const [updatingProductId, setUpdatingProductId] = useState<number | null>(null);
-  const [addingProductId, setAddingProductId] = useState<number | null>(null);
-
+  const [isCartLoading, setIsCartLoading] = useState(false);
+  const [cartError, setCartError] = useState<string | null>(null);
   const [refreshCount, setRefreshCount] = useState(0);
   const refetchCart = useCallback(() => setRefreshCount((prev) => prev + 1), []);
-  const requestId = `${isLoggedIn}:${refreshCount}`;
-  const [cartSyncResult, setCartSyncResult] = useState<{
-    requestId: string;
-    error: string | null;
-  } | null>(null);
-  const isCartLoading = isLoggedIn && cartSyncResult?.requestId !== requestId;
-  const cartError =
-    cartSyncResult?.requestId === requestId ? cartSyncResult.error : null;
 
   // 4. Persistence Watcher: Save to localStorage on every change
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cartItems));
   }, [cartItems]);
 
-  // 5. Background Sync: Keep local storage updated with the real database
+  // 5. Auth logout listener: clear cart state when user logs out
   useEffect(() => {
-    // If not logged in, absolutely ensure the cart is empty!
-    if (!isLoggedIn) {
+    const handleLogout = () => {
       dispatch({ type: 'CLEAR_CART' });
-      return;
-    }
+      setIsCartLoading(false);
+      setCartError(null);
+    };
+    window.addEventListener('auth:logout', handleLogout);
+    return () => window.removeEventListener('auth:logout', handleLogout);
+  }, []);
+
+  // 6. Background Sync: Keep local storage updated with the real database
+  useEffect(() => {
+    if (!isLoggedIn) return;
 
     const controller = new AbortController();
 
-    getCart(controller.signal)
-      .then((apiCart) => {
+    const syncCart = async () => {
+      setIsCartLoading(true);
+      setCartError(null);
+
+      try {
+        const apiCart = await getCart(controller.signal);
         if (controller.signal.aborted) return;
-        dispatch({ type: 'SET_CART', payload: apiCart }); // Sync background cart to reducer
-        setCartSyncResult({ requestId, error: null });
-      })
-      .catch((error) => {
+        dispatch({ type: 'SET_CART', payload: apiCart });
+        setCartError(null);
+      } catch (error) {
         if (error instanceof Error && error.name === 'AbortError') return;
         console.error('Failed to load cart:', error);
         if (!controller.signal.aborted) {
-          setCartSyncResult({
-            requestId,
-            error: error instanceof Error ? error.message : 'Unable to sync cart.',
-          });
+          setCartError(error instanceof Error ? error.message : 'Unable to sync cart.');
         }
-      });
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsCartLoading(false);
+        }
+      }
+    };
+
+    void syncCart();
 
     return () => controller.abort();
-  }, [requestId, isLoggedIn]);
+  }, [refreshCount, isLoggedIn]);
 
   const addToCart = useCallback(async (product: Product, quantity: number) => {
-    setAddingProductId(product.id);
     const toastId = toast.loading(`Adding ${product.name} to cart...`);
 
     try {
@@ -150,13 +154,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
       console.error('Failed to add item to cart:', error);
       const message = error instanceof Error ? error.message : 'Failed to add item. Please try again.';
       toast.error(message, { id: toastId });
-    } finally {
-      setAddingProductId(null);
     }
   }, []);
 
   const updateQuantity = useCallback(async (productId: number, quantity: number): Promise<boolean> => {
-    setUpdatingProductId(productId);
     try {
       // 1. Update Backend
       await updateCartItem(productId, quantity);
@@ -169,13 +170,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const message = error instanceof Error ? error.message : 'Failed to update quantity.';
       toast.error(message);
       return false;
-    } finally {
-      setUpdatingProductId(null);
     }
   }, []);
 
   const removeFromCart = useCallback(async (productId: number) => {
-    setUpdatingProductId(productId);
     const toastId = toast.loading('Removing item...');
     try {
       // 1. Update Backend
@@ -187,8 +185,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
       console.error('Failed to remove cart item:', error);
       const message = error instanceof Error ? error.message : 'Failed to remove item.';
       toast.error(message, { id: toastId });
-    } finally {
-      setUpdatingProductId(null);
     }
   }, []);
 
@@ -200,25 +196,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
     return cartItems.reduce((sum, item) => sum + item.quantity, 0);
   }, [cartItems]);
 
-  const contextValue = useMemo(() => ({
-    cartItems,
-    cartCount,
-    isCartLoading,
-    cartError,
-    updatingProductId,
-    addingProductId,
+  const actionsValue = useMemo(() => ({
     addToCart,
     updateQuantity,
     removeFromCart,
     clearCart,
     refetchCart,
   }), [
-    cartItems,
-    cartCount,
-    isCartLoading,
-    cartError,
-    updatingProductId,
-    addingProductId,
     addToCart,
     updateQuantity,
     removeFromCart,
@@ -226,9 +210,25 @@ export function CartProvider({ children }: { children: ReactNode }) {
     refetchCart,
   ]);
 
+  const stateValue = useMemo(() => ({
+    cartItems,
+    cartCount,
+    isCartLoading,
+    cartError,
+    updatingProductId: null,
+    addingProductId: null,
+  }), [
+    cartItems,
+    cartCount,
+    isCartLoading,
+    cartError,
+  ]);
+
   return (
-    <CartContext.Provider value={contextValue}>
-      {children}
-    </CartContext.Provider>
+    <CartActionsContext.Provider value={actionsValue}>
+      <CartStateContext.Provider value={stateValue}>
+        {children}
+      </CartStateContext.Provider>
+    </CartActionsContext.Provider>
   );
 }

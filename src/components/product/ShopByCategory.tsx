@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import Card from '../ui/Card'
+import StateMessage from '../ui/StateMessage'
 import type { Category } from '../../types/Categories'
 
 interface ShopByCategoryProps {
@@ -35,20 +36,19 @@ function ShopByCategory({
           ))}
         </div>
       ) : error ? (
-        <div className="py-6 text-center" role="alert">
-          <p className="mb-4 text-red-600">{error}</p>
-          <button
-            type="button"
-            className="button button-outline"
-            onClick={onRetry}
-          >
-            Try Again
-          </button>
-        </div>
+        <StateMessage
+          title="Unable to load categories"
+          message="We're having trouble connecting to our servers right now."
+          buttonText="Try Again"
+          onAction={onRetry}
+        />
       ) : categories.length === 0 ? (
-        <p className="py-6 text-center text-gray-600">
-          No categories available at the moment.
-        </p>
+        <StateMessage
+          title="No categories available"
+          message="No categories are available at the moment. Please check back later!"
+          buttonText="Refresh"
+          onAction={onRetry}
+        />
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
           {categories.map(category => (

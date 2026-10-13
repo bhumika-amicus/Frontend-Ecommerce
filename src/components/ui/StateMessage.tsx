@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import Button from './Button'
 
 interface StateMessageProps {
     title: string
@@ -28,12 +29,13 @@ function StateMessage({
                 {children}
                 
                 {buttonText && onAction && (
-                    <button
-                        className="button button-outline mt-8"
+                    <Button
+                        variant="outline"
+                        className="mt-8"
                         onClick={onAction}
                     >
                         {buttonText}
-                    </button>
+                    </Button>
                 )}
             </div>
         </div>

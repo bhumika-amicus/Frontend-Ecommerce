@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { LogIn, Menu, ShoppingCart, X, Package, Store } from 'lucide-react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import ProductSearch from '../product/ProductSearch'
-import { useCart } from '../../hooks/useCart'
+import { useCartState } from '../../hooks/useCart'
 import { useAuth } from '../../hooks/useAuth'
 import { LogOut } from 'lucide-react'
 
@@ -28,7 +28,7 @@ const getMobileCartClass = ({ isActive }: { isActive: boolean }) =>
 
 
 export default function Header() {
-  const { cartCount } = useCart()
+  const { cartCount } = useCartState()
   const { isLoggedIn, logout } = useAuth()
   const navigate = useNavigate()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)

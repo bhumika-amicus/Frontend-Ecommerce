@@ -6,15 +6,11 @@ import Card from '../ui/Card'
 import QuantitySelector from '../cart/QuantitySelector'
 import placeholderImg from '../../assets/placeholder.jpg'
 
-import { useCart } from '../../hooks/useCart'
+import { useCartActions } from '../../hooks/useCart'
 import { useAuth } from '../../hooks/useAuth'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
-
-const inrFormatter = new Intl.NumberFormat('en-IN', {
-  style: 'currency',
-  currency: 'INR',
-})
+import { formatINR } from '../../utils/formatters'
 
 interface ProductCardProps {
   product: Product
@@ -23,11 +19,11 @@ interface ProductCardProps {
 function ProductCard({
   product,
 }: ProductCardProps) {
-  const { addToCart, addingProductId } = useCart()
+  const { addToCart } = useCartActions()
   const { isLoggedIn } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
-  const isAdding = addingProductId === product.id
+  const [isAdding, setIsAdding] = useState(false)
   const [quantity, setQuantity] = useState(1)
 
   const handleAddToCart = async () => {
@@ -36,11 +32,17 @@ function ProductCard({
       navigate('/login', { state: { from: location.pathname } });
       return;
     }
-    await addToCart(product, quantity);
-    setQuantity(1);
+    if (isAdding) return;
+    setIsAdding(true);
+    try {
+      await addToCart(product, quantity);
+      setQuantity(1);
+    } finally {
+      setIsAdding(false);
+    }
   }
 
-  const formattedTotalPrice = inrFormatter.format(product.price * quantity)
+  const formattedTotalPrice = formatINR(product.price * quantity)
 
   // const isSale = product.discountPercentage ? product.discountPercentage > 10 : false;
 

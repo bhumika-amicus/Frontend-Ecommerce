@@ -3,47 +3,49 @@ import { Trash2 } from 'lucide-react'
 import type { CartItemDto } from '../../types/CartDto'
 import placeholderImg from '../../assets/placeholder.jpg'
 import QuantitySelector from './QuantitySelector'
+import { formatINR } from '../../utils/formatters'
 
 interface CartItemProps {
   item: CartItemDto
   onQuantityChange: (productId: number, quantity: number) => Promise<boolean> | void
   onRemove: (productId: number) => void
-  isUpdating: boolean
+  isUpdating?: boolean
 }
 
-const inrFormatter = new Intl.NumberFormat('en-IN', {
-  style: 'currency',
-  currency: 'INR',
-})
+function CartItem({ item, onQuantityChange, onRemove, isUpdating: externalIsUpdating = false }: CartItemProps) {
+  const [localIsUpdating, setLocalIsUpdating] = useState(false)
+  const isUpdating = externalIsUpdating || localIsUpdating
 
-const formatINR = (amount: number) => inrFormatter.format(amount)
-
-function CartItem({ item, onQuantityChange, onRemove, isUpdating }: CartItemProps) {
-
-  const [localQuantity, setLocalQuantity] = useState(item.quantity)
-  const [prevQuantityProp, setPrevQuantityProp] = useState(item.quantity)
-
-  // 1. Keep local UI in sync if the server data updates from somewhere else
-  if (item.quantity !== prevQuantityProp) {
-    setPrevQuantityProp(item.quantity);
-    setLocalQuantity(item.quantity);
-  }
-
-  // 2. Direct, responsive quantity change handler
   const handleQuantityChange = React.useCallback(async (newQuantity: number) => {
-    if (newQuantity === item.quantity) return
+    if (newQuantity === item.quantity || isUpdating) return
 
     if (newQuantity === 0) {
-      onRemove(item.productId)
+      setLocalIsUpdating(true)
+      try {
+        await onRemove(item.productId)
+      } finally {
+        setLocalIsUpdating(false)
+      }
       return
     }
 
-    setLocalQuantity(newQuantity)
-    const success = await onQuantityChange(item.productId, newQuantity)
-    if (success === false) {
-      setLocalQuantity(item.quantity)
+    setLocalIsUpdating(true)
+    try {
+      await onQuantityChange(item.productId, newQuantity)
+    } finally {
+      setLocalIsUpdating(false)
     }
-  }, [item.productId, item.quantity, onQuantityChange, onRemove])
+  }, [item.productId, item.quantity, isUpdating, onQuantityChange, onRemove])
+
+  const handleRemove = React.useCallback(async () => {
+    if (isUpdating) return
+    setLocalIsUpdating(true)
+    try {
+      await onRemove(item.productId)
+    } finally {
+      setLocalIsUpdating(false)
+    }
+  }, [isUpdating, onRemove, item.productId])
 
   return (
     <div className="flex flex-col md:flex-row items-center border-b border-gray-200 py-6 gap-4">
@@ -59,7 +61,7 @@ function CartItem({ item, onQuantityChange, onRemove, isUpdating }: CartItemProp
           <button
             type="button"
             className={`text-sm self-start hover:underline inline-flex items-center gap-1.5 transition-colors ${isUpdating ? 'text-gray-400 cursor-not-allowed' : 'text-red-500 hover:text-red-700'}`}
-            onClick={() => onRemove(item.productId)}
+            onClick={handleRemove}
             disabled={isUpdating}
           >
             <Trash2 size={14} />
@@ -79,7 +81,7 @@ function CartItem({ item, onQuantityChange, onRemove, isUpdating }: CartItemProp
         <span className="md:hidden text-gray-500 text-sm font-bold">Qty</span>
         <div>
           <QuantitySelector
-            quantity={localQuantity}
+            quantity={item.quantity}
             onQuantityChange={handleQuantityChange}
             disabled={isUpdating}
             minQuantity={0}

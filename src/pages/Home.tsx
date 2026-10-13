@@ -3,20 +3,23 @@ import CategoryGrid from '../components/product/CategoryGrid'
 import FeaturedProductCarousel from '../components/product/FeaturedProductCarousel'
 import ShopByCategory from '../components/product/ShopByCategory'
 import ServiceHighlights from '../components/layout/ServiceHighlights'
-import ProductCardSkeleton from '../components/product/ProductCardSkeleton'
 import { getCategories, getProducts } from '../services/productApi'
 import { useFetch } from '../hooks/useFetch'
+import type { Product } from '../types/Products'
+import type { Category } from '../types/Categories'
 
+const EMPTY_PRODUCTS: Product[] = []
+const EMPTY_CATEGORIES: Category[] = []
 
 function Home() {
   const {
     data: productsData,
-    isLoading,
-    error,
+    isLoading: isProductsLoading,
+    error: productsError,
     refetch: refetchProducts,
   } = useFetch(getProducts)
 
-  const products = productsData || []
+  const products = productsData || EMPTY_PRODUCTS
 
   const {
     data: categoriesData,
@@ -25,7 +28,7 @@ function Home() {
     refetch: refetchCategories,
   } = useFetch(getCategories)
 
-  const categories = categoriesData || []
+  const categories = categoriesData || EMPTY_CATEGORIES
 
   return (
     <>
@@ -34,52 +37,18 @@ function Home() {
       <div>
         <CategoryGrid />
 
-        {isLoading ? (
-          <section
-            className="overflow-hidden px-5 py-16"
-            aria-label="Loading featured products"
-            aria-busy="true"
-          >
-            <div className="flex justify-center gap-5">
-              {Array.from({ length: 4 }).map((_, index) => (
-                <div key={index} className="w-70 shrink-0">
-                  <ProductCardSkeleton />
-                </div>
-              ))}
-            </div>
-          </section>
-        ) : error ? (
-          <section className="px-5 py-16 text-center" role="alert">
-            <p className="mb-4 text-red-600">{error}</p>
-
-            <button
-              type="button"
-              className="button button-outline"
-              onClick={() => refetchProducts()}
-            >
-              Try Again
-            </button>
-          </section>
-        ) : products.length === 0 ? (
-          <section className="px-5 py-16 text-center">
-            <h2 className="mb-4 text-2xl font-bold text-gray-800">
-              No products available.
-            </h2>
-            <p>The store is currently empty. Please check back later!</p>
-          </section>
-        ) : (
-          <section id="products" className="py-16">
-            <FeaturedProductCarousel
-              products={products}
-            />
-          </section>
-        )}
+        <FeaturedProductCarousel
+          products={products}
+          isLoading={isProductsLoading}
+          error={productsError}
+          onRetry={refetchProducts}
+        />
 
         <ShopByCategory
           categories={categories}
           isLoading={isCategoriesLoading}
           error={categoriesError}
-          onRetry={() => refetchCategories()}
+          onRetry={refetchCategories}
         />
 
         <ServiceHighlights />

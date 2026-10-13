@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import type { OrderSummaryItemDto, OrderDetailDto } from '../../types/OrderDto';
 import { formatINR } from '../../types/OrderDto';
@@ -41,12 +41,10 @@ export default function OrderCard({
   };
 
   // Formatted Order ID matching mockup e.g. ORD-2026-001
-  const formattedOrderId = useMemo(() => {
-    return `ORD-2026-${order.orderId.toString().padStart(3, '0')}`;
-  }, [order.orderId]);
+  const formattedOrderId = `ORD-2026-${order.orderId.toString().padStart(3, '0')}`;
 
   // Formatted date matching mockup e.g. Placed: May 10, 2026
-  const formattedDate = useMemo(() => {
+  const formattedDate = (() => {
     if (!order.createdAt) return 'Today';
     try {
       const d = new Date(order.createdAt);
@@ -59,7 +57,7 @@ export default function OrderCard({
     } catch {
       return order.createdAt || 'Today';
     }
-  }, [order.createdAt]);
+  })();
 
   // Item count
   const itemCount = detail?.items ? detail.items.length : 1;

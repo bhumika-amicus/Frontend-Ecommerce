@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm, useWatch } from 'react-hook-form'
 import toast from 'react-hot-toast'
@@ -55,21 +55,14 @@ function Checkout() {
 
     const selectedShippingMethod = useWatch({ control, name: 'shippingMethod' })
 
-    const { subtotal, tax, shippingFee, total } = useMemo(() => {
-        const sub = cartItems.reduce((sum, item) => sum + item.itemSubtotal, 0)
-        const fee = selectedShippingMethod && selectedShippingMethod in shippingRates
-            ? shippingRates[selectedShippingMethod as ShippingMethodType]
-            : 0
-        const calculatedTax = sub * 0.18 // 18% Tax matching backend
-        return {
-            subtotal: sub,
-            shippingFee: fee,
-            tax: calculatedTax,
-            total: sub + calculatedTax + fee,
-        }
-    }, [cartItems, selectedShippingMethod])
+    const subtotal = cartItems.reduce((sum, item) => sum + item.itemSubtotal, 0)
+    const shippingFee = selectedShippingMethod && selectedShippingMethod in shippingRates
+        ? shippingRates[selectedShippingMethod as ShippingMethodType]
+        : 0
+    const tax = subtotal * 0.18 // 18% Tax matching backend
+    const total = subtotal + tax + shippingFee
 
-    const handleContinueToPayment = useCallback(async () => {
+    const handleContinueToPayment = async () => {
         // Validate contact info & shipping method
         const isContactValid = await trigger([
             'fullName',
@@ -128,28 +121,28 @@ function Checkout() {
         }
 
         setCurrentStep(2)
-    }, [trigger, selectedAddressId, getValues])
+    }
 
-    const handleBackToShipping = useCallback(() => {
+    const handleBackToShipping = () => {
         setCurrentStep(1)
-    }, [])
+    }
 
-    const handleContinueToReview = useCallback(() => {
+    const handleContinueToReview = () => {
         setCurrentStep(3)
-    }, [])
+    }
 
-    const handleEditShipping = useCallback(() => {
+    const handleEditShipping = () => {
         setPendingOrderId(null)
         setCurrentStep(1)
-    }, [])
+    }
 
-    const handleEditPayment = useCallback(() => {
+    const handleEditPayment = () => {
         setCurrentStep(2)
-    }, [])
+    }
 
-    const handleBackToPayment = useCallback(() => {
+    const handleBackToPayment = () => {
         setCurrentStep(2)
-    }, [])
+    }
 
     const onSubmit = async (formData: ShippingFormData) => {
         try {

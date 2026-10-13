@@ -28,17 +28,12 @@ function ProductSearch({ variant = 'header', placeholder = 'Search' }: ProductSe
   const [searchParams, setSearchParams] = useSearchParams()
 
   const committedSearch = searchParams.get('search') ?? ''
-  const [searchInput, setSearchInput] = useState(committedSearch)
+  // Only stores intermediate text while the user is actively typing in this specific box.
+  // When null, the input cleanly displays the `committedSearch` from the URL directly.
+  const [draftInput, setDraftInput] = useState<string | null>(null)
+  const displayValue = draftInput !== null ? draftInput : committedSearch
 
-  const [prevCommittedSearch, setPrevCommittedSearch] = useState(committedSearch)
-  if (committedSearch !== prevCommittedSearch) {
-    setPrevCommittedSearch(committedSearch)
-    if (committedSearch !== searchInput.trim()) {
-      setSearchInput(committedSearch)
-    }
-  }
-
-  const debouncedSearchTerm = useDebounce(searchInput, 350)
+  const debouncedSearchTerm = useDebounce(draftInput, 350)
 
   const performSearch = useCallback((query: string) => {
     const isListingPage = location.pathname === '/products'
@@ -70,24 +65,23 @@ function ProductSearch({ variant = 'header', placeholder = 'Search' }: ProductSe
   }, [location.pathname, navigate, searchParams, setSearchParams])
 
   useEffect(() => {
-    // Only search on type if we are already on the products page
+    // Only search on type if the user actively typed in THIS input and we are on /products
+    if (debouncedSearchTerm === null) return
     if (location.pathname !== '/products') return
 
-    // Prevent searching if the user is still typing (debounce hasn't caught up)
-    if (searchInput !== debouncedSearchTerm) return
-
-    const trimmedDebounced = debouncedSearchTerm.trim()
+    const trimmed = debouncedSearchTerm.trim()
     const currentSearch = searchParams.get('search') ?? ''
 
-    // Prevent searching if it matches the current URL
-    if (trimmedDebounced === currentSearch) return
-
-    performSearch(trimmedDebounced)
-  }, [debouncedSearchTerm, searchInput, location.pathname, searchParams, performSearch])
+    if (trimmed !== currentSearch) {
+      performSearch(trimmed)
+    }
+  }, [debouncedSearchTerm, location.pathname, searchParams, performSearch])
 
   function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
-    performSearch(searchInput.trim())
+    const query = (draftInput !== null ? draftInput : committedSearch).trim()
+    setDraftInput(null)
+    performSearch(query)
   }
 
   return (
@@ -99,8 +93,9 @@ function ProductSearch({ variant = 'header', placeholder = 'Search' }: ProductSe
       <input
         type="search"
         placeholder={placeholder}
-        value={searchInput}
-        onChange={(event) => setSearchInput(event.target.value)}
+        value={displayValue}
+        onChange={(event) => setDraftInput(event.target.value)}
+        onBlur={() => setDraftInput(null)}
         aria-label="Search products"
         className={styles[variant].input}
       />

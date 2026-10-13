@@ -16,7 +16,6 @@ export interface OrderContextType {
   fetchOrders: () => Promise<void>;
   getOrderDetail: (orderId: number) => Promise<OrderDetailDto | null>;
   reorder: (orderId: number) => Promise<boolean>;
-  addPlacedOrder: (order: OrderDetailDto) => void;
   reorderingId: number | null;
 }
 

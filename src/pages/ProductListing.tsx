@@ -1,55 +1,34 @@
-import { useSearchParams } from 'react-router-dom'
-import { useCallback, type ReactNode } from 'react'
+import { type ReactNode } from 'react'
 import { useFetch } from '../hooks/useFetch'
+import { useProductFilters } from '../hooks/useProductFilters'
 
 import ProductGrid from '../components/product/ProductGrid'
 import ProductCardSkeleton from '../components/product/ProductCardSkeleton'
 import Breadcrumbs from '../components/ui/Breadcrumbs'
 import StateMessage from '../components/ui/StateMessage'
 import Pagination from '../components/ui/Pagination'
+import Button from '../components/ui/Button'
 import FilterSidebar from '../components/product/FilterSidebar'
 import { getBrands, getCategories, searchProducts } from '../services/productApi'
-import { ProductSortBy, SortOrder } from '../types/ProductSorting'
-import { getValidInt, getValidFloat } from '../utils/urlHelpers'
 import type { Category } from '../types/Categories'
 import type { Brand } from '../types/Brands'
+import type { Product } from '../types/Products'
 
 const PAGE_SIZE = 12
+const EMPTY_PRODUCTS: Product[] = []
 const EMPTY_CATEGORIES: Category[] = []
 const EMPTY_BRANDS: Brand[] = []
 
 function ProductListing() {
-    const [searchParams, setSearchParams] = useSearchParams()
-    const searchTerm = searchParams.get('search') || ''
-    const categoryId = getValidInt(searchParams, 'categoryId', 1)
-    const brandId = getValidInt(searchParams, 'brandId', 1)
-    const minRating = getValidFloat(searchParams, 'minRating', 1, 5)
-    const page = getValidInt(searchParams, 'page', 1) ?? 1
-    
-    let minPrice = getValidFloat(searchParams, 'minPrice', 0)
-    let maxPrice = getValidFloat(searchParams, 'maxPrice', 0)
-    if (minPrice !== undefined && maxPrice !== undefined && minPrice > maxPrice) {
-        minPrice = undefined
-        maxPrice = undefined
-    }
-
-    const rawSortBy = searchParams.get('sortBy') as ProductSortBy
-    const sortBy = Object.values(ProductSortBy).includes(rawSortBy) ? rawSortBy : undefined
-
-    const rawSortOrder = searchParams.get('sortOrder') as SortOrder
-    const sortOrder = Object.values(SortOrder).includes(rawSortOrder) ? rawSortOrder : undefined
-
-    const updatePage = useCallback((nextPage: number) => {
-        if (nextPage < 1) {
-            return
-        }
-
-        setSearchParams((currentParams) => {
-            const nextParams = new URLSearchParams(currentParams)
-            nextParams.set('page', String(nextPage))
-            return nextParams
-        })
-    }, [setSearchParams])
+    const {
+        searchTerm,
+        page,
+        hasActiveFilters,
+        updatePage,
+        apiParams,
+        filterKey,
+        resetAllFilters,
+    } = useProductFilters()
 
     const {
         data: productsData,
@@ -57,36 +36,11 @@ function ProductListing() {
         error,
         refetch: refetchProducts,
     } = useFetch(
-        (signal) =>
-            searchProducts(
-                {
-                    search: searchTerm,
-                    categoryId,
-                    brandId,
-                    minPrice,
-                    maxPrice,
-                    minRating,
-                    sortBy,
-                    sortOrder,
-                    page,
-                    pageSize: PAGE_SIZE,
-                },
-                signal
-            ),
-        [
-            searchTerm,
-            categoryId,
-            brandId,
-            minPrice,
-            maxPrice,
-            minRating,
-            sortBy,
-            sortOrder,
-            page,
-        ]
+        (signal) => searchProducts({ ...apiParams, pageSize: PAGE_SIZE }, signal),
+        [filterKey]
     )
 
-    const products = productsData?.products || []
+    const products = productsData?.products || EMPTY_PRODUCTS
     const totalRecords = productsData?.totalRecords || 0
     const totalPages = productsData?.totalPages || 0
 
@@ -105,23 +59,6 @@ function ProductListing() {
     } = useFetch(getBrands)
 
     const brands = brandsData || EMPTY_BRANDS
-
-    const clearAllFilters = useCallback(() => {
-        setSearchParams((currentParams) => {
-            const nextParams = new URLSearchParams(currentParams)
-            nextParams.delete('categoryId')
-            nextParams.delete('brandId')
-            nextParams.delete('minPrice')
-            nextParams.delete('maxPrice')
-            nextParams.delete('minRating')
-            nextParams.delete('sortBy')
-            nextParams.delete('sortOrder')
-            nextParams.delete('page')
-            return nextParams
-        })
-    }, [setSearchParams])
-
-    const hasActiveFilters = searchTerm !== '' || categoryId !== undefined || brandId !== undefined || minPrice !== undefined || maxPrice !== undefined || minRating !== undefined
 
     let content: ReactNode
 
@@ -150,27 +87,34 @@ function ProductListing() {
                 </div>
             </StateMessage>
         )
-    } else if (products.length === 0 && hasActiveFilters) {
-        content = (
-            <StateMessage
-                title="No products match your filters"
-                message="Try adjusting your search or filters to find what you're looking for."
-            />
-        )
     } else if (products.length === 0) {
-        content = (
+        content = hasActiveFilters ? (
+            <StateMessage
+                title="No products match your criteria"
+                message={
+                    searchTerm
+                        ? `We couldn't find any products matching "${searchTerm}". Try checking your spelling or clearing your filters.`
+                        : "No products match the selected filters. Try broadening your criteria."
+                }
+                buttonText="Clear All Filters"
+                onAction={resetAllFilters}
+            />
+        ) : (
             <StateMessage
                 title="No products available."
                 message="The store is currently empty. We might be restocking!"
                 buttonText="Refresh"
-                onAction={() => refetchProducts()}
+                onAction={refetchProducts}
             />
         )
     } else {
+        const startRecord = (page - 1) * PAGE_SIZE + 1
+        const endRecord = Math.min(page * PAGE_SIZE, totalRecords)
+
         content = (
             <>
                 <p className="mb-5 text-sm text-gray-600">
-                    Showing {products.length} of {totalRecords} products
+                    Showing {startRecord}–{endRecord} of {totalRecords} products
                     {searchTerm && ` for "${searchTerm}"`}
                 </p>
                 <ProductGrid
@@ -192,13 +136,13 @@ function ProductListing() {
                 <div className="flex items-center justify-between mb-3">
                     <h1 className="text-lg md:text-xl lg:text-2xl font-bold m-0">Product Listing</h1>
                     {isLoading ? (
-                        <button className="button button-outline" disabled>
+                        <Button variant="outline" disabled>
                             Refresh
-                        </button>
+                        </Button>
                     ) : !error && products.length > 0 ? (
-                        <button className="button button-outline" onClick={refetchProducts}>
+                        <Button variant="outline" onClick={refetchProducts}>
                             Refresh
-                        </button>
+                        </Button>
                     ) : null}
                 </div>
                 <div className="grid grid-cols-1 gap-6 items-start lg:grid-cols-[180px_1fr]">
@@ -209,8 +153,6 @@ function ProductListing() {
                         brands={brands}
                         isBrandsLoading={isBrandsLoading}
                         brandsError={brandsError}
-                        hasActiveFilters={hasActiveFilters}
-                        onClearAllFilters={clearAllFilters}
                     />
                     <section className="min-w-0">
                         {content}

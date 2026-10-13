@@ -1,22 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
-interface FetchOptions {
+export interface FetchOptions {
   skip?: boolean;
-}
-
-interface FetchState<T> {
-  dependencies: readonly unknown[];
-  refreshIndex: number;
-  data: T | null;
-  error: string | null;
-}
-
-function dependenciesMatch(
-  previous: readonly unknown[],
-  current: readonly unknown[]
-): boolean {
-  return previous.length === current.length &&
-    previous.every((value, index) => Object.is(value, current[index]));
 }
 
 export function useFetch<T>(
@@ -24,8 +9,16 @@ export function useFetch<T>(
   dependencies: readonly unknown[] = [],
   options?: FetchOptions
 ) {
-  const [fetchState, setFetchState] = useState<FetchState<T> | null>(null);
+  const [data, setData] = useState<T | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(!options?.skip);
+  const [error, setError] = useState<string | null>(null);
   const [refreshIndex, setRefreshIndex] = useState(0);
+
+  // Keep a ref to the latest fetchFunction to avoid infinite fetch loops from inline arrow functions.
+  const fetchFunctionRef = useRef(fetchFunction);
+  useEffect(() => {
+    fetchFunctionRef.current = fetchFunction;
+  });
 
   const refetch = useCallback(() => {
     setRefreshIndex((prev) => prev + 1);
@@ -38,41 +31,35 @@ export function useFetch<T>(
 
     const controller = new AbortController();
 
-    fetchFunction(controller.signal)
-      .then((result) => {
+    const executeFetch = async () => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const result = await fetchFunctionRef.current(controller.signal);
+        if (controller.signal.aborted) return;
+        setData(result);
+        setError(null);
+      } catch (err) {
+        if (err instanceof Error && err.name === 'AbortError') return;
+        if (controller.signal.aborted) return;
+        console.error('useFetch error:', err);
+        setError(err instanceof Error ? err.message : 'An unexpected error occurred.');
+        setData(null);
+      } finally {
         if (!controller.signal.aborted) {
-          setFetchState({
-            dependencies: [...dependencies],
-            refreshIndex,
-            data: result,
-            error: null,
-          });
+          setIsLoading(false);
         }
-      })
-      .catch((err) => {
-        if (!controller.signal.aborted) {
-          console.error('useFetch API Error:', err);
-          setFetchState({
-            dependencies: [...dependencies],
-            refreshIndex,
-            data: null,
-            error: err instanceof Error ? err.message : 'An unexpected error occurred.',
-          });
-        }
-      });
+      }
+    };
+
+    void executeFetch();
 
     return () => {
       controller.abort();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [...dependencies, refreshIndex, options?.skip]);
-
-  const hasCurrentResult = !options?.skip &&
-    fetchState?.refreshIndex === refreshIndex &&
-    dependenciesMatch(fetchState?.dependencies ?? [], dependencies);
-  const data = hasCurrentResult ? fetchState?.data ?? null : null;
-  const error = hasCurrentResult ? fetchState?.error ?? null : null;
-  const isLoading = !options?.skip && !hasCurrentResult;
 
   return { data, isLoading, error, refetch };
 }
