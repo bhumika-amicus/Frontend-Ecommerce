@@ -19,7 +19,7 @@ export default function OrderStatusBadge({ status }: OrderStatusBadgeProps) {
     displayLabel = 'Cancelled';
   } else {
     badgeColor = 'bg-[#ff5a00] text-white';
-    displayLabel = normalized === 'processing' ? 'Processing' : (status || 'Placed');
+    displayLabel = 'Processing';
   }
 
   return (

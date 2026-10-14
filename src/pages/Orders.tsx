@@ -21,6 +21,14 @@ export default function Orders() {
     reorderingId,
   } = useOrders();
 
+  // Trigger the first data load when the Orders page is visited.
+  // OrderProvider is mounted at app root but intentionally defers fetching
+  // until a page actually needs orders data.
+  useEffect(() => {
+    void fetchOrders();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run once on mount — fetchOrders is stable (useCallback with no deps)
+
   // If navigated from Checkout with a newly placed order, refresh orders and fetch full detail
   useEffect(() => {
     const stateOrderId = location.state?.orderId as number | undefined;

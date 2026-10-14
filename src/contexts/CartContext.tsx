@@ -192,9 +192,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'CLEAR_CART' });
   }, []);
 
-  const cartCount = useMemo(() => {
-    return cartItems.reduce((sum, item) => sum + item.quantity, 0);
-  }, [cartItems]);
+  const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   const actionsValue = useMemo(() => ({
     addToCart,

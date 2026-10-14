@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import { Star, StarHalf } from 'lucide-react'
 
 export interface RatingStarsProps {
@@ -51,4 +50,4 @@ function RatingStars({
   )
 }
 
-export default memo(RatingStars)
+export default RatingStars

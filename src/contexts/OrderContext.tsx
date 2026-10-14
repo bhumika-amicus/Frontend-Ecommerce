@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo, type ReactNode } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef, type ReactNode } from 'react';
 import toast from 'react-hot-toast';
 import { getOrderHistory, getOrderById, reorderOrder } from '../services/orderApi';
 import { useCartActions } from '../hooks/useCart';
@@ -14,7 +14,7 @@ import {
 const EMPTY_ORDERS: OrderSummaryItemDto[] = [];
 
 export function OrderProvider({ children }: { children: ReactNode }) {
-  const { isLoggedIn, user } = useAuth();
+  const { isLoggedIn } = useAuth();
   const { refetchCart } = useCartActions();
 
   const [orderDetailsCache, setOrderDetailsCache] = useState<Record<number, OrderDetailDto>>({});
@@ -48,19 +48,30 @@ export function OrderProvider({ children }: { children: ReactNode }) {
     setRefreshCount((previous) => previous + 1);
   }, []);
 
+  // Track whether orders have been fetched at least once.
+  // Prevents the effect from auto-firing on every page while the provider
+  // is mounted at app root. The Orders page triggers the first fetch via fetchOrders().
+  const hasFetched = useRef(false);
+
   // Auth logout listener: clear orders state when user logs out
   useEffect(() => {
     const handleLogout = () => {
       setOrders(EMPTY_ORDERS);
       setIsLoading(false);
       setError(null);
+      hasFetched.current = false;
     };
     window.addEventListener('auth:logout', handleLogout);
     return () => window.removeEventListener('auth:logout', handleLogout);
   }, []);
 
+  // Main fetch effect — only runs after an explicit fetchOrders() call or tab switch post-first-load
   useEffect(() => {
     if (!isLoggedIn) return;
+
+    // Only run if explicitly triggered (fetchOrders bumps refreshCount)
+    // or if the tab changes after the first load.
+    if (refreshCount === 0 && !hasFetched.current) return;
 
     const controller = new AbortController();
 
@@ -71,7 +82,7 @@ export function OrderProvider({ children }: { children: ReactNode }) {
       const statuses = activeTab === FilterTabs.All
         ? [undefined]
         : activeTab === FilterTabs.Processing
-          ? ['Processing', 'Placed']
+          ? ['Placed']
           : [activeTab.replace(/\s+/g, '')];
 
       try {
@@ -89,12 +100,18 @@ export function OrderProvider({ children }: { children: ReactNode }) {
         responses.forEach(({ orders: responseOrders }) => {
           responseOrders.forEach((order) => uniqueOrders.set(order.orderId, order));
         });
-        const resultOrders = [...uniqueOrders.values()].sort(
-          (first, second) =>
-            new Date(second.createdAt).getTime() - new Date(first.createdAt).getTime()
-        );
+        const resultOrders = [...uniqueOrders.values()]
+          .filter((order) => {
+            const status = (order.orderStatus || '').toLowerCase();
+            return status !== 'processing' && status !== 'pending';
+          })
+          .sort(
+            (first, second) =>
+              new Date(second.createdAt).getTime() - new Date(first.createdAt).getTime()
+          );
         setOrders(resultOrders);
         setError(null);
+        hasFetched.current = true;
       } catch (err) {
         if (err instanceof Error && err.name === 'AbortError') return;
         if (controller.signal.aborted) return;
@@ -111,7 +128,9 @@ export function OrderProvider({ children }: { children: ReactNode }) {
     void fetchOrdersData();
 
     return () => controller.abort();
-  }, [activeTab, isLoggedIn, refreshCount, user?.email]);
+    // Removed user?.email — isLoggedIn already handles login/logout transitions.
+    // hasFetched ref is intentionally excluded (it's a ref, not state).
+  }, [activeTab, isLoggedIn, refreshCount]);
 
   const filteredOrders = orders;
 

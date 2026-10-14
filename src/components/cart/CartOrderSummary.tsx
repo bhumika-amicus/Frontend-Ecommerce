@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import Button from '../ui/Button'
 import { formatINR } from '../../utils/formatters'
 
@@ -73,4 +72,4 @@ function CartOrderSummary({
   )
 }
 
-export default memo(CartOrderSummary)
+export default CartOrderSummary

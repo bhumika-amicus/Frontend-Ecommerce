@@ -28,7 +28,10 @@ function Cart() {
   }, [])
 
   const { subtotal, shipping, tax, finalTotal } = useMemo(() => {
-    const subtotal = cartItems.reduce((sum, item) => sum + item.itemSubtotal, 0)
+    const subtotal = cartItems.reduce(
+      (sum, item) => sum + (item.itemSubtotal ?? item.price * item.quantity),
+      0
+    )
     const shipping = subtotal > 0 ? shippingRates[ShippingMethod.Standard] : 0
     const tax = subtotal * 0.18
     const finalTotal = subtotal + shipping + tax

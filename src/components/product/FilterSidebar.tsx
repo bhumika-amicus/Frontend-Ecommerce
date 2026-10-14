@@ -4,7 +4,6 @@ import type { Category } from '../../types/Categories'
 import type { Brand } from '../../types/Brands'
 import { ProductSortBy, SortOrder } from '../../types/ProductSorting'
 import { useProductFilters } from '../../hooks/useProductFilters'
-import Button from '../ui/Button'
 
 const PRICE_RANGES = [
     { label: 'Below ₹10,000', min: undefined, max: 10000 },
