@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm, useWatch } from 'react-hook-form'
 import toast from 'react-hot-toast'
@@ -8,6 +8,7 @@ import ShippingStep from '../components/checkout/ShippingStep'
 import PaymentStep from '../components/checkout/PaymentStep'
 import ReviewStep from '../components/checkout/ReviewStep'
 import OrderSummary from '../components/checkout/OrderSummary'
+import CheckoutSkeleton from '../components/checkout/CheckoutSkeleton'
 import { useCart } from '../hooks/useCart'
 import { createAddress, createCheckout, processMockPayment } from '../services/orderApi'
 import {
@@ -25,6 +26,13 @@ function Checkout() {
     const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1)
     const [createdOrder, setCreatedOrder] = useState<CheckoutResponse | null>(null)
     const [pendingOrderId, setPendingOrderId] = useState<number | null>(null)
+
+    useEffect(() => {
+        document.title = 'Checkout | Trendify'
+        return () => {
+            document.title = 'Trendify'
+        }
+    }, [])
 
     useEffect(() => {
         // Empty cart guard: wait until cart sync is finished, then redirect if still empty
@@ -55,15 +63,18 @@ function Checkout() {
 
     const selectedShippingMethod = useWatch({ control, name: 'shippingMethod' })
 
-    const subtotal = cartItems.reduce(
-        (sum, item) => sum + (item.itemSubtotal ?? item.price * item.quantity),
-        0
-    )
-    const shippingFee = selectedShippingMethod && selectedShippingMethod in shippingRates
-        ? shippingRates[selectedShippingMethod as ShippingMethodType]
-        : 0
-    const tax = subtotal * 0.18 // 18% Tax matching backend
-    const total = subtotal + tax + shippingFee
+    const { subtotal, shippingFee, tax, total } = useMemo(() => {
+        const subtotal = cartItems.reduce(
+            (sum, item) => sum + (item.itemSubtotal ?? item.price * item.quantity),
+            0
+        )
+        const shippingFee = selectedShippingMethod && selectedShippingMethod in shippingRates
+            ? shippingRates[selectedShippingMethod as ShippingMethodType]
+            : 0
+        const tax = subtotal * 0.18 // 18% Tax matching backend
+        const total = subtotal + tax + shippingFee
+        return { subtotal, shippingFee, tax, total }
+    }, [cartItems, selectedShippingMethod])
 
     const handleContinueToPayment = async () => {
         // Validate contact info & shipping method
@@ -139,11 +150,7 @@ function Checkout() {
         setCurrentStep(1)
     }
 
-    const handleEditPayment = () => {
-        setCurrentStep(2)
-    }
-
-    const handleBackToPayment = () => {
+    const handleGoToPayment = () => {
         setCurrentStep(2)
     }
 
@@ -210,17 +217,7 @@ function Checkout() {
 
 
     if (isCartLoading) {
-        return (
-            <div className="mx-auto min-h-[50vh] w-full max-w-7xl px-3 py-4 sm:px-5 md:px-8">
-                <Breadcrumbs />
-                <div className="h-8 w-44 bg-gray-200 animate-pulse rounded mb-6"></div>
-                <div className="h-12 bg-gray-100 animate-pulse rounded mb-8"></div>
-                <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)] xl:gap-8">
-                    <div className="h-96 bg-gray-50 border border-gray-200 animate-pulse rounded-lg p-6"></div>
-                    <div className="h-72 bg-gray-50 border border-gray-200 animate-pulse rounded-lg"></div>
-                </div>
-            </div>
-        )
+        return <CheckoutSkeleton />
     }
 
     if (cartItems.length === 0 && !createdOrder) {
@@ -241,6 +238,7 @@ function Checkout() {
                 className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)] xl:gap-8"
                 noValidate
                 onKeyDown={(e) => {
+                    if (e.target instanceof HTMLTextAreaElement) return
                     if (e.key === 'Enter' && currentStep !== 3) {
                         e.preventDefault()
                         if (currentStep === 1) {
@@ -253,7 +251,7 @@ function Checkout() {
                 onSubmit={handleSubmit(onSubmit)}
             >
                 <div className="min-w-0">
-                    {currentStep === 1 && (
+                    <div className={currentStep === 1 ? 'block' : 'hidden'}>
                         <ShippingStep
                             register={register}
                             errors={errors}
@@ -265,14 +263,14 @@ function Checkout() {
                             selectedAddressId={selectedAddressId}
                             onSelectAddress={(addr) => setSelectedAddress(addr)}
                         />
-                    )}
+                    </div>
 
-                    {currentStep === 2 && (
+                    <div className={currentStep === 2 ? 'block' : 'hidden'}>
                         <PaymentStep
                             register={register}
                             onBack={handleBackToShipping}
                         />
-                    )}
+                    </div>
 
                     {currentStep === 3 && (
                         <ReviewStep
@@ -280,8 +278,8 @@ function Checkout() {
                             cartItems={cartItems}
                             shippingFee={shippingFee}
                             onEditShipping={handleEditShipping}
-                            onEditPayment={handleEditPayment}
-                            onBack={handleBackToPayment}
+                            onEditPayment={handleGoToPayment}
+                            onBack={handleGoToPayment}
                         />
                     )}
                 </div>

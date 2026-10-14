@@ -36,7 +36,7 @@ export default function OrderSummary({
         <div className="p-4 sm:p-6">
           <div className="flex flex-col gap-4 mb-6 max-h-60 overflow-y-auto pr-2">
             {cartItems.map((item) => (
-              <div key={item.cartItemId} className="flex justify-between text-sm text-gray-600">
+              <div key={item.productId} className="flex justify-between text-sm text-gray-600">
                 <span className="truncate mr-4">{item.productName} x{item.quantity}</span>
                 <span>{formatINR(item.itemSubtotal)}</span>
               </div>
