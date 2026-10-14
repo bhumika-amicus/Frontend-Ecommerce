@@ -7,6 +7,7 @@ import ProductDetail from './pages/ProductDetail'
 import Cart from './pages/Cart'
 import NotFound from './pages/NotFound'
 import SharedLayout from './components/layout/SharedLayout'
+import ScrollToTop from './components/layout/ScrollToTop'
 import { CartProvider } from './contexts/CartContext'
 import { AuthProvider } from './contexts/AuthContext'
 import { OrderProvider } from './contexts/OrderContext'
@@ -25,6 +26,7 @@ function App() {
         <OrderProvider>
           <CustomToaster />
           <BrowserRouter>
+          <ScrollToTop />
           <Routes>
             <Route element={<SharedLayout />}>
               <Route path="/" element={<Home />} />

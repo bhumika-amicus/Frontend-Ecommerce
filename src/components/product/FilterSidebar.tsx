@@ -185,28 +185,45 @@ function FilterSidebar({
 
     return (
         <aside className="sticky top-0 z-10 border border-gray-300 bg-white p-3 lg:top-6 overflow-y-auto max-h-screen lg:max-h-[calc(100vh-3rem)]">
-            <button
-                type="button"
-                className="flex w-full cursor-pointer items-center justify-between border-b-2 border-brand-orange-500 bg-transparent p-0 pb-2 text-left text-lg md:text-xl font-bold uppercase tracking-wide text-gray-800 transition-colors hover:text-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2 lg:hidden"
-                aria-expanded={isMobileFiltersOpen}
-                aria-controls="listing-filter-content"
-                onClick={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}
-            >
-                FILTERS
-                <span aria-hidden="true">{isMobileFiltersOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}</span>
-            </button>
-            <h2 className="hidden lg:block m-0 pb-2 mb-4 border-b-2 border-brand-orange-500 font-bold uppercase tracking-wide text-gray-800">
-                FILTERS
-            </h2>
-            {hasFacetFilters && (
-                <Button
-                    variant="outline"
-                    onClick={clearAllFilters}
-                    className="mb-4 w-full"
+            {/* Mobile: FILTERS toggle + inline "Clear all" — same compact pattern as desktop */}
+            <div className="flex items-center justify-between border-b-2 border-brand-orange-500 pb-2 mb-2 lg:hidden">
+                <button
+                    type="button"
+                    className="flex flex-1 cursor-pointer items-center gap-2 bg-transparent border-0 p-0 text-left text-lg md:text-xl font-bold uppercase tracking-wide text-gray-800 transition-colors hover:text-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2"
+                    aria-expanded={isMobileFiltersOpen}
+                    aria-controls="listing-filter-content"
+                    onClick={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}
                 >
-                    Clear all filters
-                </Button>
-            )}
+                    FILTERS
+                    <span aria-hidden="true">{isMobileFiltersOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}</span>
+                </button>
+                {hasFacetFilters && (
+                    <button
+                        type="button"
+                        onClick={clearAllFilters}
+                        className="cursor-pointer border-0 bg-transparent p-0 text-xs font-medium leading-none text-brand-orange-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange"
+                        aria-label="Clear all filters"
+                    >
+                        Clear all
+                    </button>
+                )}
+            </div>
+            {/* Desktop: FILTERS heading + Clear all in one flex row (no extra line) */}
+            <div className="hidden lg:flex items-center justify-between pb-2 mb-4 border-b-2 border-brand-orange-500">
+                <h2 className="m-0 font-bold uppercase tracking-wide text-gray-800 text-sm leading-none">
+                    FILTERS
+                </h2>
+                {hasFacetFilters && (
+                    <button
+                        type="button"
+                        onClick={clearAllFilters}
+                        className="cursor-pointer border-0 bg-transparent p-0 text-xs font-medium leading-none text-brand-orange-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange"
+                        aria-label="Clear all filters"
+                    >
+                        Clear all
+                    </button>
+                )}
+            </div>
 
             <div
                 id="listing-filter-content"

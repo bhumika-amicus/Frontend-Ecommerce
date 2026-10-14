@@ -89,7 +89,7 @@ export default function OrderCard({
       {/* Main Content Row */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4">
         {/* Left Info: Items Count & Total */}
-        <div className="shrink-0 min-w-[120px]">
+        <div className="shrink-0 min-w-30">
           <p className="text-xs font-medium text-gray-500 mb-1">
             {itemCount} {itemCount === 1 ? 'Item' : 'Items'}
           </p>
