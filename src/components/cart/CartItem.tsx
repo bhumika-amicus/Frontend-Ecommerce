@@ -92,7 +92,7 @@ function CartItem({ item, onQuantityChange, onRemove, isUpdating: externalIsUpda
       {/* Total */}
       <div className="w-full md:w-32 flex justify-between md:justify-end items-center">
         <span className="md:hidden text-gray-500 text-sm font-bold">Total</span>
-        <span className="font-bold text-[#ff6b00] text-lg">{formatINR(item.itemSubtotal)}</span>
+        <span className="font-bold text-brand-orange text-lg">{formatINR(item.itemSubtotal)}</span>
       </div>
     </div>
   )

@@ -6,6 +6,7 @@ interface QuantitySelectorProps {
   onQuantityChange: (quantity: number) => void
   disabled?: boolean
   minQuantity?: number
+  className?: string
 }
 
 function QuantitySelector({
@@ -13,6 +14,7 @@ function QuantitySelector({
   onQuantityChange,
   disabled = false,
   minQuantity = 1,
+  className = '',
 }: QuantitySelectorProps) {
 
   const [draftValue, setDraftValue] = useState<string | null>(null)
@@ -66,7 +68,7 @@ function QuantitySelector({
   const displayValue = draftValue !== null ? draftValue : String(quantity)
 
   return (
-    <div className="col-span-full row-start-2 mx-auto inline-flex w-full max-w-47.5 items-center justify-center gap-4.5">
+    <div className={`col-span-full row-start-2 mx-auto inline-flex w-full max-w-47.5 items-center justify-center gap-4.5 ${className}`.trim()}>
       <span className="text-sm font-bold text-[#555555]">
         QTY:
       </span>

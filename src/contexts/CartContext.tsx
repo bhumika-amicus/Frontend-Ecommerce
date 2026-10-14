@@ -215,8 +215,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
     cartCount,
     isCartLoading,
     cartError,
-    updatingProductId: null,
-    addingProductId: null,
   }), [
     cartItems,
     cartCount,

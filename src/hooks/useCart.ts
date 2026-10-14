@@ -7,8 +7,6 @@ export interface CartStateType {
   cartCount: number;
   isCartLoading: boolean;
   cartError: string | null;
-  updatingProductId: number | null;
-  addingProductId: number | null;
 }
 
 export interface CartActionsType {
@@ -23,9 +21,6 @@ export type CartContextType = CartStateType & CartActionsType;
 
 export const CartStateContext = createContext<CartStateType | undefined>(undefined);
 export const CartActionsContext = createContext<CartActionsType | undefined>(undefined);
-
-// Alias CartContext to CartStateContext for backwards-compatibility
-export const CartContext = CartStateContext;
 
 export function useCartState(): CartStateType {
   const context = useContext(CartStateContext);

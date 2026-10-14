@@ -7,6 +7,7 @@ interface StateMessageProps {
     buttonText?: string
     onAction?: () => void
     children?: ReactNode
+    className?: string
 }
 
 function StateMessage({
@@ -15,9 +16,10 @@ function StateMessage({
     buttonText,
     onAction,
     children,
+    className = 'mt-7.5',
 }: StateMessageProps) {
     return (
-        <div className="mt-7.5 flex w-full items-start justify-center">
+        <div className={`flex w-full items-start justify-center ${className}`.trim()}>
             <div className="flex w-full max-w-125 flex-col items-center p-5 text-center">
                 <h2 className="mb-6 text-lg md:text-xl lg:text-2xl font-bold text-gray-700">
                     {title}

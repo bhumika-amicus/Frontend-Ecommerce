@@ -1,8 +1,8 @@
 import { useState, memo } from 'react'
-import { Star, StarHalf } from 'lucide-react'
 import type { Product } from '../../types/Products'
 import Button from '../ui/Button'
 import Card from '../ui/Card'
+import RatingStars from '../ui/RatingStars'
 import QuantitySelector from '../cart/QuantitySelector'
 import placeholderImg from '../../assets/placeholder.jpg'
 
@@ -55,10 +55,6 @@ function ProductCard({
   //   }).format(originalUnitPrice * quantity);
   // }
 
-  const rating = product.rating
-  const fullStars = rating !== undefined ? Math.floor(rating) : 0
-  const hasHalfStar = rating !== undefined ? (rating - fullStars) >= 0.5 : false
-  const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0)
 
   // let isNew = false;
   // if (product.createdAt) {
@@ -85,28 +81,14 @@ function ProductCard({
           </h2>
         </Link>
 
-        {rating !== undefined && (
-          <div className="mb-3 grid grid-cols-[auto_auto] grid-rows-[auto_auto] items-center justify-center gap-x-2 gap-y-2">
-            <span className="col-start-1 row-start-1 flex items-center text-brand-orange">
-              {Array.from({ length: fullStars }).map((_, i) => (
-                <Star key={`full-${i}`} className="h-4 w-4 fill-current" />
-              ))}
-              {hasHalfStar && (
-                <StarHalf className="h-4 w-4 fill-current" />
-              )}
-              {Array.from({ length: emptyStars }).map((_, i) => (
-                <Star key={`empty-${i}`} className="h-4 w-4 text-gray-300" />
-              ))}
-            </span>
-
+        {product.rating !== undefined && (
+          <div className="mb-3 flex flex-col items-center justify-center gap-2">
+            <RatingStars rating={product.rating} size="sm" scoreFormat="simple" />
             <QuantitySelector
               quantity={quantity}
               onQuantityChange={setQuantity}
+              disabled={isAdding}
             />
-
-            <span className="col-start-2 row-start-1 text-sm font-semibold text-[#555555]">
-              {rating.toFixed(1)}
-            </span>
           </div>
         )}
 

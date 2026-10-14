@@ -1,9 +1,10 @@
-import { useState, memo } from 'react'
+import { useState, memo, type ReactNode } from 'react'
 import { Star, ChevronUp, ChevronDown, X, ArrowRight } from 'lucide-react'
 import type { Category } from '../../types/Categories'
 import type { Brand } from '../../types/Brands'
 import { ProductSortBy, SortOrder } from '../../types/ProductSorting'
 import { useProductFilters } from '../../hooks/useProductFilters'
+import Button from '../ui/Button'
 
 const PRICE_RANGES = [
     { label: 'Below ₹10,000', min: undefined, max: 10000 },
@@ -18,6 +19,70 @@ const RATING_OPTIONS = [
     { label: '4 stars & above', value: 4 },
 ]
 
+interface SortDirectionOption {
+    label: ReactNode
+    order: SortOrder
+}
+
+interface SortOptionConfig {
+    type: ProductSortBy
+    label: string
+    defaultOrder: SortOrder
+    directionGroupName: string
+    directions: [SortDirectionOption, SortDirectionOption]
+}
+
+const SORT_OPTIONS: SortOptionConfig[] = [
+    {
+        type: ProductSortBy.Name,
+        label: 'Name',
+        defaultOrder: SortOrder.Asc,
+        directionGroupName: 'sort-direction-name',
+        directions: [
+            {
+                label: <>A <ArrowRight size={14} className="inline mx-0.5" /> Z</>,
+                order: SortOrder.Asc,
+            },
+            {
+                label: <>Z <ArrowRight size={14} className="inline mx-0.5" /> A</>,
+                order: SortOrder.Desc,
+            },
+        ],
+    },
+    {
+        type: ProductSortBy.Price,
+        label: 'Price',
+        defaultOrder: SortOrder.Asc,
+        directionGroupName: 'sort-direction-price',
+        directions: [
+            {
+                label: <>Low <ArrowRight size={14} className="inline mx-0.5" /> High</>,
+                order: SortOrder.Asc,
+            },
+            {
+                label: <>High <ArrowRight size={14} className="inline mx-0.5" /> Low</>,
+                order: SortOrder.Desc,
+            },
+        ],
+    },
+    {
+        type: ProductSortBy.Rating,
+        label: 'Ratings',
+        defaultOrder: SortOrder.Desc,
+        directionGroupName: 'sort-direction-rating',
+        directions: [
+            {
+                label: <>High <ArrowRight size={14} className="inline mx-0.5" /> Low</>,
+                order: SortOrder.Desc,
+            },
+            {
+                label: <>Low <ArrowRight size={14} className="inline mx-0.5" /> High</>,
+                order: SortOrder.Asc,
+            },
+        ],
+    },
+]
+
 interface FilterSidebarProps {
     categories: Category[]
     isCategoriesLoading: boolean
@@ -25,6 +90,54 @@ interface FilterSidebarProps {
     brands: Brand[]
     isBrandsLoading: boolean
     brandsError?: string | null
+}
+
+type FilterSection = 'category' | 'brand' | 'price' | 'rating' | 'sort'
+
+interface FilterSectionHeaderProps {
+    title: string
+    section: FilterSection
+    isOpen: boolean
+    onToggle: (section: FilterSection) => void
+    hasTopMargin?: boolean
+}
+
+function FilterSectionHeader({
+    title,
+    section,
+    isOpen,
+    onToggle,
+    hasTopMargin = true,
+}: FilterSectionHeaderProps) {
+    return (
+        <>
+            <button
+                type="button"
+                onClick={() => onToggle(section)}
+                aria-expanded={isOpen}
+                className={`flex w-full items-center justify-between lg:hidden m-0 mb-2 ${hasTopMargin ? 'mt-5' : ''} text-base font-bold text-gray-800`.trim()}
+            >
+                <span>{title}</span>
+                <span aria-hidden="true">{isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}</span>
+            </button>
+            <h3 className={`hidden lg:block m-0 mb-2 ${hasTopMargin ? 'mt-5' : ''} text-base font-bold text-gray-800`.trim()}>
+                {title}
+            </h3>
+        </>
+    )
+}
+
+function FilterSkeleton() {
+    return (
+        <>
+            {Array.from({ length: 4 }).map((_, index) => (
+                <div key={index} className="mb-2 flex items-center gap-1.5 px-1 py-0.5">
+                    <div className="h-3 w-3 rounded-sm bg-gray-200 animate-pulse" />
+                    <div className="h-4 w-24 rounded bg-gray-200 animate-pulse" />
+                </div>
+            ))}
+        </>
+    )
 }
 
 function FilterSidebar({
@@ -55,19 +168,18 @@ function FilterSidebar({
 
     // Mobile toggle states
     const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false)
-    type FilterSection = 'category' | 'brand' | 'price' | 'rating' | 'sort'
     const [openSections, setOpenSections] = useState<Record<FilterSection, boolean>>({
         category: selectedCategoryId !== undefined,
         brand: brandId !== undefined,
         price: minPrice !== undefined || maxPrice !== undefined,
         rating: minRating !== undefined,
-        sort: sortBy !== undefined
+        sort: sortBy !== undefined,
     })
 
     const toggleSection = (section: FilterSection) => {
         setOpenSections((prev) => ({
             ...prev,
-            [section]: !prev[section]
+            [section]: !prev[section],
         }))
     }
 
@@ -87,79 +199,62 @@ function FilterSidebar({
                 FILTERS
             </h2>
             {hasFacetFilters && (
-                <button
-                    type="button"
+                <Button
+                    variant="outline"
                     onClick={clearAllFilters}
-                    className="mb-4 w-full rounded border border-brand-orange-500 px-3 py-2 text-sm font-semibold text-brand-orange-600 transition-colors hover:bg-brand-orange-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2"
+                    className="mb-4 w-full"
                 >
                     Clear all filters
-                </button>
+                </Button>
             )}
 
             <div
                 id="listing-filter-content"
                 className={`lg:block ${isMobileFiltersOpen ? 'block mt-5' : 'hidden'}`}
             >
-                <button
-                    type="button"
-                    onClick={() => toggleSection('category')}
-                    aria-expanded={openSections.category}
-                    className="flex w-full items-center justify-between lg:hidden m-0 mb-2 text-base font-bold text-gray-800"
-                >
-                    <span>Category</span>
-                    <span aria-hidden="true">{openSections.category ? <ChevronUp size={20} /> : <ChevronDown size={20} />}</span>
-                </button>
-                <h3 className="hidden lg:block m-0 mb-2 text-base font-bold text-gray-800">Category</h3>
+                {/* 1. Category */}
+                <FilterSectionHeader
+                    title="Category"
+                    section="category"
+                    isOpen={openSections.category}
+                    onToggle={toggleSection}
+                    hasTopMargin={false}
+                />
                 <section className={`${openSections.category ? 'block' : 'hidden'} lg:block`}>
                     {isCategoriesLoading ? (
-                        Array.from({ length: 4 }).map((_, index) => (
-                            <div key={index} className="mb-2 flex items-center gap-1.5 px-1 py-0.5">
-                                <div className="h-3 w-3 rounded-sm bg-gray-200 animate-pulse"></div>
-                                <div className="h-4 w-24 rounded bg-gray-200 animate-pulse"></div>
-                            </div>
-                        ))
+                        <FilterSkeleton />
                     ) : categoriesError ? (
                         <p className="text-sm text-red-500 py-1 italic">{categoriesError}</p>
                     ) : categories.length === 0 ? (
                         <p className="text-sm text-gray-500 py-1 italic">No categories found.</p>
                     ) : (
-                        <>
-                            {categories.map((category) => (
-                                <label
-                                    key={category.id}
-                                    className="mb-2 flex cursor-pointer items-center gap-1.5 rounded px-1 text-sm text-gray-600 transition-colors hover:text-gray-900"
-                                >
-                                    <input
-                                        type="checkbox"
-                                        className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2"
-                                        checked={selectedCategoryId === category.id}
-                                        onChange={() => toggleCategory(category.id)}
-                                    />
-                                    {category.name}
-                                </label>
-                            ))}
-                        </>
+                        categories.map((category) => (
+                            <label
+                                key={category.id}
+                                className="mb-2 flex cursor-pointer items-center gap-1.5 rounded px-1 text-sm text-gray-600 transition-colors hover:text-gray-900"
+                            >
+                                <input
+                                    type="checkbox"
+                                    className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2"
+                                    checked={selectedCategoryId === category.id}
+                                    onChange={() => toggleCategory(category.id)}
+                                />
+                                {category.name}
+                            </label>
+                        ))
                     )}
                 </section>
 
-                <button
-                    type="button"
-                    onClick={() => toggleSection('brand')}
-                    aria-expanded={openSections.brand}
-                    className="flex w-full items-center justify-between lg:hidden m-0 mb-2 mt-5 text-base font-bold text-gray-800"
-                >
-                    <span>Brand</span>
-                    <span aria-hidden="true">{openSections.brand ? <ChevronUp size={20} /> : <ChevronDown size={20} />}</span>
-                </button>
-                <h3 className="hidden lg:block m-0 mb-2 mt-5 text-base font-bold text-gray-800">Brand</h3>
+                {/* 2. Brand */}
+                <FilterSectionHeader
+                    title="Brand"
+                    section="brand"
+                    isOpen={openSections.brand}
+                    onToggle={toggleSection}
+                />
                 <section className={`${openSections.brand ? 'block' : 'hidden'} lg:block`}>
                     {isBrandsLoading ? (
-                        Array.from({ length: 4 }).map((_, index) => (
-                            <div key={index} className="mb-2 flex items-center gap-1.5 px-1 py-0.5">
-                                <div className="h-3 w-3 rounded-sm bg-gray-200 animate-pulse"></div>
-                                <div className="h-4 w-24 rounded bg-gray-200 animate-pulse"></div>
-                            </div>
-                        ))
+                        <FilterSkeleton />
                     ) : brandsError ? (
                         <p className="text-sm text-red-500 py-1 italic">{brandsError}</p>
                     ) : brands.length === 0 ? (
@@ -182,16 +277,13 @@ function FilterSidebar({
                     )}
                 </section>
 
-                <button
-                    type="button"
-                    onClick={() => toggleSection('price')}
-                    aria-expanded={openSections.price}
-                    className="flex w-full items-center justify-between lg:hidden m-0 mb-2 mt-5 text-base font-bold text-gray-800"
-                >
-                    <span>Price</span>
-                    <span aria-hidden="true">{openSections.price ? <ChevronUp size={20} /> : <ChevronDown size={20} />}</span>
-                </button>
-                <h3 className="hidden lg:block m-0 mb-2 mt-5 text-base font-bold text-gray-800">Price</h3>
+                {/* 3. Price */}
+                <FilterSectionHeader
+                    title="Price"
+                    section="price"
+                    isOpen={openSections.price}
+                    onToggle={toggleSection}
+                />
                 <section className={`${openSections.price ? 'block' : 'hidden'} lg:block`}>
                     {PRICE_RANGES.map((range, index) => {
                         const isChecked = minPrice === range.min && maxPrice === range.max
@@ -212,16 +304,13 @@ function FilterSidebar({
                     })}
                 </section>
 
-                <button
-                    type="button"
-                    onClick={() => toggleSection('rating')}
-                    aria-expanded={openSections.rating}
-                    className="flex w-full items-center justify-between lg:hidden m-0 mb-2 mt-5 text-base font-bold text-gray-800"
-                >
-                    <span>Rating</span>
-                    <span aria-hidden="true">{openSections.rating ? <ChevronUp size={20} /> : <ChevronDown size={20} />}</span>
-                </button>
-                <h3 className="hidden lg:block m-0 mb-2 mt-5 text-base font-bold text-gray-800">Rating</h3>
+                {/* 4. Rating */}
+                <FilterSectionHeader
+                    title="Rating"
+                    section="rating"
+                    isOpen={openSections.rating}
+                    onToggle={toggleSection}
+                />
                 <section className={`${openSections.rating ? 'block' : 'hidden'} lg:block`}>
                     {RATING_OPTIONS.map((rating, index) => {
                         const isChecked = minRating === rating.value
@@ -240,9 +329,9 @@ function FilterSidebar({
                                     <span>{rating.label}</span>
                                     <span className="flex items-center text-brand-orange-500">
                                         {Array.from({ length: 5 }).map((_, i) => (
-                                            <Star 
-                                                key={i} 
-                                                className={`h-3 w-3 ${i < rating.value ? 'fill-current' : 'text-gray-300'}`} 
+                                            <Star
+                                                key={i}
+                                                className={`h-3 w-3 ${i < rating.value ? 'fill-current' : 'text-gray-300'}`}
                                             />
                                         ))}
                                     </span>
@@ -252,155 +341,73 @@ function FilterSidebar({
                     })}
                 </section>
 
-                <button
-                    type="button"
-                    onClick={() => toggleSection('sort')}
-                    aria-expanded={openSections.sort}
-                    className="flex w-full items-center justify-between lg:hidden m-0 mb-2 mt-5 text-base font-bold text-gray-800"
-                >
-                    <span>Sort by</span>
-                    <span aria-hidden="true">{openSections.sort ? <ChevronUp size={20} /> : <ChevronDown size={20} />}</span>
-                </button>
-                <h3 className="hidden lg:block m-0 mb-2 mt-5 text-base font-bold text-gray-800">Sort by</h3>
+                {/* 5. Sort By */}
+                <FilterSectionHeader
+                    title="Sort by"
+                    section="sort"
+                    isOpen={openSections.sort}
+                    onToggle={toggleSection}
+                />
                 <section className={`flex-col ${openSections.sort ? 'flex' : 'hidden'} lg:flex`}>
-                    <div className="flex flex-col">
-                        <div
-                            className={`mb-2 flex items-center justify-between rounded px-1 text-sm text-gray-600 transition-colors hover:bg-brand-orange-50 ${sortBy === ProductSortBy.Name
-                                ? 'bg-brand-orange-50 font-medium text-brand-orange-600'
-                                : ''
-                                }`}
-                        >
-                            <label className="flex flex-1 cursor-pointer items-center gap-1.5 rounded">
-                                <input
-                                    type="radio"
-                                    name="sort-category"
-                                    className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2"
-                                    checked={sortBy === ProductSortBy.Name}
-                                    onChange={() => setSort(ProductSortBy.Name, SortOrder.Asc)}
-                                />
-                                Name
-                            </label>
-                            {sortBy === ProductSortBy.Name && (
-                                <button
-                                    type="button"
-                                    className="cursor-pointer rounded border-0 bg-transparent px-1 text-brand-orange-600 font-bold transition-colors hover:bg-brand-orange-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2"
-                                    onClick={clearSort}
-                                    aria-label="Clear sort"
-                                ><X size={16} /></button>
-                            )}
-                        </div>
-                        <div
-                            aria-hidden={sortBy !== ProductSortBy.Name}
-                            inert={sortBy !== ProductSortBy.Name}
-                            className={`overflow-hidden transition-all duration-200 ${sortBy === ProductSortBy.Name ? 'max-h-24 opacity-100' : 'max-h-0 opacity-0'
-                                }`}
-                        >
-                            <div>
-                                <div className="ml-5 mt-2 flex flex-col gap-2 border-l-2 border-brand-orange-500 pl-3">
-                                    <label className="flex cursor-pointer items-center gap-1.5 rounded text-sm text-gray-600" >
-                                        <input type="radio" name="sort-direction-name" className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2" checked={sortBy === ProductSortBy.Name && sortOrder === SortOrder.Asc} onChange={() => setSort(ProductSortBy.Name, SortOrder.Asc)} />
-                                        A <ArrowRight size={14} className="inline mx-0.5" /> Z
+                    {SORT_OPTIONS.map((config) => {
+                        const isSelected = sortBy === config.type
+                        return (
+                            <div key={config.type} className="flex flex-col">
+                                <div
+                                    className={`mb-2 flex items-center justify-between rounded px-1 text-sm text-gray-600 transition-colors hover:bg-brand-orange-50 ${isSelected ? 'bg-brand-orange-50 font-medium text-brand-orange-600' : ''
+                                        }`}
+                                >
+                                    <label className="flex flex-1 cursor-pointer items-center gap-1.5 rounded">
+                                        <input
+                                            type="radio"
+                                            name="sort-category"
+                                            className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2"
+                                            checked={isSelected}
+                                            onChange={() => setSort(config.type, config.defaultOrder)}
+                                        />
+                                        {config.label}
                                     </label>
-                                    <label className="flex cursor-pointer items-center gap-1.5 rounded text-sm text-gray-600" >
-                                        <input type="radio" name="sort-direction-name" className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2" checked={sortBy === ProductSortBy.Name && sortOrder === SortOrder.Desc} onChange={() => setSort(ProductSortBy.Name, SortOrder.Desc)} />
-                                        Z <ArrowRight size={14} className="inline mx-0.5" /> A
-                                    </label>
+                                    {isSelected && (
+                                        <button
+                                            type="button"
+                                            className="cursor-pointer rounded border-0 bg-transparent px-1 text-brand-orange-600 font-bold transition-colors hover:bg-brand-orange-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2"
+                                            onClick={clearSort}
+                                            aria-label="Clear sort"
+                                        >
+                                            <X size={16} />
+                                        </button>
+                                    )}
+                                </div>
+
+                                <div
+                                    aria-hidden={!isSelected}
+                                    inert={!isSelected}
+                                    className={`overflow-hidden transition-all duration-200 ${isSelected ? 'max-h-24 opacity-100' : 'max-h-0 opacity-0'
+                                        }`}
+                                >
+                                    <div>
+                                        <div className="ml-5 mt-2 flex flex-col gap-2 border-l-2 border-brand-orange-500 pl-3">
+                                            {config.directions.map((dir) => (
+                                                <label
+                                                    key={dir.order}
+                                                    className="flex cursor-pointer items-center gap-1.5 rounded text-sm text-gray-600"
+                                                >
+                                                    <input
+                                                        type="radio"
+                                                        name={config.directionGroupName}
+                                                        className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2"
+                                                        checked={isSelected && sortOrder === dir.order}
+                                                        onChange={() => setSort(config.type, dir.order)}
+                                                    />
+                                                    {dir.label}
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                    <div className="flex flex-col">
-                        <div
-                            className={`mb-2 flex items-center justify-between rounded px-1 text-sm text-gray-600 transition-colors hover:bg-brand-orange-50 ${sortBy === ProductSortBy.Price
-                                ? 'bg-brand-orange-50 font-medium text-brand-orange-600'
-                                : ''
-                                }`}
-                        >
-                            <label className="flex flex-1 cursor-pointer items-center gap-1.5 rounded">
-                                <input
-                                    type="radio"
-                                    name="sort-category"
-                                    className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2"
-                                    checked={sortBy === ProductSortBy.Price}
-                                    onChange={() => setSort(ProductSortBy.Price, SortOrder.Asc)}
-                                />
-                                Price
-                            </label>
-                            {sortBy === ProductSortBy.Price && (
-                                <button
-                                    type="button"
-                                    className="cursor-pointer rounded border-0 bg-transparent px-1 text-brand-orange-600 font-bold transition-colors hover:bg-brand-orange-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2"
-                                    onClick={clearSort}
-                                    aria-label="Clear sort"
-                                ><X size={16} /></button>
-                            )}
-                        </div>
-                        <div
-                            aria-hidden={sortBy !== ProductSortBy.Price}
-                            inert={sortBy !== ProductSortBy.Price}
-                            className={`overflow-hidden transition-all duration-200 ${sortBy === ProductSortBy.Price ? 'max-h-24 opacity-100' : 'max-h-0 opacity-0'
-                                }`}
-                        >
-                            <div>
-                                <div className="ml-5 mt-2 flex flex-col gap-2 border-l-2 border-brand-orange-500 pl-3">
-                                    <label className="flex cursor-pointer items-center gap-1.5 rounded text-sm text-gray-600">
-                                        <input type="radio" name="sort-direction-price" className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2" checked={sortBy === ProductSortBy.Price && sortOrder === SortOrder.Asc} onChange={() => setSort(ProductSortBy.Price, SortOrder.Asc)} />
-                                        Low <ArrowRight size={14} className="inline mx-0.5" /> High
-                                    </label>
-                                    <label className="flex cursor-pointer items-center gap-1.5 rounded text-sm text-gray-600">
-                                        <input type="radio" name="sort-direction-price" className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2" checked={sortBy === ProductSortBy.Price && sortOrder === SortOrder.Desc} onChange={() => setSort(ProductSortBy.Price, SortOrder.Desc)} />
-                                        High <ArrowRight size={14} className="inline mx-0.5" /> Low
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="flex flex-col">
-                        <div
-                            className={`mb-2 flex items-center justify-between rounded px-1 text-sm text-gray-600 transition-colors hover:bg-brand-orange-50 ${sortBy === ProductSortBy.Rating
-                                ? 'bg-brand-orange-50 font-medium text-brand-orange-600'
-                                : ''
-                                }`}
-                        >
-                            <label className="flex flex-1 cursor-pointer items-center gap-1.5 rounded">
-                                <input
-                                    type="radio"
-                                    name="sort-category"
-                                    className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2"
-                                    checked={sortBy === ProductSortBy.Rating}
-                                    onChange={() => setSort(ProductSortBy.Rating, SortOrder.Desc)}
-                                />
-                                Ratings
-                            </label>
-                            {sortBy === ProductSortBy.Rating && (
-                                <button
-                                    type="button"
-                                    className="cursor-pointer rounded border-0 bg-transparent px-1 text-brand-orange-600 font-bold transition-colors hover:bg-brand-orange-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2"
-                                    onClick={clearSort}
-                                    aria-label="Clear sort"
-                                ><X size={16} /></button>
-                            )}
-                        </div>
-                        <div
-                            aria-hidden={sortBy !== ProductSortBy.Rating}
-                            inert={sortBy !== ProductSortBy.Rating}
-                            className={`overflow-hidden transition-all duration-200 ${sortBy === ProductSortBy.Rating ? 'max-h-24 opacity-100' : 'max-h-0 opacity-0'
-                                }`}
-                        >
-                            <div>
-                                <div className="ml-5 mt-2 flex flex-col gap-2 border-l-2 border-brand-orange-500 pl-3">
-                                    <label className="flex cursor-pointer items-center gap-1.5 rounded text-sm text-gray-600">
-                                        <input type="radio" name="sort-direction-rating" className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2" checked={sortBy === ProductSortBy.Rating && sortOrder === SortOrder.Desc} onChange={() => setSort(ProductSortBy.Rating, SortOrder.Desc)} />
-                                        High <ArrowRight size={14} className="inline mx-0.5" /> Low
-                                    </label>
-                                    <label className="flex cursor-pointer items-center gap-1.5 rounded text-sm text-gray-600">
-                                        <input type="radio" name="sort-direction-rating" className="accent-brand-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange focus-visible:ring-offset-2" checked={sortBy === ProductSortBy.Rating && sortOrder === SortOrder.Asc} onChange={() => setSort(ProductSortBy.Rating, SortOrder.Asc)} />
-                                        Low <ArrowRight size={14} className="inline mx-0.5" /> High
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                        )
+                    })}
                 </section>
             </div>
         </aside>
