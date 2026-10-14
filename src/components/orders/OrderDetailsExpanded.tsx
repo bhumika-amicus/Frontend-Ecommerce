@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Loader2, Package, MapPin, CreditCard, Receipt } from 'lucide-react';
 import type { OrderDetailDto } from '../../types/OrderDto';
 import { formatINR } from '../../types/OrderDto';
@@ -8,7 +9,7 @@ interface OrderDetailsExpandedProps {
   isLoading: boolean;
 }
 
-export default function OrderDetailsExpanded({
+function OrderDetailsExpanded({
   orderDetail,
   isLoading,
 }: OrderDetailsExpandedProps) {
@@ -29,16 +30,18 @@ export default function OrderDetailsExpanded({
     );
   }
 
+  const items = orderDetail.items ?? [];
+
   return (
     <div className="mt-4 pt-4 border-t border-gray-200 space-y-6 animate-fadeIn">
       {/* 1. Ordered Items List */}
       <div>
         <h4 className="text-xs font-bold text-gray-900 uppercase tracking-wider mb-3 flex items-center gap-1.5">
           <Package size={14} className="text-brand-orange" />
-          <span>Items Ordered ({orderDetail.items?.length || 0})</span>
+          <span>Items Ordered ({items.length})</span>
         </h4>
         <div className="space-y-3">
-          {orderDetail.items?.map((item) => (
+          {items.map((item) => (
             <div
               key={item.orderItemId}
               className="flex items-center justify-between p-3 rounded bg-gray-50 border border-gray-100 text-sm"
@@ -52,12 +55,12 @@ export default function OrderDetailsExpanded({
                 <div className="min-w-0">
                   <p className="font-semibold text-gray-800 truncate">{item.productName}</p>
                   <p className="text-xs text-gray-500">
-                    Qty: <span className="font-medium text-gray-700">{item.quantity}</span> × {formatINR(item.price)}
+                    Qty: <span className="font-medium text-gray-700">{item.quantity}</span> × {formatINR(item.price ?? 0)}
                   </p>
                 </div>
               </div>
               <div className="text-right shrink-0 font-bold text-gray-900 ml-4">
-                {formatINR(item.itemSubtotal)}
+                {formatINR(item.itemSubtotal ?? 0)}
               </div>
             </div>
           ))}
@@ -130,22 +133,24 @@ export default function OrderDetailsExpanded({
         <div className="space-y-1.5 text-xs text-gray-600">
           <div className="flex justify-between">
             <span>Subtotal:</span>
-            <span>{formatINR(orderDetail.subtotal)}</span>
+            <span>{formatINR(orderDetail.subtotal ?? 0)}</span>
           </div>
           <div className="flex justify-between">
             <span>Shipping:</span>
-            <span>{formatINR(orderDetail.shippingCharge)}</span>
+            <span>{formatINR(orderDetail.shippingCharge ?? 0)}</span>
           </div>
           <div className="flex justify-between">
             <span>Tax (18%):</span>
-            <span>{formatINR(orderDetail.tax)}</span>
+            <span>{formatINR(orderDetail.tax ?? 0)}</span>
           </div>
           <div className="border-t border-gray-200 pt-2 flex justify-between font-bold text-sm text-gray-900">
             <span>Total Paid:</span>
-            <span className="text-[#ff5a00] text-base">{formatINR(orderDetail.totalAmount)}</span>
+            <span className="text-[#ff5a00] text-base">{formatINR(orderDetail.totalAmount ?? 0)}</span>
           </div>
         </div>
       </div>
     </div>
   );
 }
+
+export default memo(OrderDetailsExpanded);

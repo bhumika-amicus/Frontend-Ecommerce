@@ -1,5 +1,5 @@
 import { useState, memo } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ChevronDown, ChevronUp, RotateCcw, Truck } from 'lucide-react';
 import type { OrderSummaryItemDto, OrderDetailDto } from '../../types/OrderDto';
 import { formatINR } from '../../types/OrderDto';
 import OrderStatusBadge from './OrderStatusBadge';
@@ -124,9 +124,10 @@ function OrderCard({
           <button
             type="button"
             onClick={handleToggleExpand}
-            className="bg-[#ff5a00] hover:bg-[#e65100] text-white font-bold text-xs uppercase px-5 py-2.5 rounded tracking-wider transition-colors shadow-sm cursor-pointer"
+            className="inline-flex items-center gap-1.5 bg-[#ff5a00] hover:bg-[#e65100] text-white font-bold text-xs uppercase px-4 py-2.5 rounded tracking-wider transition-colors shadow-sm cursor-pointer"
           >
-            {isExpanded ? 'HIDE DETAILS' : 'VIEW DETAILS'}
+            <span>{isExpanded ? 'HIDE DETAILS' : 'VIEW DETAILS'}</span>
+            {isExpanded ? <ChevronUp size={14} aria-hidden="true" /> : <ChevronDown size={14} aria-hidden="true" />}
           </button>
 
           {isDelivered && (
@@ -134,15 +135,18 @@ function OrderCard({
               type="button"
               disabled={isReordering}
               onClick={() => onReorder(order.orderId)}
-              className="bg-[#1a1a1a] hover:bg-black text-white font-bold text-xs uppercase px-5 py-2.5 rounded tracking-wider transition-colors shadow-sm disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
+              className="inline-flex items-center gap-1.5 bg-[#1a1a1a] hover:bg-black text-white font-bold text-xs uppercase px-4 py-2.5 rounded tracking-wider transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
             >
               {isReordering ? (
                 <>
-                  <Loader2 size={13} className="animate-spin" />
+                  <Loader2 size={13} className="animate-spin" aria-hidden="true" />
                   <span>ADDING...</span>
                 </>
               ) : (
-                <span>REORDER</span>
+                <>
+                  <RotateCcw size={13} aria-hidden="true" />
+                  <span>REORDER</span>
+                </>
               )}
             </button>
           )}
@@ -150,9 +154,10 @@ function OrderCard({
           {isProcessingOrShipped && (
             <button
               type="button"
-              className="bg-[#1a1a1a] text-white font-bold text-xs uppercase px-5 py-2.5 rounded tracking-wider shadow-sm cursor-default"
+              className="inline-flex items-center gap-1.5 bg-[#1a1a1a] text-white font-bold text-xs uppercase px-4 py-2.5 rounded tracking-wider shadow-sm cursor-default"
             >
-              TRACK ORDER
+              <Truck size={13} aria-hidden="true" />
+              <span>TRACK ORDER</span>
             </button>
           )}
         </div>
