@@ -21,18 +21,18 @@ import {
 
 function Checkout() {
     const navigate = useNavigate()
-    const { cartItems, clearCart } = useCart()
+    const { cartItems, isCartLoading, clearCart } = useCart()
     const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1)
     const [createdOrder, setCreatedOrder] = useState<CheckoutResponse | null>(null)
     const [pendingOrderId, setPendingOrderId] = useState<number | null>(null)
 
     useEffect(() => {
-        // Empty cart guard: redirect to /products with message if cart is empty on entry
-        if (cartItems.length === 0 && !createdOrder) {
+        // Empty cart guard: wait until cart sync is finished, then redirect if still empty
+        if (!isCartLoading && cartItems.length === 0 && !createdOrder) {
             toast.error('Your cart is empty. Please add items before checking out.', { id: 'empty-cart-toast' })
             navigate('/products', { replace: true })
         }
-    }, [cartItems.length, createdOrder, navigate])
+    }, [isCartLoading, cartItems.length, createdOrder, navigate])
 
     const [selectedAddress, setSelectedAddress] = useState<AddressDto | null>(null)
     const selectedAddressId = selectedAddress?.addressId ?? null
@@ -55,7 +55,10 @@ function Checkout() {
 
     const selectedShippingMethod = useWatch({ control, name: 'shippingMethod' })
 
-    const subtotal = cartItems.reduce((sum, item) => sum + item.itemSubtotal, 0)
+    const subtotal = cartItems.reduce(
+        (sum, item) => sum + (item.itemSubtotal ?? item.price * item.quantity),
+        0
+    )
     const shippingFee = selectedShippingMethod && selectedShippingMethod in shippingRates
         ? shippingRates[selectedShippingMethod as ShippingMethodType]
         : 0
@@ -205,6 +208,24 @@ function Checkout() {
     }
 
 
+
+    if (isCartLoading) {
+        return (
+            <div className="mx-auto min-h-[50vh] w-full max-w-7xl px-3 py-4 sm:px-5 md:px-8">
+                <Breadcrumbs />
+                <div className="h-8 w-44 bg-gray-200 animate-pulse rounded mb-6"></div>
+                <div className="h-12 bg-gray-100 animate-pulse rounded mb-8"></div>
+                <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)] xl:gap-8">
+                    <div className="h-96 bg-gray-50 border border-gray-200 animate-pulse rounded-lg p-6"></div>
+                    <div className="h-72 bg-gray-50 border border-gray-200 animate-pulse rounded-lg"></div>
+                </div>
+            </div>
+        )
+    }
+
+    if (cartItems.length === 0 && !createdOrder) {
+        return null
+    }
 
     return (
         <div className="mx-auto min-h-[50vh] w-full max-w-7xl px-3 py-4 sm:px-5 md:px-8">
