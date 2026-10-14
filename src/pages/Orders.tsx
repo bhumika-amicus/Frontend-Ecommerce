@@ -5,8 +5,13 @@ import OrderFilterTabs from '../components/orders/OrderFilterTabs';
 import OrderCard from '../components/orders/OrderCard';
 import OrderEmptyState from '../components/orders/OrderEmptyState';
 import { useOrders } from '../hooks/useOrders';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 export default function Orders() {
+  usePageMeta(
+    'My Orders',
+    'Track delivery progress, inspect items, and reorder from your purchase history on Trendify.'
+  );
   const location = useLocation();
   const {
     filteredOrders,

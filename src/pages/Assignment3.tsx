@@ -1,7 +1,9 @@
 import Button from '../components/ui/Button'
 import Card from '../components/ui/Card'
+import { usePageMeta } from '../hooks/usePageMeta'
 
 export default function Assignment3() {
+  usePageMeta('Assignment 3', 'Reusable Button and Card component library showcase.')
   return (
     <div className="mx-auto max-w-300 bg-white p-10 text-[#1a1a24]">
       <h1 className="mb-5 mt-0 text-center text-[28px] font-bold">

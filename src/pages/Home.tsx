@@ -5,6 +5,7 @@ import ShopByCategory from '../components/product/ShopByCategory'
 import ServiceHighlights from '../components/layout/ServiceHighlights'
 import { getCategories, getProducts } from '../services/productApi'
 import { useFetch } from '../hooks/useFetch'
+import { usePageMeta } from '../hooks/usePageMeta'
 import type { Product } from '../types/Products'
 import type { Category } from '../types/Categories'
 
@@ -12,6 +13,10 @@ const EMPTY_PRODUCTS: Product[] = []
 const EMPTY_CATEGORIES: Category[] = []
 
 function Home() {
+  usePageMeta(
+    'Trendify | Premium E-Commerce Store',
+    'Shop the latest electronics, fashion, and essentials with verified quality, fast shipping, and easy returns.'
+  )
   const {
     data: productsData,
     isLoading: isProductsLoading,

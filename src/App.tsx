@@ -4,7 +4,6 @@ import CustomToaster from './components/ui/CustomToaster'
 import Home from './pages/Home'
 import ProductListing from './pages/ProductListing'
 import ProductDetail from './pages/ProductDetail'
-import Cart from './pages/Cart'
 import NotFound from './pages/NotFound'
 import SharedLayout from './components/layout/SharedLayout'
 import ScrollToTop from './components/layout/ScrollToTop'
@@ -14,6 +13,7 @@ import { OrderProvider } from './contexts/OrderContext'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import Login from './pages/Login'
 
+const Cart = lazy(() => import('./pages/Cart'))
 const Checkout = lazy(() => import('./pages/Checkout'))
 const Assignment9 = lazy(() => import('./pages/Assignment9'))
 const Orders = lazy(() => import('./pages/Orders'))

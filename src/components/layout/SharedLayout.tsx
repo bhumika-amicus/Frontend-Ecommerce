@@ -1,8 +1,9 @@
 import { Suspense } from 'react'
-import { Outlet } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
 import Header from './Header'
 import Footer from './Footer'
+import ErrorBoundary from '../common/ErrorBoundary'
 
 const LoadingFallback = () => (
   <div className="flex flex-col items-center justify-center min-h-[50vh] gap-3">
@@ -12,13 +13,17 @@ const LoadingFallback = () => (
 )
 
 export default function SharedLayout() {
+  const location = useLocation()
+
   return (
     <>
       <Header />
       <main>
-        <Suspense fallback={<LoadingFallback />}>
-          <Outlet />
-        </Suspense>
+        <ErrorBoundary key={location.pathname}>
+          <Suspense fallback={<LoadingFallback />}>
+            <Outlet />
+          </Suspense>
+        </ErrorBoundary>
       </main>
       <Footer />
     </>

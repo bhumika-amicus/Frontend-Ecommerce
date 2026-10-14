@@ -10,6 +10,7 @@ import ReviewStep from '../components/checkout/ReviewStep'
 import OrderSummary from '../components/checkout/OrderSummary'
 import CheckoutSkeleton from '../components/checkout/CheckoutSkeleton'
 import { useCart } from '../hooks/useCart'
+import { usePageMeta } from '../hooks/usePageMeta'
 import { createAddress, createCheckout, processMockPayment } from '../services/orderApi'
 import {
     initialShippingFormData,
@@ -27,12 +28,10 @@ function Checkout() {
     const [createdOrder, setCreatedOrder] = useState<CheckoutResponse | null>(null)
     const [pendingOrderId, setPendingOrderId] = useState<number | null>(null)
 
-    useEffect(() => {
-        document.title = 'Checkout | Trendify'
-        return () => {
-            document.title = 'Trendify'
-        }
-    }, [])
+    usePageMeta(
+        'Checkout',
+        'Secure multi-step checkout: Enter shipping address, choose delivery speed, and complete payment on Trendify.'
+    )
 
     useEffect(() => {
         // Empty cart guard: wait until cart sync is finished, then redirect if still empty

@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { getProductById } from '../services/productApi'
 import { useCartActions } from '../hooks/useCart'
 import { useAuth } from '../hooks/useAuth'
 import { useFetch } from '../hooks/useFetch'
+import { usePageMeta } from '../hooks/usePageMeta'
 import type { Product } from '../types/Products'
 import Button from '../components/ui/Button'
 import Card from '../components/ui/Card'
@@ -147,14 +148,12 @@ function ProductDetail() {
     { skip: !isValidId }
   )
 
-  useEffect(() => {
-    if (product?.name) {
-      document.title = `${product.name} | Trendify`
-    }
-    return () => {
-      document.title = 'Trendify'
-    }
-  }, [product?.name])
+  usePageMeta(
+    product?.name,
+    product
+      ? `Buy ${product.name} at Trendify for ${formatINR(product.price)}. Fast shipping and guaranteed authenticity.`
+      : undefined
+  )
 
   if (isLoading) {
     return <ProductDetailSkeleton />

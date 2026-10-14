@@ -33,7 +33,7 @@ function ProductSearch({ variant = 'header', placeholder = 'Search' }: ProductSe
   const [draftInput, setDraftInput] = useState<string | null>(null)
   const displayValue = draftInput !== null ? draftInput : committedSearch
 
-  const debouncedSearchTerm = useDebounce(draftInput, 350)
+  const debouncedSearchTerm = useDebounce(draftInput, 300)
 
   const performSearch = useCallback((query: string) => {
     const isListingPage = location.pathname === '/products'

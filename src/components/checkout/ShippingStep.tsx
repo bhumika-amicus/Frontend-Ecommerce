@@ -125,25 +125,25 @@ export default function ShippingStep({
   }, [populateAddressFields]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Select a card
-  const handleSelectCard = (addr: AddressDto) => {
+  const handleSelectCard = useCallback((addr: AddressDto) => {
     onSelectAddress(addr);
     populateAddressFields(addr);
     setFormMode('view');
     setEditingAddressId(null);
-  };
+  }, [onSelectAddress, populateAddressFields]);
 
   // Start editing an address
-  const handleStartEdit = (addr: AddressDto) => {
+  const handleStartEdit = useCallback((addr: AddressDto) => {
     setEditingAddressId(addr.addressId);
     setFormMode('edit');
     populateAddressFields(addr);
     if (addressSectionRef.current) {
       addressSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-  };
+  }, [populateAddressFields]);
 
   // Start adding a new address
-  const handleStartAddNew = () => {
+  const handleStartAddNew = useCallback(() => {
     setEditingAddressId(null);
     setFormMode('create');
     setValue('country', '', { shouldValidate: false });
@@ -156,7 +156,7 @@ export default function ShippingStep({
     if (addressSectionRef.current) {
       addressSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-  };
+  }, [setValue]);
 
   // Cancel edit or create
   const handleCancelFormMode = () => {
@@ -263,7 +263,7 @@ export default function ShippingStep({
   };
 
   // Delete an address
-  const handleDeleteAddress = async (addressId: number) => {
+  const handleDeleteAddress = useCallback(async (addressId: number) => {
     if (!window.confirm('Are you sure you want to delete this address?')) return;
 
     setDeletingId(addressId);
@@ -291,7 +291,7 @@ export default function ShippingStep({
     } finally {
       setDeletingId(null);
     }
-  };
+  }, [selectedAddressId, onSelectAddress, populateAddressFields, handleStartAddNew]);
 
   return (
     <section className="mb-6 min-w-0 overflow-hidden rounded border border-gray-200 bg-white shadow-sm">

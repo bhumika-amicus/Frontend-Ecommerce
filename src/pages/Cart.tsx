@@ -1,4 +1,4 @@
-import { useMemo, useEffect } from 'react'
+import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Breadcrumbs from '../components/ui/Breadcrumbs'
 import CartItem from '../components/cart/CartItem'
@@ -6,9 +6,15 @@ import CartSkeleton from '../components/cart/CartSkeleton'
 import CartOrderSummary from '../components/cart/CartOrderSummary'
 import StateMessage from '../components/ui/StateMessage'
 import { useCart } from '../hooks/useCart'
+import { usePageMeta } from '../hooks/usePageMeta'
 import { shippingRates, ShippingMethod } from '../types/OrderDto'
 
 function Cart() {
+  usePageMeta(
+    'Shopping Cart',
+    'Review your cart items, quantities, subtotal, and proceed to secure checkout on Trendify.'
+  )
+
   const {
     cartItems,
     cartCount,
@@ -19,13 +25,6 @@ function Cart() {
     removeFromCart: onRemoveCartItem,
   } = useCart()
   const navigate = useNavigate()
-
-  useEffect(() => {
-    document.title = 'Shopping Cart | Trendify'
-    return () => {
-      document.title = 'Trendify'
-    }
-  }, [])
 
   const { subtotal, shipping, tax, finalTotal } = useMemo(() => {
     const subtotal = cartItems.reduce(

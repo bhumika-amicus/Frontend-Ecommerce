@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { Loader2 } from 'lucide-react';
 import type { OrderSummaryItemDto, OrderDetailDto } from '../../types/OrderDto';
 import { formatINR } from '../../types/OrderDto';
@@ -14,7 +14,7 @@ interface OrderCardProps {
   isReordering: boolean;
 }
 
-export default function OrderCard({
+function OrderCard({
   order,
   cachedDetail,
   onFetchDetail,
@@ -165,3 +165,5 @@ export default function OrderCard({
     </div>
   );
 }
+
+export default memo(OrderCard);

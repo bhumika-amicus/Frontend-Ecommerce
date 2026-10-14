@@ -301,11 +301,11 @@ function FilterSidebar({
                     onToggle={toggleSection}
                 />
                 <section className={`${openSections.price ? 'block' : 'hidden'} lg:block`}>
-                    {PRICE_RANGES.map((range, index) => {
+                    {PRICE_RANGES.map((range) => {
                         const isChecked = minPrice === range.min && maxPrice === range.max
                         return (
                             <label
-                                key={index}
+                                key={range.label}
                                 className="mb-2 flex cursor-pointer items-center gap-1.5 rounded px-1 text-sm text-gray-600 transition-colors hover:text-gray-900"
                             >
                                 <input
@@ -328,11 +328,11 @@ function FilterSidebar({
                     onToggle={toggleSection}
                 />
                 <section className={`${openSections.rating ? 'block' : 'hidden'} lg:block`}>
-                    {RATING_OPTIONS.map((rating, index) => {
+                    {RATING_OPTIONS.map((rating) => {
                         const isChecked = minRating === rating.value
                         return (
                             <label
-                                key={index}
+                                key={rating.value}
                                 className="mb-2 flex cursor-pointer items-center gap-1.5 rounded px-1 text-sm text-gray-600 transition-colors hover:text-gray-900"
                             >
                                 <input

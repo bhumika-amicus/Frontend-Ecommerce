@@ -2,11 +2,16 @@ import { useState } from 'react';
 import type { SubmitEvent } from 'react';
 import { useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { usePageMeta } from '../hooks/usePageMeta';
 import { Eye, EyeOff } from 'lucide-react';
 import Button from '../components/ui/Button';
 import { DEV_LOGIN_EMAIL, DEV_LOGIN_PASSWORD } from '../config';
 
 export default function Login() {
+  usePageMeta(
+    'Sign In',
+    'Sign in to your Trendify account to track orders, access saved addresses, and enjoy faster checkout.'
+  );
   const navigate = useNavigate();
   const location = useLocation();
   const { login, isLoggedIn } = useAuth();

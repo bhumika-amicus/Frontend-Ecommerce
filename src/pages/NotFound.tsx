@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { Home, ShoppingBag, AlertCircle } from 'lucide-react'
 import Button from '../components/ui/Button'
+import { usePageMeta } from '../hooks/usePageMeta'
 
 interface NotFoundProps {
   title?: string
@@ -11,6 +12,7 @@ export default function NotFound({
   title = 'Page Not Found',
   message = "Oops! The page you are looking for doesn't exist, has been moved, or is temporarily unavailable.",
 }: NotFoundProps) {
+  usePageMeta('404 - Page Not Found', message)
   const navigate = useNavigate()
 
   return (

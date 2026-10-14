@@ -1,6 +1,7 @@
-import { type ReactNode } from 'react'
+import { type ReactNode, useMemo, useCallback } from 'react'
 import { useFetch } from '../hooks/useFetch'
 import { useProductFilters } from '../hooks/useProductFilters'
+import { usePageMeta } from '../hooks/usePageMeta'
 
 import ProductGrid from '../components/product/ProductGrid'
 import ProductCardSkeleton from '../components/product/ProductCardSkeleton'
@@ -20,6 +21,10 @@ const EMPTY_CATEGORIES: Category[] = []
 const EMPTY_BRANDS: Brand[] = []
 
 function ProductListing() {
+    usePageMeta(
+        'Products',
+        'Browse our complete catalog of electronics, lifestyle, and fashion products with instant filtering and search.'
+    )
     const {
         searchTerm,
         page,
@@ -40,9 +45,16 @@ function ProductListing() {
         [filterKey]
     )
 
-    const products = productsData?.products || EMPTY_PRODUCTS
+    const products = useMemo(
+        () => productsData?.products || EMPTY_PRODUCTS,
+        [productsData]
+    )
     const totalRecords = productsData?.totalRecords || 0
     const totalPages = productsData?.totalPages || 0
+
+    const handleRetry = useCallback(() => {
+        refetchProducts()
+    }, [refetchProducts])
 
     const {
         data: categoriesData,
@@ -76,7 +88,7 @@ function ProductListing() {
                 title="Oops! Something went wrong."
                 message="We are having trouble connecting to our servers right now."
                 buttonText="Try Again"
-                onAction={() => { console.error(error); refetchProducts(); }}
+                onAction={handleRetry}
             >
                 <div className="inline-block text-left">
                     <p className="mb-2 font-medium">Troubleshooting Tips:</p>
