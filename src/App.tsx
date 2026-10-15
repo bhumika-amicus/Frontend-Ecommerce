@@ -15,9 +15,7 @@ import Login from './pages/Login'
 
 const Cart = lazy(() => import('./pages/Cart'))
 const Checkout = lazy(() => import('./pages/Checkout'))
-const Assignment9 = lazy(() => import('./pages/Assignment9'))
 const Orders = lazy(() => import('./pages/Orders'))
-const Assignment3 = lazy(() => import('./pages/Assignment3'))
 
 function App() {
   return (
@@ -40,10 +38,6 @@ function App() {
                 <Route path="/orders" element={<Orders />} />
                 <Route path="/checkout" element={<Checkout />} />
               </Route>
-              
-              {/* Assignment Routes */}
-              <Route path="/assignment9" element={<Assignment9 />} />
-              <Route path="/assignment3" element={<Assignment3 />} />
               
               <Route path="*" element={<NotFound />} />
             </Route>
