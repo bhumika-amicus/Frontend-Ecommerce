@@ -18,8 +18,8 @@ export async function getProducts(signal?: AbortSignal): Promise<Product[]> {
 }
 
 export async function getProductById(id: number, signal?: AbortSignal): Promise<Product | undefined> {
-  const products = await getProducts(signal);
-  return products.find(p => p.id === id);
+  const data = await apiFetch<ProductDto>(`/api/v1/Products/${id}`, { signal });
+  return data ? transformProduct(data) : undefined;
 }
 
 export async function getCategories(signal?: AbortSignal): Promise<Category[]> {
