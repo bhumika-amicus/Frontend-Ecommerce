@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { ProductSortBy, SortOrder } from '../types/ProductSorting';
 import type { ProductSearchParams } from '../types/ProductSearchParams';
@@ -43,21 +43,18 @@ export function useProductFilters() {
 
   const hasActiveFilters = Boolean(searchTerm !== '' || hasFacetFilters);
 
-  // 3. API payload object matching ProductSearchParams (memoized)
-  const apiParams: ProductSearchParams = useMemo(
-    () => ({
-      search: searchTerm || undefined,
-      categoryId,
-      brandId,
-      minPrice,
-      maxPrice,
-      minRating,
-      sortBy,
-      sortOrder,
-      page,
-    }),
-    [searchTerm, categoryId, brandId, minPrice, maxPrice, minRating, sortBy, sortOrder, page]
-  );
+  // 3. API payload object matching ProductSearchParams
+  const apiParams: ProductSearchParams = {
+    search: searchTerm || undefined,
+    categoryId,
+    brandId,
+    minPrice,
+    maxPrice,
+    minRating,
+    sortBy,
+    sortOrder,
+    page,
+  };
 
   // 4. Stable URL update operations
   const updatePage = useCallback(

@@ -23,18 +23,14 @@ function OrderCard({
 }: OrderCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
-  const [loadedDetail, setLoadedDetail] = useState<OrderDetailDto | null>(cachedDetail || null);
 
-  const detail = cachedDetail || loadedDetail;
+  const detail = cachedDetail ?? null;
   const hasFullDetail = Boolean(detail && Array.isArray(detail.items) && detail.items.length > 0);
 
   const handleToggleExpand = async () => {
     if (!isExpanded && !hasFullDetail) {
       setIsLoadingDetail(true);
-      const res = await onFetchDetail(order.orderId);
-      if (res) {
-        setLoadedDetail(res);
-      }
+      await onFetchDetail(order.orderId);
       setIsLoadingDetail(false);
     }
     setIsExpanded((prev) => !prev);

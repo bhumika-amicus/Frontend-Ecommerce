@@ -1,13 +1,13 @@
 import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Breadcrumbs from '../components/ui/Breadcrumbs';
 import OrderFilterTabs from '../components/orders/OrderFilterTabs';
 import OrderCard from '../components/orders/OrderCard';
 import OrderCardSkeleton from '../components/orders/OrderCardSkeleton';
-import OrderEmptyState from '../components/orders/OrderEmptyState';
 import StateMessage from '../components/ui/StateMessage';
 import { useOrders } from '../hooks/useOrders';
 import { usePageMeta } from '../hooks/usePageMeta';
+import { OrderFilterTab } from '../types/OrderDto';
 
 export default function Orders() {
   usePageMeta(
@@ -15,6 +15,7 @@ export default function Orders() {
     'Track delivery progress, inspect items, and reorder from your purchase history on Trendify.'
   );
 
+  const navigate = useNavigate();
   const location = useLocation();
   const {
     filteredOrders,
@@ -39,6 +40,7 @@ export default function Orders() {
     const stateOrderId = location.state?.orderId as number | undefined;
     if (stateOrderId) {
       void getOrderDetail(stateOrderId);
+      window.history.replaceState({}, '');
     }
   }, [location.state, getOrderDetail]);
 
@@ -73,7 +75,17 @@ export default function Orders() {
 
       {/* 3. Empty State */}
       {!isLoading && filteredOrders.length === 0 && !error && (
-        <OrderEmptyState tabName={activeTab} />
+        <StateMessage
+          title="No orders yet"
+          message={
+            activeTab && activeTab !== OrderFilterTab.All
+              ? `You have no ${activeTab.toLowerCase()} orders at the moment.`
+              : 'Looks like you have not placed any orders yet. Discover our latest products and exclusive deals!'
+          }
+          buttonText="Start Shopping"
+          onAction={() => navigate('/products')}
+          className="my-6"
+        />
       )}
 
       {/* 4. Orders List */}

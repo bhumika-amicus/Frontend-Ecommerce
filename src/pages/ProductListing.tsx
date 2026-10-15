@@ -1,4 +1,4 @@
-import { type ReactNode, useMemo, useCallback } from 'react'
+import { type ReactNode } from 'react'
 import { useFetch } from '../hooks/useFetch'
 import { useProductFilters } from '../hooks/useProductFilters'
 import { usePageMeta } from '../hooks/usePageMeta'
@@ -10,15 +10,11 @@ import StateMessage from '../components/ui/StateMessage'
 import Pagination from '../components/ui/Pagination'
 import Button from '../components/ui/Button'
 import FilterSidebar from '../components/product/FilterSidebar'
-import { getBrands, getCategories, searchProducts } from '../services/productApi'
-import type { Category } from '../types/Categories'
-import type { Brand } from '../types/Brands'
+import { searchProducts } from '../services/productApi'
 import type { Product } from '../types/Products'
 
 const PAGE_SIZE = 12
 const EMPTY_PRODUCTS: Product[] = []
-const EMPTY_CATEGORIES: Category[] = []
-const EMPTY_BRANDS: Brand[] = []
 
 function ProductListing() {
     usePageMeta(
@@ -45,32 +41,9 @@ function ProductListing() {
         [filterKey]
     )
 
-    const products = useMemo(
-        () => productsData?.products || EMPTY_PRODUCTS,
-        [productsData]
-    )
+    const products =  productsData?.products || EMPTY_PRODUCTS
     const totalRecords = productsData?.totalRecords || 0
     const totalPages = productsData?.totalPages || 0
-
-    const handleRetry = useCallback(() => {
-        refetchProducts()
-    }, [refetchProducts])
-
-    const {
-        data: categoriesData,
-        isLoading: isCategoriesLoading,
-        error: categoriesError,
-    } = useFetch(getCategories)
-
-    const categories = categoriesData || EMPTY_CATEGORIES
-
-    const {
-        data: brandsData,
-        isLoading: isBrandsLoading,
-        error: brandsError,
-    } = useFetch(getBrands)
-
-    const brands = brandsData || EMPTY_BRANDS
 
     let content: ReactNode
 
@@ -88,7 +61,7 @@ function ProductListing() {
                 title="Oops! Something went wrong."
                 message="We are having trouble connecting to our servers right now."
                 buttonText="Try Again"
-                onAction={handleRetry}
+                onAction={refetchProducts}
             >
                 <div className="inline-block text-left">
                     <p className="mb-2 font-medium">Troubleshooting Tips:</p>
@@ -158,14 +131,7 @@ function ProductListing() {
                     ) : null}
                 </div>
                 <div className="grid grid-cols-1 gap-6 items-start lg:grid-cols-[180px_1fr]">
-                    <FilterSidebar
-                        categories={categories}
-                        isCategoriesLoading={isCategoriesLoading}
-                        categoriesError={categoriesError}
-                        brands={brands}
-                        isBrandsLoading={isBrandsLoading}
-                        brandsError={brandsError}
-                    />
+                    <FilterSidebar />
                     <section className="min-w-0">
                         {content}
                     </section>

@@ -18,6 +18,11 @@ export function OrderProvider({ children }: { children: ReactNode }) {
   const { refetchCart } = useCartActions();
 
   const [orderDetailsCache, setOrderDetailsCache] = useState<Record<number, OrderDetailDto>>({});
+  const cacheRef = useRef(orderDetailsCache);
+  useEffect(() => {
+    cacheRef.current = orderDetailsCache;
+  }, [orderDetailsCache]);
+
   const [activeTab, setActiveTab] = useState<OrderFilterTab>(FilterTabs.All);
   const [reorderingId, setReorderingId] = useState<number | null>(null);
   const [orders, setOrders] = useState<OrderSummaryItemDto[]>(EMPTY_ORDERS);
@@ -28,8 +33,8 @@ export function OrderProvider({ children }: { children: ReactNode }) {
   // Fetch full details of a specific order by ID (with caching)
   const getOrderDetail = useCallback(
     async (orderId: number): Promise<OrderDetailDto | null> => {
-      if (orderDetailsCache[orderId]) {
-        return orderDetailsCache[orderId];
+      if (cacheRef.current[orderId]) {
+        return cacheRef.current[orderId];
       }
 
       try {
@@ -41,7 +46,7 @@ export function OrderProvider({ children }: { children: ReactNode }) {
         return null;
       }
     },
-    [orderDetailsCache]
+    []
   );
 
   const fetchOrders = useCallback(async () => {
@@ -79,31 +84,23 @@ export function OrderProvider({ children }: { children: ReactNode }) {
       setIsLoading(true);
       setError(null);
 
-      const statuses = activeTab === FilterTabs.All
-        ? [undefined]
+      const status = activeTab === FilterTabs.All
+        ? undefined
         : activeTab === FilterTabs.Processing
-          ? ['Placed']
-          : [activeTab.replace(/\s+/g, '')];
+          ? 'Placed'
+          : activeTab.replace(/\s+/g, '');
 
       try {
-        const responses = await Promise.all(
-          statuses.map((status) =>
-            getOrderHistory(
-              { status, page: 1, pageSize: 50 },
-              controller.signal
-            )
-          )
+        const response = await getOrderHistory(
+          { status, page: 1, pageSize: 50 },
+          controller.signal
         );
 
         if (controller.signal.aborted) return;
-        const uniqueOrders = new Map<number, OrderSummaryItemDto>();
-        responses.forEach(({ orders: responseOrders }) => {
-          responseOrders.forEach((order) => uniqueOrders.set(order.orderId, order));
-        });
-        const resultOrders = [...uniqueOrders.values()]
+        const resultOrders = (response?.orders || [])
           .filter((order) => {
-            const status = (order.orderStatus || '').toLowerCase();
-            return status !== 'processing' && status !== 'pending';
+            const s = (order.orderStatus || '').toLowerCase();
+            return s !== 'processing' && s !== 'pending';
           })
           .sort(
             (first, second) =>
@@ -128,8 +125,7 @@ export function OrderProvider({ children }: { children: ReactNode }) {
     void fetchOrdersData();
 
     return () => controller.abort();
-    // Removed user?.email — isLoggedIn already handles login/logout transitions.
-    // hasFetched ref is intentionally excluded (it's a ref, not state).
+    
   }, [activeTab, isLoggedIn, refreshCount]);
 
   const filteredOrders = orders;

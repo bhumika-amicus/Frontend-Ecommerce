@@ -1,9 +1,14 @@
 import { useState, memo, type ReactNode } from 'react'
 import { Star, ChevronUp, ChevronDown, X, ArrowRight } from 'lucide-react'
+import { useFetch } from '../../hooks/useFetch'
+import { getBrands, getCategories } from '../../services/productApi'
 import type { Category } from '../../types/Categories'
 import type { Brand } from '../../types/Brands'
 import { ProductSortBy, SortOrder } from '../../types/ProductSorting'
 import { useProductFilters } from '../../hooks/useProductFilters'
+
+const EMPTY_CATEGORIES: Category[] = []
+const EMPTY_BRANDS: Brand[] = []
 
 const PRICE_RANGES = [
     { label: 'Below ₹10,000', min: undefined, max: 10000 },
@@ -82,15 +87,6 @@ const SORT_OPTIONS: SortOptionConfig[] = [
     },
 ]
 
-interface FilterSidebarProps {
-    categories: Category[]
-    isCategoriesLoading: boolean
-    categoriesError?: string | null
-    brands: Brand[]
-    isBrandsLoading: boolean
-    brandsError?: string | null
-}
-
 type FilterSection = 'category' | 'brand' | 'price' | 'rating' | 'sort'
 
 interface FilterSectionHeaderProps {
@@ -139,14 +135,22 @@ function FilterSkeleton() {
     )
 }
 
-function FilterSidebar({
-    categories,
-    isCategoriesLoading,
-    categoriesError,
-    brands,
-    isBrandsLoading,
-    brandsError,
-}: FilterSidebarProps) {
+function FilterSidebar() {
+    const {
+        data: categoriesData,
+        isLoading: isCategoriesLoading,
+        error: categoriesError,
+    } = useFetch(getCategories)
+
+    const categories = categoriesData || EMPTY_CATEGORIES
+
+    const {
+        data: brandsData,
+        isLoading: isBrandsLoading,
+        error: brandsError,
+    } = useFetch(getBrands)
+
+    const brands = brandsData || EMPTY_BRANDS
     const {
         categoryId: selectedCategoryId,
         brandId,
