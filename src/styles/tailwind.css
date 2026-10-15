@@ -14,5 +14,9 @@
     --color-brand-orange-800: #a32e00;
     --color-brand-orange-900: #852800;
     
+    --color-status-success: #008a00;
+    --color-status-info: #0066ff;
+    --color-status-danger: #d32f2f;
+    
     --shadow-subtle: 0 2px 4px rgba(0,0,0,0.1);
 }

@@ -295,7 +295,7 @@ export default function ShippingStep({
 
   return (
     <section className="mb-6 min-w-0 overflow-hidden rounded border border-gray-200 bg-white shadow-sm">
-      <div className="flex items-center gap-2 bg-[#1a1a1a] px-4 py-3 font-bold tracking-wider text-white sm:px-6">
+      <div className="flex items-center gap-2 bg-gray-900 px-4 py-3 font-bold tracking-wider text-white sm:px-6">
         <Truck size={18} className="text-brand-orange" />
         <span>SHIPPING & DELIVERY</span>
       </div>

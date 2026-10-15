@@ -1,32 +1,36 @@
-import { CheckCircle2, Clock, Truck, XCircle } from 'lucide-react';
+import { CheckCircle2, Clock, Truck, XCircle, type LucideIcon } from 'lucide-react';
+import type { OrderStatus } from '../../types/OrderDto';
 
 interface OrderStatusBadgeProps {
-  status: string;
+  status: OrderStatus | string;
 }
 
-const STATUS_CONFIG: Record<
-  string,
-  { badgeColor: string; displayLabel: string; Icon: typeof Clock }
-> = {
+interface StatusConfigItem {
+  badgeColor: string;
+  displayLabel: string;
+  Icon: LucideIcon;
+}
+
+const STATUS_CONFIG: Record<string, StatusConfigItem> = {
   delivered: {
-    badgeColor: 'bg-[#008a00] text-white',
+    badgeColor: 'bg-status-success text-white',
     displayLabel: 'Delivered',
     Icon: CheckCircle2,
   },
   shipped: {
-    badgeColor: 'bg-[#0066ff] text-white',
+    badgeColor: 'bg-status-info text-white',
     displayLabel: 'Shipped',
     Icon: Truck,
   },
   cancelled: {
-    badgeColor: 'bg-[#d32f2f] text-white',
+    badgeColor: 'bg-status-danger text-white',
     displayLabel: 'Cancelled',
     Icon: XCircle,
   },
 };
 
-const DEFAULT_CONFIG = {
-  badgeColor: 'bg-[#ff5a00] text-white',
+const DEFAULT_CONFIG: StatusConfigItem = {
+  badgeColor: 'bg-brand-orange text-white',
   displayLabel: 'Processing',
   Icon: Clock,
 };

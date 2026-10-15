@@ -29,7 +29,7 @@ export default function OrderSummary({
   return (
     <aside className="w-full min-w-0 lg:sticky lg:top-5">
       <div className="overflow-hidden rounded border border-gray-200 bg-white shadow-sm">
-        <div className="flex items-center gap-2 bg-[#1a1a1a] px-4 py-3 font-bold tracking-wider text-white sm:px-6">
+        <div className="flex items-center gap-2 bg-gray-900 px-4 py-3 font-bold tracking-wider text-white sm:px-6">
           <ShoppingBag size={18} className="text-brand-orange" />
           <span>ORDER SUMMARY</span>
         </div>
@@ -64,7 +64,7 @@ export default function OrderSummary({
 
           <div className="flex justify-between items-center mb-8">
             <span className="font-bold text-xl text-gray-800">Total:</span>
-            <span className="font-bold text-2xl text-[#ff6b00]">{formatINR(total)}</span>
+            <span className="font-bold text-2xl text-brand-orange">{formatINR(total)}</span>
           </div>
 
           {currentStep === 1 && (

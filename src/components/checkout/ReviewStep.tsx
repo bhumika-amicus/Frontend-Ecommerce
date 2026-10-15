@@ -29,7 +29,7 @@ interface ReviewSectionProps {
 function ReviewSection({ title, icon, onEdit, children }: ReviewSectionProps) {
   return (
     <div className="overflow-hidden rounded border border-gray-200 bg-white shadow-sm">
-      <div className="flex items-center justify-between bg-[#1a1a1a] px-4 py-3 font-bold tracking-wider text-white sm:px-6">
+      <div className="flex items-center justify-between bg-gray-900 px-4 py-3 font-bold tracking-wider text-white sm:px-6">
         <span className="flex items-center gap-2">
           {icon}
           <span>{title}</span>

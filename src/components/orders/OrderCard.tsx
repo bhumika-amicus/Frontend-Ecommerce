@@ -89,7 +89,7 @@ function OrderCard({
           <p className="text-xs font-medium text-gray-500 mb-1">
             {itemCount} {itemCount === 1 ? 'Item' : 'Items'}
           </p>
-          <p className="font-bold text-base sm:text-lg text-[#ff5a00]">
+          <p className="font-bold text-base sm:text-lg text-brand-orange">
             Total: {formatINR(order.totalAmount)}
           </p>
         </div>
@@ -120,7 +120,7 @@ function OrderCard({
           <button
             type="button"
             onClick={handleToggleExpand}
-            className="inline-flex items-center gap-1.5 bg-[#ff5a00] hover:bg-[#e65100] text-white font-bold text-xs uppercase px-4 py-2.5 rounded tracking-wider transition-colors shadow-sm cursor-pointer"
+            className="inline-flex items-center gap-1.5 bg-brand-orange hover:bg-brand-orange-hover text-white font-bold text-xs uppercase px-4 py-2.5 rounded tracking-wider transition-colors shadow-sm cursor-pointer"
           >
             <span>{isExpanded ? 'HIDE DETAILS' : 'VIEW DETAILS'}</span>
             {isExpanded ? <ChevronUp size={14} aria-hidden="true" /> : <ChevronDown size={14} aria-hidden="true" />}
@@ -131,7 +131,7 @@ function OrderCard({
               type="button"
               disabled={isReordering}
               onClick={() => onReorder(order.orderId)}
-              className="inline-flex items-center gap-1.5 bg-[#1a1a1a] hover:bg-black text-white font-bold text-xs uppercase px-4 py-2.5 rounded tracking-wider transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
+              className="inline-flex items-center gap-1.5 bg-gray-900 hover:bg-black text-white font-bold text-xs uppercase px-4 py-2.5 rounded tracking-wider transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
             >
               {isReordering ? (
                 <>

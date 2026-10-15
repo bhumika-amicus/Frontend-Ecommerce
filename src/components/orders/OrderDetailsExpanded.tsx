@@ -145,7 +145,7 @@ function OrderDetailsExpanded({
           </div>
           <div className="border-t border-gray-200 pt-2 flex justify-between font-bold text-sm text-gray-900">
             <span>Total Paid:</span>
-            <span className="text-[#ff5a00] text-base">{formatINR(orderDetail.totalAmount ?? 0)}</span>
+            <span className="text-brand-orange text-base">{formatINR(orderDetail.totalAmount ?? 0)}</span>
           </div>
         </div>
       </div>

@@ -27,7 +27,7 @@ export default function OrderFilterTabs({ activeTab, onTabChange }: OrderFilterT
               onClick={() => onTabChange(tab)}
               className={`px-5 py-2 text-sm font-semibold rounded transition-all duration-150 ${
                 isActive
-                  ? 'bg-[#ff5a00] text-white shadow-sm'
+                  ? 'bg-brand-orange text-white shadow-sm'
                   : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
               }`}
             >
