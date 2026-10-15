@@ -2,9 +2,10 @@ import { Toaster } from 'react-hot-toast'
 
 export default function CustomToaster() {
   return (
-    <Toaster 
-      position="top-right" 
+    <Toaster
+      position="bottom-right"
       toastOptions={{
+        duration: 2000,
         style: {
           border: '1px solid #ff6b00',
           padding: '16px',

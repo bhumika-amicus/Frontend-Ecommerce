@@ -17,8 +17,8 @@ function ShopByCategory({
   onRetry,
 }: ShopByCategoryProps) {
   return (
-    <section className="mx-auto max-w-350 px-12 pt-5 pb-15">
-      <div className="section-heading">
+    <section className="mx-auto max-w-350 px-12 pt-2 pb-12 max-[650px]:px-4.5 max-[650px]:pt-1 max-[650px]:pb-8">
+      <div className="section-heading mb-6!">
         <h2>Shop by Category</h2>
       </div>
 
