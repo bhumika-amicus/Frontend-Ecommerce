@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
-import Card from '../ui/Card'
-import StateMessage from '../ui/StateMessage'
+import Card from '../common/Card'
+import StateMessage from '../common/StateMessage'
 import type { Category } from '../../types/Categories'
 
 interface ShopByCategoryProps {

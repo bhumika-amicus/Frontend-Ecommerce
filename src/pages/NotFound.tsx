@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { Home, ShoppingBag, AlertCircle } from 'lucide-react'
-import Button from '../components/ui/Button'
+import Button from '../components/common/Button'
 import { usePageMeta } from '../hooks/usePageMeta'
 
 interface NotFoundProps {

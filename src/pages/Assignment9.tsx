@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { getCountries, getStates, getCities } from '../services/locationApi'
 import { useFetch } from '../hooks/useFetch'
 import { usePageMeta } from '../hooks/usePageMeta'
-import Breadcrumbs from '../components/ui/Breadcrumbs'
+import Breadcrumbs from '../components/common/Breadcrumbs'
 
 interface ShippingFormData {
     fullName: string

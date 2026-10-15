@@ -1,6 +1,6 @@
 import { lazy } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import CustomToaster from './components/ui/CustomToaster'
+import CustomToaster from './components/common/CustomToaster'
 import Home from './pages/Home'
 import ProductListing from './pages/ProductListing'
 import ProductDetail from './pages/ProductDetail'

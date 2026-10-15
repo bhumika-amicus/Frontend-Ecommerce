@@ -1,7 +1,7 @@
 import type { UseFormRegister } from 'react-hook-form';
 import { Banknote, CreditCard, Smartphone, ArrowLeft } from 'lucide-react';
 import { PaymentMethod, type ShippingFormData } from '../../types/OrderDto';
-import Button from '../ui/Button';
+import Button from '../common/Button';
 
 interface PaymentStepProps {
   register: UseFormRegister<ShippingFormData>;

@@ -1,8 +1,8 @@
 import { useState, memo } from 'react'
 import type { Product } from '../../types/Products'
-import Button from '../ui/Button'
-import Card from '../ui/Card'
-import RatingStars from '../ui/RatingStars'
+import Button from '../common/Button'
+import Card from '../common/Card'
+import RatingStars from '../common/RatingStars'
 import QuantitySelector from '../cart/QuantitySelector'
 import placeholderImg from '../../assets/placeholder.jpg'
 

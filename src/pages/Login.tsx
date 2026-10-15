@@ -4,7 +4,7 @@ import { useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { Eye, EyeOff } from 'lucide-react';
-import Button from '../components/ui/Button';
+import Button from '../components/common/Button';
 import { DEV_LOGIN_EMAIL, DEV_LOGIN_PASSWORD } from '../config';
 
 export default function Login() {

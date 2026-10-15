@@ -1,4 +1,4 @@
-import Button from '../ui/Button'
+import Button from '../common/Button'
 import { formatINR } from '../../utils/formatters'
 
 export interface CartOrderSummaryProps {

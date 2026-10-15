@@ -1,4 +1,4 @@
-import Breadcrumbs from '../ui/Breadcrumbs';
+import Breadcrumbs from '../common/Breadcrumbs';
 
 export default function CheckoutSkeleton() {
   return (

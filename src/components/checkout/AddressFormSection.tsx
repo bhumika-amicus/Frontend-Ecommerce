@@ -8,7 +8,7 @@ import type {
 import { Pencil, Plus, Check, X, Loader2 } from 'lucide-react';
 import { getCountries, getStates, getCities } from '../../services/locationApi';
 import { useFetch } from '../../hooks/useFetch';
-import Button from '../ui/Button';
+import Button from '../common/Button';
 import type { ShippingFormData } from '../../types/OrderDto';
 
 interface AddressFormSectionProps {

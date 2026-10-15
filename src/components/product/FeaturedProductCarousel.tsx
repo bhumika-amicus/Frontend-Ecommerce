@@ -11,7 +11,7 @@ import 'swiper/css/pagination'
 import type { Product } from '../../types/Products'
 import ProductCard from './ProductCard'
 import ProductCardSkeleton from './ProductCardSkeleton'
-import StateMessage from '../ui/StateMessage'
+import StateMessage from '../common/StateMessage'
 
 interface FeaturedProductCarouselProps {
   products: Product[]

@@ -1,5 +1,5 @@
-import Button from '../components/ui/Button'
-import Card from '../components/ui/Card'
+import Button from '../components/common/Button'
+import Card from '../components/common/Card'
 import { usePageMeta } from '../hooks/usePageMeta'
 
 export default function Assignment3() {

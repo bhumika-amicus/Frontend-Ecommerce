@@ -2,7 +2,7 @@ import type { UseFormGetValues } from 'react-hook-form';
 import { Pencil, MapPin, CreditCard, Package, Phone, Mail, Truck, ArrowLeft } from 'lucide-react';
 import type { CartItemDto } from '../../types/CartDto';
 import { PaymentMethod, formatINR, type ShippingFormData } from '../../types/OrderDto';
-import Button from '../ui/Button';
+import Button from '../common/Button';
 
 interface ReviewStepProps {
   getValues: UseFormGetValues<ShippingFormData>;

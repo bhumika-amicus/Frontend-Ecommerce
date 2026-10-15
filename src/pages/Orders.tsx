@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import Breadcrumbs from '../components/ui/Breadcrumbs';
+import Breadcrumbs from '../components/common/Breadcrumbs';
 import OrderFilterTabs from '../components/orders/OrderFilterTabs';
 import OrderCard from '../components/orders/OrderCard';
 import OrderCardSkeleton from '../components/orders/OrderCardSkeleton';
-import StateMessage from '../components/ui/StateMessage';
+import StateMessage from '../components/common/StateMessage';
 import { useOrders } from '../hooks/useOrders';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { OrderFilterTab } from '../types/OrderDto';

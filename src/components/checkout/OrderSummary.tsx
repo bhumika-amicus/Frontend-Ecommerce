@@ -1,7 +1,7 @@
 import { ShoppingBag, ArrowRight, ShieldCheck, Loader2 } from 'lucide-react';
 import type { CartItemDto } from '../../types/CartDto';
 import { formatINR } from '../../types/OrderDto';
-import Button from '../ui/Button';
+import Button from '../common/Button';
 
 interface OrderSummaryProps {
   cartItems: CartItemDto[];

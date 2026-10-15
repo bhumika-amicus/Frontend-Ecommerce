@@ -1,7 +1,7 @@
 
 import { BASE_URL } from '../config';
 import { getAccessToken } from '../utils/token';
-import { refreshAuthToken } from './auth';
+import { refreshAuthToken } from './authApi';
 
 export type ApiFetchOptions = RequestInit & {
   auth?: boolean;

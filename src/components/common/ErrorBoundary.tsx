@@ -1,7 +1,7 @@
 import { Component } from 'react';
 import type { ReactNode, ErrorInfo } from 'react';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
-import Button from '../ui/Button';
+import Button from './Button';
 
 interface ErrorBoundaryProps {
   children: ReactNode;

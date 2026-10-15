@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import type { ReactNode } from 'react';
 import { getAccessToken, clearTokens, getStoredUser, setStoredUser } from '../utils/token';
-import { loginApi } from '../services/auth';
+import { loginApi } from '../services/authApi';
 import toast from 'react-hot-toast';
 import { DEV_LOGIN_EMAIL, DEV_LOGIN_PASSWORD } from '../config';
 import { AuthContext } from '../hooks/useAuth';
