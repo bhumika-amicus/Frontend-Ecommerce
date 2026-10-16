@@ -66,7 +66,7 @@ function ProductCard({
 
   return (
     <Card variant="elevated" className="transition-transform duration-200 ease-out hover:z-10 hover:scale-[1.02] motion-reduce:transition-none">
-      <Link to={`/products/${product.id}`} className="relative flex h-40 w-full items-center justify-center border-b border-[#f1f1f1] bg-white max-[650px]:h-48 group">
+      <Link to={`/products/${product.id}`} className="relative flex h-40 w-full items-center justify-center border-b border-border-light bg-white max-[650px]:h-48 group">
         <img
           src={placeholderImg}
           alt={product.name}
@@ -98,7 +98,7 @@ function ProductCard({
           {/* )} */}
           {/* <span className="text-base font-bold text-brand-orange">{formattedTotalPrice}</span>
           {isSale && product.discountPercentage && (
-            <span className="text-[11px] font-bold text-[#388e3c]">
+            <span className="text-2xs font-bold text-status-success">
               ({Math.round(product.discountPercentage)}% off)
             </span>
           )} */}

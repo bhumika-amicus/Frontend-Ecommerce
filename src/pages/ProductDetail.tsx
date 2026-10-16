@@ -61,7 +61,7 @@ function ProductDetailContent({ product }: ProductDetailContentProps) {
 
       <Card variant="elevated" className="mt-6 p-6 sm:p-8">
         <div className="flex flex-col gap-8 md:flex-row md:gap-12 lg:gap-16">
-          <div className="flex flex-1 items-center justify-center rounded border border-gray-100 bg-[#f9f9f9] p-8 md:p-12">
+          <div className="flex flex-1 items-center justify-center rounded border border-gray-100 bg-surface-muted p-8 md:p-12">
             <img
               src={placeholderImg}
               alt={product.name}

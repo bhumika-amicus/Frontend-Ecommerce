@@ -150,7 +150,7 @@ function OrderCard({
           {isProcessingOrShipped && (
             <button
               type="button"
-              className="inline-flex items-center gap-1.5 bg-[#1a1a1a] text-white font-bold text-xs uppercase px-4 py-2.5 rounded tracking-wider shadow-sm cursor-default"
+              className="inline-flex items-center gap-1.5 bg-text-main text-white font-bold text-xs uppercase px-4 py-2.5 rounded tracking-wider shadow-sm cursor-default"
             >
               <Truck size={13} aria-hidden="true" />
               <span>TRACK ORDER</span>

@@ -31,7 +31,7 @@ const serviceHighlights: ServiceHighlight[] = [
 
 function ServiceHighlights() {
   return (
-    <section className="bg-[#4b4c4e] px-5 py-9 text-white md:px-6 md:py-12">
+    <section className="bg-surface-dark px-5 py-9 text-white md:px-6 md:py-12">
       <div className="mx-auto grid max-w-300 grid-cols-1 gap-7 md:grid-cols-3 md:gap-10">
         {serviceHighlights.map((service) => (
           <div

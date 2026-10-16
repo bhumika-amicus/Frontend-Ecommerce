@@ -31,7 +31,7 @@ function FeaturedProductCarousel({
   return (
     <section
       id="products"
-      className="w-full px-11 py-16 max-[650px]:px-4.5 [&_.swiper-pagination-bullet-active]:bg-[#555555]!"
+      className="w-full px-11 py-16 max-[650px]:px-4.5 [&_.swiper-pagination-bullet-active]:bg-text-muted!"
     >
       <div className="section-heading">
         <h2>Featured Products</h2>

@@ -11,11 +11,11 @@ function CategoryGrid() {
           className="p-6 min-[501px]:p-8 min-[1001px]:p-10"
         >
           <div className="flex grow flex-col gap-6">
-            <h3 className="m-0 text-[28px] font-bold leading-[1.2]">
+            <h3 className="m-0 text-2xl min-[501px]:text-3xl font-bold leading-tight">
               New Arrivals
             </h3>
 
-            <p className="m-0 mb-2.5 text-[15px] leading-[1.4] text-[#444444]">
+            <p className="m-0 mb-2.5 text-sm min-[501px]:text-base leading-normal text-text-muted">
               Check out the latest additions.
             </p>
           </div>
@@ -30,11 +30,11 @@ function CategoryGrid() {
           className="p-6 min-[501px]:p-8 min-[1001px]:p-10"
         >
           <div className="flex grow flex-col gap-6">
-            <h3 className="m-0 text-[28px] font-bold leading-[1.2]">
+            <h3 className="m-0 text-2xl min-[501px]:text-3xl font-bold leading-tight">
               Best Sellers
             </h3>
 
-            <p className="m-0 mb-2.5 text-[15px] leading-[1.4] text-[#444444]">
+            <p className="m-0 mb-2.5 text-sm min-[501px]:text-base leading-normal text-text-muted">
               Shop our most popular items.
             </p>
           </div>
@@ -49,11 +49,11 @@ function CategoryGrid() {
           className="p-6 min-[501px]:p-8 min-[1001px]:p-10"
         >
           <div className="flex grow flex-col gap-6">
-            <h3 className="m-0 text-[28px] font-bold leading-[1.2]">
+            <h3 className="m-0 text-2xl min-[501px]:text-3xl font-bold leading-tight">
               Gift Cards
             </h3>
 
-            <p className="m-0 mb-2.5 text-[15px] leading-[1.4] text-[#444444]">
+            <p className="m-0 mb-2.5 text-sm min-[501px]:text-base leading-normal text-text-muted">
               Give the perfect gift to someone special.
             </p>
           </div>
@@ -68,11 +68,11 @@ function CategoryGrid() {
           className="p-6 min-[501px]:p-8 min-[1001px]:p-10"
         >
           <div className="flex grow flex-col gap-6">
-            <h3 className="m-0 text-[28px] font-bold leading-[1.2]">
+            <h3 className="m-0 text-2xl min-[501px]:text-3xl font-bold leading-tight">
               Sale Items
             </h3>
 
-            <p className="m-0 mb-2.5 text-[15px] leading-[1.4] text-[#444444]">
+            <p className="m-0 mb-2.5 text-sm min-[501px]:text-base leading-normal text-text-muted">
               Discover great deals on top products.
             </p>
           </div>

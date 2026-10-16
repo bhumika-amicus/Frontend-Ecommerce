@@ -44,7 +44,7 @@ export default function Header() {
   }
 
   return (
-    <header className="relative w-full border-b border-[#e5e5e5] bg-white">
+    <header className="relative w-full border-b border-border-subtle bg-white">
       {/* Main header row */}
       <div className="mx-auto flex w-full max-w-360 items-center justify-between px-4.5 py-3 sm:px-6 md:h-17.5 md:px-10 md:py-0">
 
@@ -64,7 +64,7 @@ export default function Header() {
           className="absolute left-1/2 -translate-x-1/2 md:static md:translate-x-0 flex shrink-0 items-center no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange"
           onClick={closeMenu}
         >
-          <span className="text-2xl font-black italic tracking-tight text-[#ff5a00]">
+          <span className="text-2xl font-black italic tracking-tight text-brand-orange">
             Trendify
           </span>
         </Link>
@@ -135,7 +135,7 @@ export default function Header() {
 
       {/* Mobile Menu Dropdown */}
       {isMobileMenuOpen && (
-        <div className="absolute left-0 top-full z-50 w-full border-b border-[#e5e5e5] bg-white shadow-md md:hidden">
+        <div className="absolute left-0 top-full z-50 w-full border-b border-border-subtle bg-white shadow-md md:hidden">
           <nav className="flex flex-col px-4.5 py-2 sm:px-6">
             <NavLink to="/products" onClick={closeMenu} className={getMobileNavClass}>
               <Store size={20} />

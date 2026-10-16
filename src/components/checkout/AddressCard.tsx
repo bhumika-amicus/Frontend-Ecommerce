@@ -51,7 +51,7 @@ export default function AddressCard({
 
           <div className="flex items-center gap-2">
             {address.isDefault && (
-              <span className="inline-flex items-center rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold tracking-wider text-emerald-700 border border-emerald-200 uppercase">
+              <span className="inline-flex items-center rounded-full bg-emerald-50 px-2 py-0.5 text-2xs font-bold tracking-wider text-emerald-700 border border-emerald-200 uppercase">
                 Default
               </span>
             )}

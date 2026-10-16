@@ -43,7 +43,7 @@ function RatingStars({
       </span>
 
       {showScore && (
-        <span className="ml-2 text-sm font-semibold text-[#555555]">
+        <span className="ml-2 text-sm font-semibold text-text-muted">
           {scoreFormat === 'fraction' ? `${safeRating.toFixed(1)} / ${maxRating}` : safeRating.toFixed(1)}
         </span>
       )}

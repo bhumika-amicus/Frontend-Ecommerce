@@ -23,7 +23,7 @@ const footerColumns = [
 
 function Footer() {
   return (
-    <footer className="bg-[#f4f5f7] px-6 py-10 text-[#111111] md:px-12 md:py-15">
+    <footer className="bg-surface-subtle px-6 py-10 text-text-main md:px-12 md:py-15">
       <div className="mx-auto grid max-w-350 grid-cols-1 gap-10 min-[769px]:grid-cols-2 min-[1025px]:grid-cols-[1fr_1fr_1fr_2fr] min-[1025px]:gap-10">
 
         {footerColumns.map((column) => (
@@ -37,7 +37,7 @@ function Footer() {
                 <a
                   key={link.text}
                   href={link.href}
-                  className="text-sm font-semibold text-brand-orange no-underline transition-opacity duration-200 hover:text-[#333333] hover:opacity-80"
+                  className="text-sm font-semibold text-brand-orange no-underline transition-opacity duration-200 hover:text-text-body hover:opacity-80"
                 >
                   {link.text}
                 </a>
@@ -47,7 +47,7 @@ function Footer() {
         ))}
 
         {/* Column 4: Company Info & Copyright */}
-        <div className="flex flex-col text-[13px] leading-[1.6] text-[#333333]">
+        <div className="flex flex-col text-xs sm:text-sm leading-relaxed text-text-body">
           <p className="m-0 mb-4">
             Copyright © 2026 Trendify
           </p>

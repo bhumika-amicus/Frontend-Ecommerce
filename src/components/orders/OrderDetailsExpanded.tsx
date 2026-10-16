@@ -115,7 +115,7 @@ function OrderDetailsExpanded({
               </span>
             </p>
             {orderDetail.payment?.transactionReference && (
-              <p className="flex justify-between text-[11px] text-gray-500">
+              <p className="flex justify-between text-xs text-gray-500">
                 <span>Ref:</span>
                 <span className="font-mono truncate max-w-[180px]">{orderDetail.payment.transactionReference}</span>
               </p>

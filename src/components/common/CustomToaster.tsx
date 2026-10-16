@@ -7,21 +7,21 @@ export default function CustomToaster() {
       toastOptions={{
         duration: 2000,
         style: {
-          border: '1px solid #ff6b00',
+          border: '1px solid #ff4f0a',
           padding: '16px',
-          color: '#333',
-          boxShadow: '0 4px 6px -1px rgba(255, 107, 0, 0.1), 0 2px 4px -1px rgba(255, 107, 0, 0.06)',
+          color: '#333333',
+          boxShadow: '0 4px 6px -1px rgba(255, 79, 10, 0.1), 0 2px 4px -1px rgba(255, 79, 10, 0.06)',
         },
         success: {
           iconTheme: {
-            primary: '#ff6b00',
-            secondary: '#fff',
+            primary: '#ff4f0a',
+            secondary: '#ffffff',
           },
         },
         error: {
           iconTheme: {
-            primary: '#ef4444',
-            secondary: '#fff',
+            primary: '#dc2626',
+            secondary: '#ffffff',
           },
         },
       }}
